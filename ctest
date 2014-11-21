@@ -1,4 +1,9 @@
 #!/bin/bash
-#
-#	ah, gonna compile & run some test command line app here
-#
+
+
+g++ -c -std=c++0x Ignition.cpp VectorVictor2.cpp ctest.cpp
+g++ ctest.o VectorVictor2.o Ignition.o -o ctst
+./ctst
+#!g++ -c -std=c++0x Starfighter.cpp Ignition_Engine.cpp Game_Objects.cpp Inertia_moment.cpp SFML_Tools.cpp VectorVictor2.cpp 
+
+exit 0
