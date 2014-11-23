@@ -1,0 +1,5 @@
+#!/bin/bash
+
+g++ Starfighter.o -o Starfighter -lsfml-graphics -lsfml-window -lsfml-system -lsfml-audio
+
+exit 0

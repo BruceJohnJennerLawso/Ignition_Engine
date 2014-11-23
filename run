@@ -1,0 +1,5 @@
+#!/bin/bash
+
+xterm './Starfighter' -maximized
+
+exit 0
