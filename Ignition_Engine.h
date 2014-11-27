@@ -18,7 +18,7 @@ class Ignition_engine
 	bool map_view;
 	long double deltat;	
 	double Redraw_interval;	
-	int zoom_exponent;
+	long long int zoom_exponent;
 	int time_acceleration_exponent;
 	long double simulation_time;
 	std::string Program_version;

@@ -11,7 +11,7 @@
 
 
 
-///////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 
 key_commands::key_commands()
 {	enter = false;
@@ -427,7 +427,7 @@ void Log_keystroke(sf::Keyboard::Key input_event, key_commands * icommands, bool
 	}
 }
 
-// SFML_Window Utility class ///////////////////////////////////////////////
+// SFML_Window Utility class ///////////////////////////////////////////////////
 
 SFML_Window::SFML_Window(std::string title, unsigned int h, unsigned int w)
 {	Title = title;
@@ -451,7 +451,7 @@ void SFML_Window::Set_origin(long double x, long double y)
 	origin.y = y;
 }
 
-void SFML_Window::Set_aperture_dimensions(unsigned int ap_w, unsigned int ap_h)
+void SFML_Window::Set_aperture_dimensions(long long unsigned int ap_w, long long unsigned int ap_h)
 {	Aperture_width = ap_w;
 	Aperture_height = ap_h;
 }
@@ -460,7 +460,7 @@ SFML_Window::~SFML_Window()
 {	delete window;
 }
 
-// SFML splash screen class ////////////////////////////////////////////////
+// SFML splash screen class ////////////////////////////////////////////////////
 
 SFML_loadscreen::SFML_loadscreen(std::string texture_path, bool fadein, double fade_in_length, double fade_out_length)
 {	Active = true;
@@ -539,7 +539,7 @@ SFML_loadscreen::~SFML_loadscreen()
 	delete Fade_clock;
 }
 
-// SFML title screen class /////////////////////////////////////////////////
+// SFML title screen class /////////////////////////////////////////////////////
 
 SFML_titlescreen::SFML_titlescreen(std::string texture_path, bool fadein, double fade_in_length, double fade_out_length, std::string title, std::string font_path, unsigned int textr, unsigned int textg, unsigned int textb, unsigned int pfont, sf::Vector2f Title_pos)
 {	Active = true;
@@ -639,7 +639,7 @@ SFML_titlescreen::~SFML_titlescreen()
 	delete Fade_clock;
 }
 
-// SFML Audio Class ////////////////////////////////////////////////////////
+// SFML Audio Class ////////////////////////////////////////////////////////////
 
 SFML_gameaudio::SFML_gameaudio(std::string Intro_audiopath, std::string Game_musicpath)
 {	Intro_audio = new sf::SoundBuffer();

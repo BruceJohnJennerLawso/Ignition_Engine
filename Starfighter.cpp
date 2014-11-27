@@ -1,10 +1,10 @@
-// Lightspeed //////////////////////////////////////////////////////////////////
-// It aint like dusting crops //////////////////////////////////////////////////
+// Ignition ////////////////////////////////////////////////////////////////////
+// Going to space today ////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
 
 #include "Ignition_Engine.h"
 
-#ifdef LINUX
+#ifdef LINUX	// sketchy as hell, but it works
 #include "Ignition_Engine.cpp"
 #include "Inertia_moment.cpp"
 #include "SFML_Tools.cpp"
@@ -12,33 +12,56 @@
 #include "VectorVictor2.cpp"
 #endif
 
-#define  Starfighter_version " 0.06"
+#define  Starfighter_version " 0.10"	// see? progress ;)
 
-// Engine Pointers /////////////////////////////////////////////////////////
+// Engine Pointers /////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////
+
+// these pointers really need to be reduced to bare minimum if possible
 
 Ignition_engine * Starfighter;
+// the main ignition engine object
+
 
 SFML_titlescreen * Title_screen;
+// the splash screen before the program really gets goings 
 sf::Clock * Utility_clock;
-
+// cant recall what this does. I think its related to the info displays refresh rate
 sf::Font * displays_font;
-std::vector<sf::Text> Data_displays;
+// the font used to draw default displays (the FPS, simtime meters,etc.)
+std::vector<sf::Text> Data_displays;	
+// the data displays independent of the vessels own controls
 
 
 sf::Texture * GCW_Flags_tex;
+// main texture for any & all flag textures that the sim uses in map view
 
 sf::Texture * XWing_tex;
+// the actual texture of the dg ship itself, passed on to the object at construction itself
+// specifically, would be more effective to pass sprites by value
 sf::Texture * XWing_status_tex;
+// the thingy that gets drawn at bottom left on the dgs screen
 sf::Texture * XWing_panel_tex;
+// the background panel that the DG draws so that the onscreen text displays
+// arent drawn onto stars
 
-sf::Sprite * Rebel_flag_sprite;
+
+sf::Sprite * Rebel_flag_sprite; 
 sf::Sprite * Imperial_flag_sprite;
-TVessel * Rogue9, * Champion7, * Champion8, * Rogue_leader;
-TVessel * Eyeball1, * Eyeball2;
+// individual sprites taken from the flags texture mentioned above
+// should be renamed eventually
+
+
+TVessel * GL1, * GL2;
+
 
 CKeplerian_Object * Earth;
+// its this pale little blue dot out there somewhere
+// rumours are that it isnt a bad place to live.
 
 vector2 spawn_point;
+// the position where newly spawned vessels appear
+// needs to be Victored (whole thing is a mess really)
 double init_theta;
 bool spawn_flipper;
 
@@ -67,29 +90,42 @@ bool spawn_flipper;
 
 void Intro_splash_screen();
 void Update_audio();
+// havent a clue what these do. Better find out
+
 
 void Set_current_vessel(TVessel * target_vessel);
-
+// Pretty much what it says on the mobius strip
 
 
 void Update_text_displays()
 {	switch(Starfighter->Displays_active)
-	{	case true:
+	{	// checked if we actually needed to bother, displays arent always on
+		
+		case true:
 		{	unsigned int fps = (1/Starfighter->deltat);
 			std::string framerate;	framerate = "FPS: ";	framerate.append(std::to_string(fps));
 			(Data_displays.at(0)).setString(framerate);
+			// the FPS meter is set here
 			(Data_displays.at(1)).setString(Starfighter->Current_vessel->Get_vessel_name());
+			// Name of the current vessel. Maybe redundant if independent cameras ever become a thing in Ignition
 			std::string zoomfactor; zoomfactor = "Map scale: "; zoomfactor.append(std::to_string((long int)pow(10, Starfighter->zoom_exponent)));
 			(Data_displays.at(2)).setString(zoomfactor);
+			// the zoom factor of the map. Kinda lacks clarity though...
 			std::string timewarp; timewarp = "Time Accel: "; timewarp.append(std::to_string((long int)pow(10, Starfighter->time_acceleration_exponent)));	timewarp.append("x");
 			(Data_displays.at(3)).setString(timewarp);
+			// relative time acceleration
 			std::string simtime = "Simulation Time: ";
 			simtime.append(std::to_string((long int)Starfighter->simulation_time));	simtime.append(" s");
 			(Data_displays.at(4)).setString(simtime);
+			// how long the sim has been going for
+			// this would be a good spot to integrate that time class from
+			// my countdown project. Seconds are a bit unwieldy in this case
 			
 		}
 		case false:
-		{	
+		{	// I dunno.
+			// this is probably pointless, given that nothing of the sort
+			// is drawn when displays are off...
 		}
 	}
 }
@@ -98,10 +134,11 @@ void Redraw_text_displays(bool in_map_view, SFML_Window * draw_window)
 {	switch(Starfighter->Displays_active)
 	{	case true:
 		{	for(std::vector<sf::Text>::iterator it = Data_displays.begin(); it != Data_displays.end(); ++it)
-			draw_window->window->draw(*it);
+			{	draw_window->window->draw(*it);
+			}	// iterate through our data displays & throw em up onscreen
 		}
 		case false:
-		{
+		{	// again, useless
 		}
 	}
 }
@@ -109,47 +146,80 @@ void Redraw_text_displays(bool in_map_view, SFML_Window * draw_window)
 // 0	frame rate
 // 1	map scale
 // 2	time acceleration factor
-// 3	mission time
+// 3	simulation time
 // 4
 // 5
 
+
+
 int main()
-{	Init_assets();								// Create the assets used by the game
+{	Init_assets();								
+	// Create the assets used by the game
 	std::string Window_title = "Ignition Engine";
+	// gotta give our baby a name
 	Window_title.append(Starfighter_version);
+	// stick the version numbah on the end
 	Starfighter = new Ignition_engine(Window_title, 609, 1024, Starfighter_version, 0.2, "./Data/Audio/Menu_Fade_In.ogg",  "./Data/Audio/Game_music_Yavin.ogg");	
+	// give birth to our beautiful new engine object. Isnt it cute?
+	
+	
 	while(Starfighter->Main_Window->window->isOpen())
-	{	sf::Event event;
+	{	// open up the SFML window embedded in the ignition object
+		sf::Event event;	
+		// to be honest, Ive never had a clue exactly why this is inited every frame
+		
+		
 		while (Starfighter->Main_Window->window->pollEvent(event))
-		{	if (event.type == sf::Event::Closed)
+		{	// request the main ignition window for events
+			if (event.type == sf::Event::Closed)
             {	Starfighter->Main_Window->window->close();
-				
+				// the little x button at the top shuts this s*** down
 			}
 			if(event.type == sf::Event::KeyPressed)
 			{	Log_keystroke(event.key.code, Starfighter->commands, true);
+				// way to complicated to explain here,
+				// basically we pass info about keypresses on to the ignition engine
 			}
 			if(event.type == sf::Event::KeyReleased)
 			{	Log_keystroke(event.key.code, Starfighter->commands, false);
+				// same as above, just keyreleases now
 			}
 			if(Title_screen->finished == true)
 			{	Starfighter->Ignition();	
+				// Buckle up ;)
+				// basically the above method kicks the whole show into gear
 			}
         }
    		Starfighter->Main_Window->window->setSize(sf::Vector2u(Starfighter->Main_Window->Width, Starfighter->Main_Window->Height));
+   		// ahh, I think this is the part where the window is forced back to its
+   		// standard size as specified in the SFML window object.
+   		
+   		// this might be really cool to do as a smooth resizing animation so 
+   		// that the center of the view slides back into place when the user
+   		// tries to resize the window. Very complex, but doable later on methinks
+		
 		Starfighter->Main_Window->window->clear();
+		// gotta erase the board in order to start doing stuff again
 		Title_screen->Update_screen();
 		Starfighter->Main_Window->window->draw(*(Title_screen->splash_sprite));
 		Starfighter->Main_Window->window->draw(*(Title_screen->Title_text));
+		// this is wastefull and hideous. Needs to be fixed asap
+		// the title screen should be its own SFML window & such, not hitching
+		// a ride with the main ignition object
 		Starfighter->Main_Window->window->display();
-	}	
-	Starfighter->Ignition();																				// And we have a liftoff!!! WOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO 
-	Exit_program();																						// Function cleans up our pointers before exit
-    return 0;																									// I just love happy endings, dont you?
+		// this is important apparently...
+	}	// ahh, thats weird, why are there two calls to Ignition() ?
+	Starfighter->Ignition();		
+	// And we have a liftoff!!! WOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO 
+	Exit_program();				
+	// Function cleans up our pointers before exit
+    return 0;						
+    // I just love happy endings, dont you?
 }
 
 void key_commands::Enter()
 {	Title_screen->Toggle_fade();
-}
+}	// this should be an if/else based on whether its active too
 
 void key_commands::Space()
 {	std::cout << "Window aperture w,h   " << Starfighter->Main_Window->Aperture_width << " , " << Starfighter->Main_Window->Aperture_height << std::endl;
@@ -163,12 +233,7 @@ void key_commands::Space()
 	std::cout << "x   " << Starfighter->Current_vessel->Position.x << " y   " << Starfighter->Current_vessel->Position.y << std::endl;
 	std::cout << "vx   " << Starfighter->Current_vessel->Velocity.x << " vy   " << Starfighter->Current_vessel->Velocity.y << std::endl;
 	Starfighter->Current_vessel->Print_data();
-	//std::cout << "throttle   " << Current_vessel->Main_engines.Thruster_throttle << std::endl << std::endl;		// need to reroute this
-	//std::cout << Vessel_list.size() << " vessels, size " << sizeof(TVessel) << std::endl;
-	//for(std::vector<TVessel*>::iterator it = Vessel_list.begin(); it != Vessel_list.end(); ++it)
-	//{	std::cout << (*it)->name << "	" << (*it)->In_view(Main_Window, zoom_exponent) << std::endl;
-	//}
-}
+}	// this is a bit outdated now, would probably be better to scrap eventually
 
 void key_commands::Comma()
 {	unsigned int cy = 0;
@@ -184,9 +249,8 @@ void key_commands::Comma()
 		}
 		cy++;
 	}
-	//Iterate_forward<TVessel*>(Vessel_list, it, Starfighter->Current_vessel);
 	Update_text_displays();
-}
+}	// move the current vessel to the previous vessel in the main vessel list.
 
 void key_commands::Period()
 {	unsigned int cy = 0;
@@ -203,31 +267,34 @@ void key_commands::Period()
 		cy++;
 	}
 	Update_text_displays();
-}
+}	// move the current vessel to the next vessel in the main vessel list.
 
 void key_commands::Up()
-{	//Current_vessel->throttle_up = true;
-}
-
-void key_commands::Left()
-{	//Current_vessel->rot_left = true;
-}
-
-void key_commands::Right()
-{	//Current_vessel->rot_right = true;
-	//Game_audio->Music_mode(false);
-}
-
-void key_commands::Down()
-{	//Current_vessel->throttle_down = true;
-}
-
-void key_commands::Tilde()
 {	
 }
 
+void key_commands::Left()
+{	
+}
+
+void key_commands::Right()
+{	
+}
+
+void key_commands::Down()
+{	
+}	// these were completely replaced by the wasd keys
+	// maybe they could be used for surface EVAs or something?...
+
+void key_commands::Tilde()
+{	
+}	// used to be killrot, could be used as some sort of menu opener
+
+
+// both map zoom commands should be wrapped in a logical statement based on 
+
 void key_commands::Dash()
-{	if(Starfighter->zoom_exponent < 6)	// greater than 6 blows up because our width integer goes out of bounds and resets itself 
+{	if(Starfighter->zoom_exponent < 15)	// greater than 6 blows up because our width integer goes out of bounds and resets itself 
 	{	Starfighter->zoom_exponent++;
 		Starfighter->Main_Window->Set_aperture_dimensions(((Starfighter->Main_Window->Aperture_width)*(10)),((Starfighter->Main_Window->Aperture_height)*(10)));
 		Update_text_displays();
@@ -236,7 +303,9 @@ void key_commands::Dash()
 	{	// Super map? Evidently this will require something a little bit more complex, since the data limits on the unsigned int aperture size get overrun when going up to 10^7
 	}	// current limits are roughly 1 million km by 500-600 thousand, plenty for most any planetary/moons system, but not enough for interplanetary travel
 
-}
+		// lol. After a bit of tinkering, this was fixed so that the new exponent goes up to 15, 107 LIGHTYEARS!!! by about 63 LY
+
+}	// zooms out the map view by a factor of 10
 
 void key_commands::Equal()
 {	if(Starfighter->zoom_exponent >= 2)
@@ -247,7 +316,7 @@ void key_commands::Equal()
 		Starfighter->Main_Window->Set_aperture_dimensions(w, h);
 		Update_text_displays();
 	}
-}
+}	// Zooms in the map view by a factor of ten
 
 void key_commands::V()
 {	if(Starfighter->map_view == false)
@@ -256,7 +325,7 @@ void key_commands::V()
 	else if(Starfighter->map_view == true)
 	{	Starfighter->map_view = false;
 	}
-}
+}	// switches back & forth between the map view & the real view
 
 void key_commands::N()
 {	spawn_point.x += 5;
@@ -267,9 +336,8 @@ void key_commands::N()
 			init_theta += 90;
 			while(init_theta >= 360)
 			{	init_theta -= 360;
-			}	TVessel * new_vessel;	new_vessel = new XWing(spawn_point.x, spawn_point.y, 0, 0, init_theta, 0, 1000, 1600, Rebel_flag_sprite, XWing_tex, "Vessel", XWing_status_tex, displays_font, XWing_panel_tex);
+			}	TVessel * new_vessel;	new_vessel = new DeltaGlider(spawn_point.x, spawn_point.y, 0, 0, init_theta, 0, 1000, 1600, Rebel_flag_sprite, XWing_tex, "Vessel", XWing_status_tex, displays_font, XWing_panel_tex);
 			Vessel_list.insert(Vessel_list.end(), new_vessel);
-			//Vessel_list.emplace_back((spawn_point.x, spawn_point.y, 0, 0, init_theta, 0, 70.4, 29000, 8000, 16, "./Data/Images/Ywing_AlanHart.png", Rebel_flag_sprite, "Champion 8"));
 			break;
 		}
 		case true:
@@ -278,14 +346,13 @@ void key_commands::N()
 			init_theta += 90;
 			while(init_theta >= 360)
 			{	init_theta -= 360;
-			}	TVessel * new_vessel;	new_vessel = new XWing(spawn_point.x, spawn_point.y, 0, 0, init_theta, 0, 1000, 1600, Rebel_flag_sprite, XWing_tex, "Vessel", XWing_status_tex, displays_font, XWing_panel_tex);
-			Vessel_list.insert(Vessel_list.end(), new_vessel);
+			}	TVessel * new_vessel;	new_vessel = new DeltaGlider(spawn_point.x, spawn_point.y, 0, 0, init_theta, 0, 1000, 1600, Rebel_flag_sprite, XWing_tex, "Vessel", XWing_status_tex, displays_font, XWing_panel_tex);
 			break;
 		}
 	}
-}
-
-// (double ix, double iy, double ivx, double ivy, double irot, double iomega, double idomega, double imass, double ithrust, double ilength, std::string texture_path, sf::Sprite * iFlag_sprite, std::string iname)
+	std::cout << Vessel_list.size() << " Vessels in simulation" << std::endl;
+}	// basically a quick function that allowed for spawning a new vessel
+// this is too basic, needs to be replaced eventually by a real scenario editor
 
 void key_commands::Q()
 {	
@@ -312,11 +379,12 @@ void key_commands::D()
 }
 
 void key_commands::F()
-{	
+{	// flips the bit for the spillback mechanism for the upcoming frame
 	#ifdef SPILLBACK 
 	spill_frame = true;
 	#endif
-}
+}	// the bool gets flipped back at the end of the frame so that we
+	// dont get bombarded by messages every frame
 
 void key_commands::Z()
 {	
@@ -325,6 +393,7 @@ void key_commands::Z()
 void key_commands::X()
 {	
 }	// This will take some time I guess
+// whatever it was...
 
 void key_commands::C()
 {	
@@ -335,17 +404,21 @@ void key_commands::R()
 	{	Starfighter->time_acceleration_exponent--;
 		Update_text_displays();
 	}
-}
+}	// slow down time acceleration by 10 times
 
 void key_commands::T()
 {	if(Starfighter->time_acceleration_exponent < 10)
 	{	Starfighter->time_acceleration_exponent++;
 		Update_text_displays();
 	}
-}
+}	// speed up time acceleration by 10 times
+
+// some sort of safety lock on the time acceleration might be nice in order
+// to prevent accidentally hitting the wrong one. Maybe a double press instead
+// of just one? ...
 
 void key_commands::L()
-{
+{	// again, no clue
 }
 
 void key_commands::I()
@@ -356,7 +429,7 @@ void key_commands::I()
 	{	Starfighter->Displays_active = true;
 		Update_text_displays();
 	}
-}
+}	// turns the feedback displays on or off
 
 void key_commands::Numpad_0()
 {	std::cout << "Numpad_0() called" << std::endl;
@@ -404,7 +477,7 @@ void key_commands::Plus()
 
 void key_commands::Minus()
 {	std::cout << "Minus() called" << std::endl;
-}
+}	// I dont really recall why all of these calls were here
 
 
 
@@ -430,28 +503,18 @@ void Init_assets()
 	XWing_panel_tex = new sf::Texture();
 	XWing_panel_tex->loadFromFile("./Data/Images/XWing_display_panel.png");
 	std::cout << "Loaded XWing_tex from file" << std::endl;
-	Rogue9 = new XWing(6678000.00000000000000000, 0.0000000000000, 0.000000000000, 18000.00000000000000, 270.0000000000, 0, 40000, 20600, Rebel_flag_sprite, XWing_tex, "GL-01", XWing_status_tex, displays_font, XWing_panel_tex); 
-	Rogue_leader = new XWing(6678000.000000000000000, -12.00000000000000, 0.00000000000000, 18000.00000000000, 180, 0, 40000, 20600, Rebel_flag_sprite, XWing_tex, "GL-02", XWing_status_tex, displays_font, XWing_panel_tex);
-	//Eyeball1 = new TVessel(900, -400, 2, 4, 220, 0, 90.5, 9000, 40000, 6, "./Data/Images/TieFighter_AlMeerow.png", Imperial_flag_sprite, "Eyeball 1");
-	//Eyeball2 = new TVessel(4000, -700, 0, 0, 15, 0, 90.7, 9000, 40000, 6, "./Data/Images/TieFighter_AlMeerow.png", Imperial_flag_sprite, "Eyeball 2");
-	//Champion7 = new TVessel(8000, -700, 0, 0, 190, 0, 70.4, 29000, 8000, 16, "./Data/Images/Ywing_AlanHart.png", Rebel_flag_sprite, "Champion 7");
-	//Champion8 = new TVessel(8500, -900, 0, 0, 190, 0, 70.4, 29000, 8000, 16, "./Data/Images/Ywing_AlanHart.png", Rebel_flag_sprite, "Champion 8");
-	//Vessel_list.emplace_back((Rogue9));
-	Vessel_list.insert(Vessel_list.end(), Rogue9);
-	Vessel_list.insert(Vessel_list.end(), Rogue_leader);
+	GL1 = new DeltaGlider(6678000.00000000000000000, 0.0000000000000, 0.000000000000, 18000.00000000000000, 270.0000000000, 0, 40000, 20600, Rebel_flag_sprite, XWing_tex, "GL-01", XWing_status_tex, displays_font, XWing_panel_tex); 
+	GL2 = new DeltaGlider(6678000.000000000000000, -12.00000000000000, 0.00000000000000, 18000.00000000000, 180, 0, 40000, 20600, Rebel_flag_sprite, XWing_tex, "GL-02", XWing_status_tex, displays_font, XWing_panel_tex);
+
+	Vessel_list.insert(Vessel_list.end(), GL1);
+	Vessel_list.insert(Vessel_list.end(), GL2);
 	
-	Newtonian_list.insert(Newtonian_list.end(), Rogue9->Get_Newtonian_pointer());
-	Newtonian_list.insert(Newtonian_list.end(), Rogue_leader->Get_Newtonian_pointer());
+	Newtonian_list.insert(Newtonian_list.end(), GL1->Get_Newtonian_pointer());
+	Newtonian_list.insert(Newtonian_list.end(), GL2->Get_Newtonian_pointer());
 	
 	Earth = new TPlanet(0.000, 0.0000727, 6378100, 245000, 5.9736e24, "./Data/Images/Planets/earth.png");
 	Celestial_list.insert(Celestial_list.end(), Earth);
-	//Vessel_list.insert(Vessel_list.end(), Eyeball1);
-	//Vessel_list.insert(Vessel_list.end(), Eyeball2);
-	//Vessel_list.insert(Vessel_list.end(), Champion7);
-	//Vessel_list.insert(Vessel_list.end(), Champion8);
 	std::cout << "Finished constructing Vessels" << std::endl;
-	//Current_vessel = Rogue_leader;
-	//Current_vessel = Rogue9;
 	std::cout << "Initializing text displays" << std::endl;
 	Init_text_displays();
 	std::cout << "Finished initializing text displays" << std::endl;
@@ -484,7 +547,7 @@ void Init_text_displays()
 	(Data_displays.at(4)).setColor(sf::Color(50, 255, 255));
 	(Data_displays.at(4)).setPosition(20, 100);
 	(Data_displays.at(4)).setString(std::to_string(0));
-}
+}	// 
 
 void Exit_program()
 {	delete Title_screen;

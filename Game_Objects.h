@@ -134,7 +134,7 @@ class TPlanet: public CKeplerian_Object
 };
 
 // Newtonian Class /////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 
 class CNewtonian_Object
 {	public:
@@ -187,8 +187,8 @@ class CNewtonian_Object
 
 std::vector<CNewtonian_Object*> Newtonian_list;
 
-// TVessel Class /////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////////////
+// TVessel Class ///////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 
 class TVessel: public CNewtonian_Object
 {	public:
@@ -226,9 +226,9 @@ class TVessel: public CNewtonian_Object
 
 std::vector<TVessel*> Vessel_list;
 
-class XWing: public TVessel
+class DeltaGlider: public TVessel
 {	public:
-	XWing(double initial_x_position, double initial_y_position, double initial_x_velocity, double initial_y_velocity, double initial_theta, double initial_omega, double initial_main_propellant, double initial_rcs_propellant,  sf::Sprite * iFlag_sprite, sf::Texture * XWing_texture, std::string ivessel_name, sf::Texture * status_texture, sf::Font * controls_font, sf::Texture * panel_texture1);
+	DeltaGlider(double initial_x_position, double initial_y_position, double initial_x_velocity, double initial_y_velocity, double initial_theta, double initial_omega, double initial_main_propellant, double initial_rcs_propellant,  sf::Sprite * iFlag_sprite, sf::Texture * XWing_texture, std::string ivessel_name, sf::Texture * status_texture, sf::Font * controls_font, sf::Texture * panel_texture1);
 	// Inherited functions
 	double k_throttle;
 	sf::Text * main_fuel_level, * rcs_fuel_level, * omega_value, * theta_value, * position_values, * velocity_values, * vessel_id;
@@ -254,7 +254,7 @@ class XWing: public TVessel
 	Resource_Tank * Main_fuel, * RCS_fuel;
 	Thruster * Main_engines, * Bow_left, * Bow_right, * Bow_fore, * Stern_left, * Stern_right, * Stern_aft;
 	sf::Color * text_colour;
-	~XWing();
+	~DeltaGlider();
 };
 
 

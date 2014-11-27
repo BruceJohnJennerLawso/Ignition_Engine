@@ -16,8 +16,8 @@ class Program_data
 	~Program_data();
 };
 
-// Key_commands class /////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////////
+// Key_commands class //////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 
 class key_commands
 {	public:
@@ -68,6 +68,9 @@ class key_commands
 void Log_keystroke(sf::Keyboard::Key input_event, key_commands * icommands, bool key_down);
 void Null_queue();
 
+// SFML Window /////////////////////////////////////////////////////////////////
+// Cause I keep getting lost every time I look for this ////////////////////////
+
 class SFML_Window
 {	public:
 	SFML_Window(std::string title, unsigned int h, unsigned int w);
@@ -75,10 +78,12 @@ class SFML_Window
 	vector2 origin;
 	void Set_origin();
 	void Set_origin(long double x, long double y);
-	void Set_aperture_dimensions(unsigned int ap_w, unsigned int ap_h);
+	void Set_aperture_dimensions(long long unsigned int ap_w, long long unsigned int ap_h);
 	std::string Title;
 	long long unsigned int Width, Height;
+	// the dimensions of the actual window itself, in pixels
 	long long unsigned int Aperture_width, Aperture_height;
+	// the dimensions of what the window is currently spanning, in pixels(1px/m)
 	~SFML_Window();
 };
 
