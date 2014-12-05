@@ -63,7 +63,7 @@ class key_commands
 	void Minus();
 	bool enter, space, period, comma, up, down, right, left, tilde, v, c, q, w, e, a, s, d, f, n,  i, l, x, z, t, r, dash, equal, numpad0, numpad1, numpad2, numpad3, numpad4, numpad5, numpad6, numpad7, numpad8, numpad9, plus, minus;
 	~key_commands();
-};
+};	// important future idea for this is to retrieve mouse location & clickstate
 
 void Log_keystroke(sf::Keyboard::Key input_event, key_commands * icommands, bool key_down);
 void Null_queue();
