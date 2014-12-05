@@ -126,21 +126,15 @@ void Update_text_displays()
 		{	// I dunno.
 			// this is probably pointless, given that nothing of the sort
 			// is drawn when displays are off...
+			// should just be a logical statement instead
 		}
 	}
 }
 
 void Redraw_text_displays(bool in_map_view, SFML_Window * draw_window)
-{	switch(Starfighter->Displays_active)
-	{	case true:
-		{	for(std::vector<sf::Text>::iterator it = Data_displays.begin(); it != Data_displays.end(); ++it)
-			{	draw_window->window->draw(*it);
-			}	// iterate through our data displays & throw em up onscreen
-		}
-		case false:
-		{	// again, useless
-		}
-	}
+{	for(std::vector<sf::Text>::iterator it = Data_displays.begin(); it != Data_displays.end(); ++it)
+	{	draw_window->window->draw(*it);
+	}	// iterate through our data displays & throw em up onscreen
 }
 
 // 0	frame rate

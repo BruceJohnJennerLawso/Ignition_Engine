@@ -1,6 +1,6 @@
-// Inertia_moment.h ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// A standard template header file for my projects /////////////////////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Inertia_moment.h ////////////////////////////////////////////////////////////
+// A standard template header file for my projects /////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////
 //#include <std_files>
 //#include "Headers.h"
 //#include "Source.cpp"
@@ -8,8 +8,8 @@
 
 enum moment_type{hollow_cylinder, solid_cylinder, hollow_sphere, solid_sphere, hollow_box, solid_box, complex_shape};
 
-// Inertia moment parent class /////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Inertia moment parent class /////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 
 class Inertia_moment
 {	public:
@@ -22,24 +22,30 @@ class Inertia_moment
 	public:
 	~Inertia_moment();
 };	// Why is this class here? Damn this is not good...
-// Oh of course, its the polymorphic parent for the inertia contributors to each vessel (box, sphere, etc...)
+// Oh of course, its the polymorphic parent for the inertia contributors to each 
+// vessel from each part (box, sphere, etc...)
 
 
-// Complex Inertias ///////////////////////////////////////////////////////////////////////////////////
-// for when we just want a # /////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Complex Inertias ////////////////////////////////////////////////////////////
+// for when we just want a # ///////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 
-class Inertia_complex: public Inertia_moment		// public access avoids the internal moment pointer from inheriting. It could be used in this case, but probably wouldnt be very useful
-{	public:																
-	Inertia_complex(double  kfactor, VectorVictor::Vector2 PositionVector);
+class Inertia_complex: public Inertia_moment
+{	// public inheritance avoids the interior moment pointer from inheriting.
+	// It could be used in this case, but probably wouldnt be very useful
+	public:																
+	Inertia_complex(double kfactor, VectorVictor::Vector2 PositionVector);
 	double k;
 	double Get_moment_about_pivot(VectorVictor::Vector2 pivot_point, double inside_mass, double outside_mass);
 	double Get_moment_about_pivot(double inside_mass, double outside_mass);
 	~Inertia_complex();
-};
+};	// basically inertia complex is for when we have a complex shape, and we
+// dont give a damn about internal density changes or whatnot. Primarily used
+// for vessel hulls like on the delta glider, which dont have a convenient shape
+// for finding their inertia moment
 
-// Cylinders, hollow and solid ///////////////////////////////
-/////////////////////////////////////////////////////////////////////////////
+// Cylinders, hollow and solid /////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 
 class Inertia_cylinder: public Inertia_moment
 {	public:
@@ -53,10 +59,11 @@ class Inertia_cylinder: public Inertia_moment
 	double Get_moment_about_pivot(VectorVictor::Vector2 pivot_point, double inside_mass, double outside_mass);
 	double Get_moment_about_pivot(double inside_mass, double outside_mass);
 	~Inertia_cylinder();
-};
+};	// cylinders that lie flat in the plane like a box, but actually have a
+	// different inertia
 
-// Spheres, hollow and solid ////////////////////////////////
-/////////////////////////////////////////////////////////////////////////////
+// Spheres, hollow and solid ///////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 
 class Inertia_sphere: public Inertia_moment
 {	public:
@@ -72,8 +79,8 @@ class Inertia_sphere: public Inertia_moment
 	~Inertia_sphere();
 };
 
-// Boxes, hollow and solid ////////////////////////////////////
-/////////////////////////////////////////////////////////////////////////////
+// Boxes, hollow and solid /////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 
 class Inertia_box: public Inertia_moment
 {	public:
@@ -83,7 +90,10 @@ class Inertia_box: public Inertia_moment
 	bool hollow;
 	double Inner_length, Inner_width, Inner_height;
 	double Outer_length, Outer_width, Outer_height;
-	double k;	// Given that dimensions should remain constant for all Inertia objects, it makes sense to do that horrific part of the computation once at construction
+	double k;	
+	// Given that dimensions should remain constant for all Inertia objects, 
+	// it makes sense to do that horrific part of the computation once at 
+	// construction. We can always redo it later if needed
 	public:
 	double Get_moment_about_pivot(VectorVictor::Vector2 pivot_point, double inside_mass, double outside_mass);
 	double Get_moment_about_pivot(double inside_mass, double outside_mass);
