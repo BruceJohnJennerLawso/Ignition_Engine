@@ -4,6 +4,9 @@
 #include <SFML/Audio.hpp>
 #include "VectorVictor2.h"
 
+#ifndef SFMLTools
+#define SFMLTools
+
 std::string Input_string(std::string prompt);
 
 struct vector2
@@ -146,3 +149,5 @@ class SFML_gameaudio
 	void Stop_music();
 	~SFML_gameaudio();
 };
+
+#endif

@@ -3,6 +3,9 @@
 ////////////////////////////////////////////////////////////////////////////////
 #include "Game_Objects.h"
 
+#ifndef IgnitionEngine
+#define IgnitionEngine
+
 class Ignition_engine
 {	public:
 	Ignition_engine(std::string title, unsigned int initial_window_width, unsigned int initial_window_height, std::string program_version, double redraw_displays_interval, std::string Intro_audio_path, std::string Game_audio_path);
@@ -87,6 +90,13 @@ class Ignition_engine
 	// Basically the function that runs everything in the Ignition_Engine object
 	// automatically
 	
+	std::vector<CKeplerian_Object*> Celestial_list;
+	std::vector<CNewtonian_Object*> Newtonian_list;
+	std::vector<TVessel*> Vessel_list;
+	
+	void Next_vessel();
+	void Previous_vessel();
+	
 	~Ignition_engine();
 };
 
@@ -110,3 +120,4 @@ void Exit_program();
 // again, should be superceeded by the Ignition destructor
 // just ugly remnants of a young project
 
+#endif

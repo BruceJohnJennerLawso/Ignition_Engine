@@ -1,5 +1,7 @@
 #!/bin/bash
 
-g++ -c -std=c++0x Starfighter.cpp
+g++ -c -std=c++0x Ignition.cpp VectorVictor2.cpp SFML_Tools.cpp Inertia_moment.cpp Game_Objects.cpp Ignition_Engine.cpp Starfighter.cpp
+
+#!g++ -c -std=c++0x Starfighter.cpp Ignition_Engine.cpp Game_Objects.cpp Inertia_moment.cpp SFML_Tools.cpp VectorVictor2.cpp 
 
 exit 0

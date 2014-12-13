@@ -4,14 +4,18 @@
 #include <iostream>
 //#include<GameObjects!!!!>		Theyre coming, they really are!!!
 #include <math.h>
-//#include "SFML_Tools.h"
+#include "SFML_Tools.h"
 
 
 
 
 
 
-////////////////////////////////////////////////////////////////////////////////
+
+
+// this whole class is horrible, but there doesnt really seem to be any 
+// alternatives that I can see at the moment. Its just too integral to how the
+// engine handles inputs with regards to internal objects
 
 key_commands::key_commands()
 {	enter = false;
@@ -709,9 +713,9 @@ SFML_gameaudio::~SFML_gameaudio()
 	delete Game_music;
 }
 
-std::string Input_string(std::string prompt)		// this should go
-{	std::string data = "";
-	while(true)
+std::string Input_string(std::string prompt)		// this should go, not
+{	std::string data = "";	// a great idea in a project primarily focused
+	while(true)				// on gui
 	{	std::cout << std::endl;
 		std::cout << prompt;
 		while(std::getline(std::cin, data))

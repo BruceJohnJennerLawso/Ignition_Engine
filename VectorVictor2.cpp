@@ -1,4 +1,4 @@
-//#include "VectorVictor2.h"
+#include "VectorVictor2.h"
 #include <iostream>
 #include <math.h>	// Roger, Roger.
 //#include "Inertia_moment.h"
@@ -12,6 +12,7 @@ std::string Convert_to_string(float num, int precision)
 }	
 // this is a really handy function
 // so much of like
+// my preciousss
 
 // The VectorVictor namespace //////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////

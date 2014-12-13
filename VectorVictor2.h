@@ -6,6 +6,9 @@
 //#include "Source.cpp"
 #include "Ignition.h"
 
+#ifndef VectorVictor2
+#define VectorVictor2
+
 #define Pi 	3.14159265358979323846
 #define Tau 6.283185308								// Hopefully this doesnt anger the anti-tau-ans. ooh wait, the antautans! Or maybe just anti-tauntans
 #define Pau 4.712388980								// anti-tauntans: smell even better on the inside!
@@ -52,3 +55,4 @@ namespace VectorVictor	// Honourable mention goes to WectorWictor Two. Sorry Che
 	long double Get_vector_separation(Vector2 First_vector, Vector2 Second_vector);
 };
 
+#endif

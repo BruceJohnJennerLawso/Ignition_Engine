@@ -6,6 +6,9 @@
 //#include "Source.cpp"
 #include "SFML_Tools.h"
 
+#ifndef Inertia
+#define Inertia
+
 enum moment_type{hollow_cylinder, solid_cylinder, hollow_sphere, solid_sphere, hollow_box, solid_box, complex_shape};
 
 // Inertia moment parent class /////////////////////////////////////////////////
@@ -100,3 +103,4 @@ class Inertia_box: public Inertia_moment
 	~Inertia_box();
 };
 
+#endif

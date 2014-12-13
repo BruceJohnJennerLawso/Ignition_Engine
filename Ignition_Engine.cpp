@@ -1,5 +1,6 @@
 #include <SFML/Graphics.hpp>
 #include <SFML/Audio.hpp>
+#include "Ignition_Engine.h"
 
 Ignition_engine::Ignition_engine(std::string title, unsigned int initial_window_width, unsigned int initial_window_height, std::string program_version, double redraw_displays_interval, std::string Intro_audio_path, std::string Game_audio_path)
 {	Main_Window = new SFML_Window(title, initial_window_width, initial_window_height);
@@ -35,7 +36,7 @@ Ignition_engine::Ignition_engine(std::string title, unsigned int initial_window_
 	Game_audio = new SFML_gameaudio(Intro_audio_path, Game_audio_path);	
 	// that butt ugly class for the audio receiving its intro and main musics
 	// needs rewriting, but not a critical area at the present time
-	Current_vessel = Vessel_list.at(0);
+	//Current_vessel = Vessel_list.at(0);
 	// gotta have something for the current vessel, otherwise inputs go to
 	// nowhere and that would be bad. later to be loaded from a scn file
 }
@@ -64,16 +65,11 @@ int Ignition_engine::Ignition()
 	//Main_Window->window->setFramerateLimit(120);
 	// quick testing thing from earlier. required a hack on #! to disable vsync
 	// so probably useless. 
+	Current_vessel = Vessel_list.at(0);
+	
 	while (Main_Window->window->isOpen())// love how plain language SFML is <3
 	{	sf::Event event;
 		// some internal thing with SFML inputs
-		if(spill_frame == true)
-		{	spill_frame = false;
-			std::cout << "\n" << std::endl;
-			// basically, if the preceeding frame was a spill frame, its done
-			// now, so shut it back off & add in a quick new lines for good
-			// measure 
-		}
 		redraw_timer += redraw_clock.restart().asSeconds();
 		// keep updating the time since we last updated the displays
 		if(redraw_timer >= Redraw_interval)
@@ -117,12 +113,7 @@ int Ignition_engine::Ignition()
 			// pretty sure the long double casts can be removed now
 		}	// checks to see if the base length of the frame needs to be
 		// modified by the current time acceleration	
-		
-		#ifdef DEBUG
-			Spillback("Frame length", deltat);	
-			// does nothing unless spillback was activated
-			// see Ignition.h for more details
-		#endif
+
 		simulation_time += deltat;	
 		// increment simtime by the length of the frame in-universe
 		
@@ -143,7 +134,7 @@ int Ignition_engine::Ignition()
 					// in the current instance, and update them
 				for(std::vector<TVessel*>::iterator it = Vessel_list.begin(); it != Vessel_list.end(); ++it)
 				{	// Iterating through all vessels in the current instance
-					(*it)->Frame(deltat, simulation_time);
+					(*it)->Frame(deltat, simulation_time, Celestial_list);
 					// run the vessels frame update based on frame length
 				}
 					Main_Window->Set_origin((Current_vessel->Position.x - (Main_Window->Width/2)),(Current_vessel->Position.y + (Main_Window->Height/2)));		
@@ -156,6 +147,9 @@ int Ignition_engine::Ignition()
 				for(std::vector<TVessel*>::iterator it = Vessel_list.begin(); it != Vessel_list.end(); ++it)
 				{	// multiple loops is important here! doing it all in one
 					// caused the relative vessel issue (not the jitter though)
+					
+					// at least one thing verified here:
+					// premature optimization really is the root of all evil ;)
 					if((*it)->In_view(Main_Window, 0) == true)	// check if the vessel is in view
 					{	(*it)->Draw_vessel(Main_Window);																						
 						// and draw it if it is. Saves draw calls if the 
@@ -184,7 +178,7 @@ int Ignition_engine::Ignition()
 						// vessels are concerned
 				}
 				for(std::vector<TVessel*>::iterator it = Vessel_list.begin(); it != Vessel_list.end(); ++it)				// Iterate through all vessels in the current instance
-				{	(*it)->Frame(deltat, simulation_time);																													// Update vessel with frame dt
+				{	(*it)->Frame(deltat, simulation_time, Celestial_list);																													// Update vessel with frame dt
 					Main_Window->Set_origin((Current_vessel->Position.x - (Main_Window->Aperture_width/2)),(Current_vessel->Position.y + (Main_Window->Aperture_height/2)));		// Relocate the window to center on current vessels flag sprite
 					if((*it)->In_view(Main_Window, zoom_exponent) == true)														// Check if the flag is within the current camera coordinates
 					{	(*it)->Draw_flag(Main_Window, zoom_exponent);																// Draw the flag onscreen
@@ -200,6 +194,38 @@ int Ignition_engine::Ignition()
 		Main_Window->window->display();	// good SFML stuff
     }
     return 0;	// I just love happy endings, dont you?
+}
+
+void Ignition_engine::Next_vessel()
+{	unsigned int cy = 0;
+	for(std::vector<TVessel*>::iterator it = Vessel_list.begin(); it != Vessel_list.end(); ++it)
+	{	if(*it == Current_vessel)
+		{	if(it == (Vessel_list.end() - 1))
+			{	Current_vessel = Vessel_list.at(0);
+			}
+			else if (it < (Vessel_list.end() -1))
+			{	Current_vessel = Vessel_list.at(cy + 1);
+			}
+			break;	
+		}
+		cy++;
+	}
+}
+
+void Ignition_engine::Previous_vessel()
+{	unsigned int cy = 0;
+	for(std::vector<TVessel*>::iterator it = Vessel_list.begin(); it != Vessel_list.end(); ++it)
+	{	if(*it == Current_vessel)
+		{	if(it == Vessel_list.begin())
+			{	Current_vessel = Vessel_list.at(Vessel_list.size() - 1);
+			}
+			else if (it > Vessel_list.begin())
+			{	Current_vessel = Vessel_list.at(cy - 1);
+			}
+			break;
+		}
+		cy++;
+	}
 }
 
 Ignition_engine::~Ignition_engine()

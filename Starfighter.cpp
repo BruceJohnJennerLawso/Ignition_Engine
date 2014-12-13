@@ -4,13 +4,13 @@
 
 #include "Ignition_Engine.h"
 
-#ifdef LINUX	// sketchy as hell, but it works
-#include "Ignition_Engine.cpp"
-#include "Inertia_moment.cpp"
-#include "SFML_Tools.cpp"
-#include "Game_Objects.cpp"
-#include "VectorVictor2.cpp"
-#endif
+//#ifdef LINUX	// sketchy as hell, but it works
+//#include "Ignition_Engine.cpp"
+//#include "Inertia_moment.cpp"
+//#include "SFML_Tools.cpp"
+//#include "Game_Objects.cpp"
+//#include "VectorVictor2.cpp"
+//#endif
 
 #define  Starfighter_version " 0.10"	// see? progress ;)
 
@@ -147,15 +147,17 @@ void Redraw_text_displays(bool in_map_view, SFML_Window * draw_window)
 
 
 int main()
-{	Init_assets();								
+{								
 	// Create the assets used by the game
 	std::string Window_title = "Ignition Engine";
 	// gotta give our baby a name
 	Window_title.append(Starfighter_version);
 	// stick the version numbah on the end
+	std::cout << "Constructing Ignition Engine" << std::endl;
 	Starfighter = new Ignition_engine(Window_title, 609, 1024, Starfighter_version, 0.2, "./Data/Audio/Menu_Fade_In.ogg",  "./Data/Audio/Game_music_Yavin.ogg");	
 	// give birth to our beautiful new engine object. Isnt it cute?
-	
+	std::cout << "Right before Init_assets()" << std::endl;
+	Init_assets();	
 	
 	while(Starfighter->Main_Window->window->isOpen())
 	{	// open up the SFML window embedded in the ignition object
@@ -178,12 +180,12 @@ int main()
 			{	Log_keystroke(event.key.code, Starfighter->commands, false);
 				// same as above, just keyreleases now
 			}
-			if(Title_screen->finished == true)
-			{	Starfighter->Ignition();	
-				// Buckle up ;)
-				// basically the above method kicks the whole show into gear
-			}
         }
+   		if(Title_screen->finished == true)
+		{	Starfighter->Ignition();	
+			// Buckle up ;)
+			// basically the above method kicks the whole show into gear
+		}	// okay, now that fixed the weird window behaviour I was seeing
    		Starfighter->Main_Window->window->setSize(sf::Vector2u(Starfighter->Main_Window->Width, Starfighter->Main_Window->Height));
    		// ahh, I think this is the part where the window is forced back to its
    		// standard size as specified in the SFML window object.
@@ -203,7 +205,7 @@ int main()
 		Starfighter->Main_Window->window->display();
 		// this is important apparently...
 	}	// ahh, thats weird, why are there two calls to Ignition() ?
-	Starfighter->Ignition();		
+	//Starfighter->Ignition();		
 	// And we have a liftoff!!! WOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO 
 	Exit_program();				
 	// Function cleans up our pointers before exit
@@ -230,36 +232,12 @@ void key_commands::Space()
 }	// this is a bit outdated now, would probably be better to scrap eventually
 
 void key_commands::Comma()
-{	unsigned int cy = 0;
-	for(std::vector<TVessel*>::iterator it = Vessel_list.begin(); it != Vessel_list.end(); ++it)
-	{	if(*it == Starfighter->Current_vessel)
-		{	if(it == Vessel_list.begin())
-			{	Starfighter->Current_vessel = Vessel_list.at(Vessel_list.size() - 1);
-			}
-			else if (it > Vessel_list.begin())
-			{	Starfighter->Current_vessel = Vessel_list.at(cy - 1);
-			}
-			break;
-		}
-		cy++;
-	}
+{	Starfighter->Previous_vessel();
 	Update_text_displays();
 }	// move the current vessel to the previous vessel in the main vessel list.
 
 void key_commands::Period()
-{	unsigned int cy = 0;
-	for(std::vector<TVessel*>::iterator it = Vessel_list.begin(); it != Vessel_list.end(); ++it)
-	{	if(*it == Starfighter->Current_vessel)
-		{	if(it == (Vessel_list.end() - 1))
-			{	Starfighter->Current_vessel = Vessel_list.at(0);
-			}
-			else if (it < (Vessel_list.end() -1))
-			{	Starfighter->Current_vessel = Vessel_list.at(cy + 1);
-			}
-			break;	
-		}
-		cy++;
-	}
+{	Starfighter->Next_vessel();
 	Update_text_displays();
 }	// move the current vessel to the next vessel in the main vessel list.
 
@@ -331,7 +309,7 @@ void key_commands::N()
 			while(init_theta >= 360)
 			{	init_theta -= 360;
 			}	TVessel * new_vessel;	new_vessel = new DeltaGlider(spawn_point.x, spawn_point.y, 0, 0, init_theta, 0, 1000, 1600, Rebel_flag_sprite, XWing_tex, "Vessel", XWing_status_tex, displays_font, XWing_panel_tex);
-			Vessel_list.insert(Vessel_list.end(), new_vessel);
+			Starfighter->Vessel_list.insert(Starfighter->Vessel_list.end(), new_vessel);
 			break;
 		}
 		case true:
@@ -341,10 +319,11 @@ void key_commands::N()
 			while(init_theta >= 360)
 			{	init_theta -= 360;
 			}	TVessel * new_vessel;	new_vessel = new DeltaGlider(spawn_point.x, spawn_point.y, 0, 0, init_theta, 0, 1000, 1600, Rebel_flag_sprite, XWing_tex, "Vessel", XWing_status_tex, displays_font, XWing_panel_tex);
+			Starfighter->Vessel_list.insert(Starfighter->Vessel_list.end(), new_vessel);
 			break;
 		}
 	}
-	std::cout << Vessel_list.size() << " Vessels in simulation" << std::endl;
+	std::cout << Starfighter->Vessel_list.size() << " Vessels in simulation" << std::endl;
 }	// basically a quick function that allowed for spawning a new vessel
 // this is too basic, needs to be replaced eventually by a real scenario editor
 
@@ -500,19 +479,19 @@ void Init_assets()
 	GL1 = new DeltaGlider(6678000.00000000000000000, 0.0000000000000, 0.000000000000, 18000.00000000000000, 270.0000000000, 0, 40000, 20600, Rebel_flag_sprite, XWing_tex, "GL-01", XWing_status_tex, displays_font, XWing_panel_tex); 
 	GL2 = new DeltaGlider(6678000.000000000000000, -12.00000000000000, 0.00000000000000, 18000.00000000000, 180, 0, 40000, 20600, Rebel_flag_sprite, XWing_tex, "GL-02", XWing_status_tex, displays_font, XWing_panel_tex);
 
-	Vessel_list.insert(Vessel_list.end(), GL1);
-	Vessel_list.insert(Vessel_list.end(), GL2);
+	Starfighter->Vessel_list.insert(Starfighter->Vessel_list.end(), GL2);
+	Starfighter->Vessel_list.insert(Starfighter->Vessel_list.end(), GL1);
 	
-	Newtonian_list.insert(Newtonian_list.end(), GL1->Get_Newtonian_pointer());
-	Newtonian_list.insert(Newtonian_list.end(), GL2->Get_Newtonian_pointer());
+	Starfighter->Newtonian_list.insert(Starfighter->Newtonian_list.end(), GL1->Get_Newtonian_pointer());
+	Starfighter->Newtonian_list.insert(Starfighter->Newtonian_list.end(), GL2->Get_Newtonian_pointer());
 	
 	Earth = new TPlanet(0.000, 0.0000727, 6378100, 245000, 5.9736e24, "./Data/Images/Planets/earth.png");
-	Celestial_list.insert(Celestial_list.end(), Earth);
+	Starfighter->Celestial_list.insert(Starfighter->Celestial_list.end(), Earth);
 	std::cout << "Finished constructing Vessels" << std::endl;
 	std::cout << "Initializing text displays" << std::endl;
 	Init_text_displays();
 	std::cout << "Finished initializing text displays" << std::endl;
-	std::cout << "Vessel list size " << Vessel_list.size() << " Newtonian list size " << Newtonian_list.size() << std::endl;
+	std::cout << "Vessel list size " << Starfighter->Vessel_list.size() << " Newtonian list size " << Starfighter->Newtonian_list.size() << std::endl;
 }
 
 void Init_text_displays()
@@ -545,7 +524,7 @@ void Init_text_displays()
 
 void Exit_program()
 {	delete Title_screen;
-	for(std::vector<TVessel*>::iterator it = Vessel_list.begin(); it != Vessel_list.end(); ++it)
+	for(std::vector<TVessel*>::iterator it = Starfighter->Vessel_list.begin(); it != Starfighter->Vessel_list.end(); ++it)
 	{	delete (*it);
 	}	delete XWing_tex;
 	delete XWing_status_tex;

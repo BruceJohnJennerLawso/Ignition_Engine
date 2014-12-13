@@ -1,6 +1,7 @@
 #include <string>
 #include <iostream>
 #include <math.h>
+#include "Game_Objects.h"
 
 // Force handling class ////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
@@ -8,25 +9,39 @@
 Force::Force(VectorVictor::Vector2 attack_point, VectorVictor::Vector2 force)
 {	Attack_point = attack_point;
 	Force_vector = force;
+	// simple assignment using standard operators
 }
 
-//double Force::Get_force_torque(VectorVictor::Vector2 pivot_point)
-//{	double torque = 0;
-//	Attack_point -= pivot_point;
-//}
+double Force::Get_force_torque(VectorVictor::Vector2 reference_point)
+{	double torque = 0;
+	VectorVictor::Vector2 new_attack_point = Attack_point;
+	new_attack_point -= reference_point;
+	// new_attack_point needs to be the relative offset of the attack point from
+	// the reference point, probably the new center of mass
+	torque += VectorVictor::Get_cross_product(new_attack_point, Force_vector);
+	// obtain our torque component in the z axis using the VV function & return
+	return torque;
+}
+
+// ^ this isnt used yet, but will come into play soon enough
 
 double Force::Get_force_torque()
 {	double torque = 0;
 	torque += VectorVictor::Get_cross_product(Attack_point, Force_vector);
+	// same deal as before, just we assume the reference point is still (0,0)
 	return torque;
 }
 
 VectorVictor::Vector2 Force::Get_force_vector()
 {	return Force_vector;
+	// simple return
 }
 
 VectorVictor::Vector2 Force::Get_force_vector(double angle)
 {	return Force_vector.Get_rotated_vector(angle);
+	// same as before, but rotated clockwise about the origin by 'angle' degrees
+	// dont recall exactly why this is, here, but coordinate system transforms
+	// are probably involved
 }
 
 Force::~Force()
@@ -37,26 +52,33 @@ Force::~Force()
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
 
+
 void Vessel_component::Draw_component(SFML_Window * iwindow, bool Map_status)
 {	Talkback("Bad call to Vessel_component::Draw_component(SFML_Window * iwindow, bool Map_status)");
-	//std::cout << "Bad call to Vessel_component::Draw_component(SFML_Window * iwindow, bool Map_status)" << std::endl;
+	// shouldnt be called at all, but failsafes are good
 }
 
 void Vessel_component::Update_component(double dt, std::vector<Force> &parent_force_list)
-{	// Yaaaa... hmm
+{	Talkback("Bad call to Vessel_component::Update_component(double dt, std::vector<Force> &parent_force_list)");
+	// Yaaaa... hmm
+	// just a placeholder cause C++ compilers demand it be defined for reasons
+	// I dont recall. Rather annoying :(
 }
 
 double Vessel_component::Get_component_mass()
-{	return -1;
-}	// this would cause some screwed up stuff
+{	Talkback("Bad call to Vessel_component::Get_component_mass()");
+	return -1;
+}	// this would cause some screwed up stuff, although the physicists would be
+	// thrilled. Intended to signal something is wrong.
 	
 double Vessel_component::Get_component_inertia()
-{	return -1;
-}
+{	Talkback("Bad call to Vessel_component::Get_component_inertia()");
+	return -1;
+}	// the results of this would be... unstable to say the least
 
 Vessel_component* Vessel_component::Get_vessel_component_pointer()
 {	return this;
-}
+}	// abstraction, abstraction...
 
 Vessel_component::~Vessel_component()
 {
@@ -74,18 +96,21 @@ Resource_Tank::Resource_Tank(double initial_tank_resource_mass, double tank_mass
 	Resource_mass = initial_tank_resource_mass;
 	Component_moment = new Inertia_cylinder(inner_radius, outer_radius, tank_length, PositionVector);
 	Empty = false;
+	// the Empty should be conditional, but whatever
+	
+	// just simple passing of info to the object here.
 }
 
 void Resource_Tank::Update_component(double dt, std::vector<Force> &parent_force_list)
 {	//...
+	// I mean, there could be something here eventually, but currently
+	// nothing
 }
 
 double Resource_Tank::Get_tank_inertia()
 {	return Component_moment->Get_moment_about_pivot(Resource_mass, Tank_mass);
-	
-	//double inertia = (Tank_mass*Tank_inertia);
-	//inertia *= (Tank_distance*Tank_distance);
-	//return inertia;
+	// Just query our inertia moment object with the current masses so we can
+	// assess the mass
 }
 
 double Resource_Tank::Get_resource_mass()
@@ -97,12 +122,15 @@ double Resource_Tank::Get_component_mass()
 	net_mass += Tank_mass;
 	net_mass += Resource_mass;
 	return net_mass;
+	// all mass, in kilos
 }
 
 double Resource_Tank::Get_component_inertia()
 {	return this->Get_tank_inertia();
-}	// I guess this could be used
-
+}	// Not clear on what this actually does
+	// Seems dangerous to reveal a pointer, I think this should be removed
+	// will need to test the change first
+	
 Resource_Tank::~Resource_Tank()
 {	delete Component_moment;
 }
@@ -112,7 +140,9 @@ Resource_Tank::~Resource_Tank()
 ////////////////////////////////////////////////////////////////////////////////
 
 void Thruster::Update_component(double dt, std::vector<Force> &parent_force_list)
-{	// Yaaaa... hmm	// this would be a pain in the ass to have happen
+{	Talkback("Bad call to Thruster::Update_component(double dt, std::vector<Force> &parent_force_list)");
+	// Yaaaa... hmm	// this would be a pain in the ass to have happen
+	// cant have this, needs to be the child class definition
 }
 
 void Thruster::Throttle_down(double dt, double k_throttle)
@@ -120,6 +150,8 @@ void Thruster::Throttle_down(double dt, double k_throttle)
 	if(Thruster_throttle < 0.00000000000)
 	{	Thruster_throttle = 0.000000000000;
 	}
+	// quite simple, just increment the value down, but make sure it stays
+	// 0<throttle<1, negative throttles would do some weeeird things
 }
 
 double Thruster::Get_component_mass()
@@ -128,8 +160,15 @@ double Thruster::Get_component_mass()
 
 double Thruster::Get_component_inertia()
 {	double inertia = Component_moment->Get_moment_about_pivot(0, (2*Thruster_mass));
-	inertia /= 2;		// so my idea was just to do a half sphere for the inertia, not perfect, but a decent approximation for an engine bell
+	// double the thruster mass for the larger sphere, then its inertia is
+	// halved just like it is. The logic works, but I cant easily lay it out
+	// in this medium
+	inertia /= 2;		
+	// so my idea was just to do a half sphere for the inertia, not perfect, 
+	// but a decent approximation for an engine bell
+	// better to cut these in half than the cows ;)
 	return inertia;
+	// weird that this is done at this level..., but I guess it does work
 }	
 
 void Thruster::Throttle_up(double dt, double k_throttle)
@@ -137,6 +176,8 @@ void Thruster::Throttle_up(double dt, double k_throttle)
 	if(Thruster_throttle > 1.00000000000)
 	{	Thruster_throttle = 1.000000000000;
 	}
+	// same as throttle down, even more important that we dont exceed one here
+	// or physics will break
 }
 
 Thruster* Thruster::Get_thruster_pointer()
@@ -154,27 +195,38 @@ Monopropellant_thruster::Monopropellant_thruster(double thruster_mass, double ve
 	Thruster_position.Set_values(position_x, position_y);
 	Thruster_direction.Set_values(direction_x, direction_y);
 	Thruster_direction.Normalize();
+	// Important that it has a normalized direction, otherwise stuff goes nuts
 	Thruster_throttle = 0.0000000000000000;
 	empty_tank = false;
 	Thruster_mass = thruster_mass;
 	Fuel_tank = fuel_tank;
 	Component_moment = new Inertia_sphere(inner_radius, outer_radius, Thruster_position);
+	// all the nice initialization
 }
 
 void Monopropellant_thruster::Update_component(double dt, std::vector<Force> &parent_force_list)
-{	if(Fuel_tank->Empty == false)
-	{	if(Thruster_throttle > 0.0000000000000000)
-		{	Spillback("Fuel non-empty & thruster throttle non-zero at " , Thruster_throttle);
-			Spillback("Beginning force run");
+{	// and welcome to probably the pickiest code in this project so far
+	// this whole method is really just the update, so anything pertaining to
+	// the engine as an object (overheats and explodes?) can go in here before
+	// the thrust section is run
+	if(Fuel_tank->Empty == false)
+	{	// ^ self explanatory
+		if(Thruster_throttle > 0.0000000000000000)
+		{	// ^ also self explanatory
 			VectorVictor::Vector2 thruster_force(Thruster_direction.Get_x(), Thruster_direction.Get_y());
+			// the actual force being exerted by the thruster
 			double dm = (Thruster_throttle*Maximum_flow_rate*dt);
+			// delta mass, how much fuel we gonna throw this frame
 			if(Fuel_tank->Get_resource_mass() >= dm)
 			{	Fuel_tank->Resource_mass -= dm;
-			}
+			}	// if our fuel tank has enough left for dm, decrease its
+				// contents by dm
 			else if(Fuel_tank->Get_resource_mass() < dm)
 			{	dm = Fuel_tank->Get_resource_mass();
 				Fuel_tank->Resource_mass = 0.0000000000000000;
 				Fuel_tank->Empty = true;
+				// If the tank doesnt have enough left to match the dm,
+				// give it whatever is left, and signal the tank empty
 			}
 			else if(Fuel_tank->Resource_mass <= 0)
 			{	dm = 0;
@@ -182,16 +234,43 @@ void Monopropellant_thruster::Update_component(double dt, std::vector<Force> &pa
 				if(Fuel_tank->Resource_mass < 0)
 				{	Fuel_tank->Resource_mass = 0.0000000000000000;
 				}
+				// just redundant check to make sure weird stuff with negative
+				// mass doesnt happen
 			}
 			thruster_force *= dm;
+			// our direction of force with magnitude 1, gets multiplied by dm
 			thruster_force *= Exhaust_velocity;
+			// and multiplied by the velocity, making it a vector with magnitude
+			// the product of dm and velocity
 			thruster_force *= (1/dt);
-			thruster_force *= -1;			
-			std::string force_info = "Thruster force: ";
-			force_info.append(thruster_force.Get_vector("N"));	// arg forgot this was in vessel local coordinates
-			Spillback(force_info);
+			// something, something... Unit Analysis!
+			// I dont know precisely why this works, the usual suggestion is to
+			// obtain the force from the other side of the dp/dt equation,
+			// but it seems that using the m*(dv/dt) part works too (ie)
+			
+			// p = m*v
+			
+			// dp/dt = v*(dm/dt) + m*(dv/dt)
+			
+			// I guess very vaguely, Im working from the perspective of the
+			// mass being ejected, m being our delta mass for the frame, dv
+			// being the change in velocity for the mass over the frame
+			// (0 to Ve) and dt is the length of the frame.
+			// If the framerate were infinite (as is the typical assumption
+			// with most of these things) the Ve divided by the dt really would
+			// be dv/dt, so yeah...
+			
+			// More importantly, it fits Tsiolkovsky equation, so it fits
+			// reality well			
+			thruster_force *= -1;
+			// reverse the direction of the force since the original unit vector
+			// is opposite the direction the force will be applied in			
+			
+			// just some feedback on the forces magnitude for some reason
 			Force New_force(Thruster_position, thruster_force);
-			parent_force_list.insert(parent_force_list.end(), New_force);				// this is a lot simpler than the original draw function, although thruster types 
+			parent_force_list.insert(parent_force_list.end(), New_force);	
+			// construct the Force object and attach it to the parent force list
+			// all done here
 		}
 	}
 }
@@ -201,9 +280,12 @@ Monopropellant_thruster::~Monopropellant_thruster()
 }
 
 
+
+
 // Bipropellant Thrusters //////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
+
 
 Bipropellant_thruster::Bipropellant_thruster(double thruster_mass, double vexhaust, double optimal_mix_ratio, double max_flow_rate, double position_x, double position_y, double direction_x, double direction_y, double inner_radius, double outer_radius, Resource_Tank * fuel_tank, Resource_Tank * oxidizer_tank)
 {	Exhaust_velocity = vexhaust;	// I like verbose constructor definitions and I cannot lie ;)
@@ -218,12 +300,17 @@ Bipropellant_thruster::Bipropellant_thruster(double thruster_mass, double vexhau
 	Fuel_tank = fuel_tank;
 	Optimal_mixture_ratio = optimal_mix_ratio;
 	Component_moment = new Inertia_sphere(inner_radius, outer_radius, Thruster_position);
+	// same as for the monopropellant thruster, except we assign an oxidizer
+	// tank as well
 }
 
 // handy function here /////////////////////////////////////////////////////////
 
-double Get_absolute_value(double value)
-{	if(value == 0)
+// really should be defined elsewhere, but whatever
+
+inline double Get_absolute_value(double value)
+{	// inline makes more sense here I think
+	if(value == 0)
 	{	return 0;
 	}
 	else
@@ -238,7 +325,8 @@ double Get_absolute_value(double value)
 }
 
 double Bipropellant_thruster::Get_exhaust_velocity(double mixture_ratio)
-{	double Drop_off_constant = 42;		// dont argue with it. You know it to be true
+{	double Drop_off_constant = 42;	
+	// dont argue with it. You know it to be true
 	if(mixture_ratio == Optimal_mixture_ratio)
 	{	return Exhaust_velocity;
 	}
@@ -246,6 +334,8 @@ double Bipropellant_thruster::Get_exhaust_velocity(double mixture_ratio)
 	{	double ve = (Exhaust_velocity*(exp(-(Drop_off_constant*(Get_absolute_value((mixture_ratio - Optimal_mixture_ratio)))))));
 		return ve;
 	}
+	// basically, how is our Ve affected by improper mixture ratios
+	// could potentially be slow, and the reality might be assymetrical
 }
 
 void Bipropellant_thruster::Update_component(double dt, std::vector<Force> &parent_force_list)
@@ -289,6 +379,8 @@ void Bipropellant_thruster::Update_component(double dt, std::vector<Force> &pare
 	}
 }
 
+// I dont know if this works at the moment, this will need to be tested later on
+
 Bipropellant_thruster::~Bipropellant_thruster()
 {	delete Component_moment;
 }
@@ -306,7 +398,6 @@ Hull::Hull(double hull_mass, double inertia_factor, double hull_length, VectorVi
 
 void Hull::Update_component(double dt, std::vector<Force> &parent_force_list)
 {	// ...
-	Spillback("...Hull component updated...");
 }
 
 double Hull::Get_hull_length()
@@ -323,10 +414,6 @@ double Hull::Get_component_mass()
 
 double Hull::Get_hull_inertia()
 {	return Component_moment->Get_moment_about_pivot(Hull_mass, 0);
-	
-	//double inertia = (Hull_mass*Hull_inertia);
-	//inertia *= ((Length*Length)/4);	// ie r^2 == ((L/2)^2) == ((L^2)*(1/4))
-	//return inertia;
 }
 
 double Hull::Get_component_inertia()
@@ -337,11 +424,17 @@ Hull::~Hull()
 {	delete Component_moment;
 }
 
+// not much to comment on in the hull class, pretty straightforward
+
+
+
+
 // Celestial Bodies ////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
 
 void CKeplerian_Object::Frame(double dt, long double simtime)
 {	std::cout << "Bad call to CKeplerian_Object::Frame(double dt)" << std::endl;
+	// dont wanna call this, would be bad
 }
 
 long double CKeplerian_Object::Get_theta_in_degrees()
@@ -352,6 +445,7 @@ long double CKeplerian_Object::Get_theta_in_radians()
 {	long double rad_theta = Theta;
 	rad_theta *= 6.283185308;		// 4/3 pau actually ;)
 	rad_theta /= 360;
+	// just converts over to radians, then returns
 	return rad_theta;	
 }
 
@@ -361,48 +455,58 @@ long double CKeplerian_Object::Get_omega()
 
 long double CKeplerian_Object::Get_radius(double longitude)
 {	return Radius;
+	// constant for now, but that will change
 }
 
-long double CKeplerian_Object::Get_mass()	// In kilograms, bitch
+long double CKeplerian_Object::Get_mass()
 {	return Mass;							
 }
 
 VectorVictor::Vector2 CKeplerian_Object::Get_position(long double sim_time)
 {	//std::cout << "Bad call to CKeplerian_Object::Get_position(double sim_time)" << std::endl;
-	VectorVictor::Vector2 origin(0.000000000000000000000,0.000000000000000000000);
+	VectorVictor::Vector2 origin(0.00000000000000000000,0.00000000000000000000);
+	// not sure why all that was necessary, must have been bug-hunting
 	return origin;
-}
+}	// this should be temporary, planets and moons really need to update
+	// their own positions
 
 void CKeplerian_Object::Gravitate(long double satellite_mass, long double satellite_rotation,VectorVictor::Vector2 satellite_position, std::vector<Force> &parent_force_list)
-{	// a whole #$%^ year later... finally I get to write this
-	VectorVictor::Vector2 origin(0.000000000000000000,0.000000000000000);
-	long double G = 6.673e-11; // universal gravitational constant
+{	// a whole #$%^ year later... finally I got to write this
+	VectorVictor::Vector2 origin(0.0000000000000000,0.000000000000000);
+	long double G = 6.673e-11; 
+	// universal gravitational constant. Dont look to hard at it ;)
 	long double M = this->Get_mass();
-	VectorVictor::Vector2 Vf(0,0);	 //this really needs to be fixed to the relative keplerian position
+	// get the mass of the gravitating body in question
+	VectorVictor::Vector2 Vf(0,0);	 
+	//this really needs to be fixed to the relative keplerian position
+	// was a hack to get things to work, but needs to call the Keplerians
+	// position function itself
+	
+	// * VERY IMPORTANT MUST FIX * //
 	Vf -=  satellite_position;
-	Spillback("\nGetting the relative position vector: ");
-	Spillback(Vf.Get_vector("m relative"));	
+	// Get the relative offset vector between the two objects
+	
 	long double radial_distance_squared = Vf.Get_vector_magnitude_squared();
-	Spillback("Current radius squared: ", radial_distance_squared);
-	if(radial_distance_squared >100000000)
-	{	Vf.Normalize();	// reduce our direction vector so we have direction & magnitude 1
+	// get the r squared as you would expect
+	
+	Vf.Normalize();	
+	// reduce our direction vector so we have only direction & magnitude 1
 		
-		Spillback("\nCurrent unit vector: ");
-		Spillback(Vf.Get_vector(" "));
+	long double Fmag = ((G*M)*satellite_mass);
+	Fmag /= radial_distance_squared;
+	// calculate the value of Fg
+	Vf *= Fmag;
+	// and multiply our vector by it
 		
-		long double Fmag = ((G*M)*satellite_mass);
-		Fmag /= radial_distance_squared;
-		Vf *= Fmag;	// 
-		
-		Spillback("\nFinal Gravity Force Vector: ");
-		Spillback(Vf.Get_vector("N"));
-		
-		long double rotation = (-satellite_rotation);
-		//Vf.Rotate_vector(rotation);
-		//Vf.Rotate_vector(90);
-		Force New_force(origin, Vf.Get_rotated_vector(rotation));
-		parent_force_list.insert(parent_force_list.end(), New_force); 
-	}
+	long double rotation = (-satellite_rotation);
+	// the force is originally in the global coordinates, but it needs to be
+	// rotated into the reference frame of the vessels coordinate system
+	// this is because the vessel reorients them all when it has its frame
+	// call, and to it, a spade is a spade for any Force in the Force vector 
+	Force New_force(origin, Vf.Get_rotated_vector(rotation));
+	parent_force_list.insert(parent_force_list.end(), New_force); 
+	// we construct the Force object, pin it onto the vessel in question
+	// and we are done!
 }
 
 std::string CKeplerian_Object::Get_object_name()
@@ -413,9 +517,19 @@ bool CKeplerian_Object::In_view(SFML_Window * window, int zoom_factor)
 {	std::cout << "Bad call to CKeplerian_Object::In_view(SFML_Window * window, int zoom_factor, VectorVictor::Rectangle * view_frame)" << std::endl;
 	return false;
 }
+
 void CKeplerian_Object::Draw_flag(SFML_Window * iwindow, int zoom_factor)
 {	std::cout << "Bad call to CKeplerian_Object::Draw_flag(SFML_Window * iwindow, int zoom_factor, VectorVictor::Rectangle * view_frame)" << std::endl;
 }
+
+// cant call either of these functions, since info is required that is not
+// available at this level. Buuut, if all the Keplerians get a position vector
+// variable, it could work!
+
+// changing this should be a priority
+
+
+
 
 // TPlanet /////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
@@ -428,10 +542,21 @@ TPlanet::TPlanet(long double initial_theta, long double omega, long double radiu
 	Object_texture = new sf::Texture();
 	if(!Object_texture->loadFromFile(planet_texture_path))
 	{	std::cout << "Planet " << Get_object_name() << " unable to load texture at " << planet_texture_path << std::endl;
+		// Houston, we have a problem.
 	}
 	else
-	{	long double pix_length = Get_radius(0) + atmosphere_height;
-		pix_length /= 5;		// I forget why its 20 here..., wait oh, I get it now
+	{	// the first part was just simple value copying, 
+		// but this part gets hairy
+		
+		// we want to create sprites to represent the body in the map view at
+		// multiple scales, specifically powers of 10, so 
+		
+		long double pix_length = Get_radius(0) + atmosphere_height;		
+		// this was a decent fix for issues that popped up with the terrible
+		// png circle the first time around
+		
+		// our pix length is going to be the 
+		pix_length /= 5;
 		float sprite_x, sprite_y;
 		for(unsigned int cy = 1; cy != 16; ++cy)
 		{	sf::Sprite * planet_sprite;
@@ -565,15 +690,11 @@ void CNewtonian_Object::Add_force(VectorVictor::Vector2 attack_point, VectorVict
 	Force_list.insert(Force_list.end(), new_force);
 }
 	
-void CNewtonian_Object::Frame(long double dt, long double simtime)
-{	std::string intro = "...Frame(double dt) beginning for ";
-	intro.append(Object_name);
-	Spillback(intro);
-	
-	for(std::vector<Vessel_component*>::iterator it = Object_components.begin(); it != Object_components.end(); ++it)
+void CNewtonian_Object::Frame(long double dt, long double simtime, std::vector<CKeplerian_Object*> &ignition_celestials)
+{	for(std::vector<Vessel_component*>::iterator it = Object_components.begin(); it != Object_components.end(); ++it)
 	{	(*it)->Update_component(dt, Force_list);	// this is where component forces get added
 	}
-	for(std::vector<CKeplerian_Object*>::iterator it = Celestial_list.begin(); it != Celestial_list.end(); ++it)
+	for(std::vector<CKeplerian_Object*>::iterator it = ignition_celestials.begin(); it != ignition_celestials.end(); ++it)
 	{	(*it)->Gravitate(Get_total_mass(), Get_theta_in_degrees(), Position ,Force_list);
 	}
 	this->Update_motion(dt);
@@ -581,17 +702,13 @@ void CNewtonian_Object::Frame(long double dt, long double simtime)
 	Update_PMI();						// this needs to be selected for computatation later on. Too many operations to be running needlessly each frame
 	Force_list.clear();
 	if(Crashed == false)
-	{	Crashed = Crash_state(simtime);
+	{	Crashed = Crash_state(simtime, ignition_celestials);
 	}
-	Spillback("Current Coordinates ");
-	Spillback("x: ", Position.x);
-	Spillback("y: ", Position.y);
-	Spillback("Frame(double dt) finished...\n\n");
 }
 
-bool CNewtonian_Object::Crash_state(long double sim_time)
+bool CNewtonian_Object::Crash_state(long double sim_time, std::vector<CKeplerian_Object*> &ignition_celestials)
 {	long double offset_rad = 0;
-	for(std::vector<CKeplerian_Object*>::iterator it = Celestial_list.begin(); it != Celestial_list.end(); ++it)
+	for(std::vector<CKeplerian_Object*>::iterator it = ignition_celestials.begin(); it != ignition_celestials.end(); ++it)
 	{	offset_rad = VectorVictor::Get_vector_separation(Position, (*it)->Get_position(sim_time));
 		if(offset_rad < (*it)->Get_radius(0))	// important to change this once terrain is a thing
 		{	return true;
@@ -602,14 +719,12 @@ bool CNewtonian_Object::Crash_state(long double sim_time)
 }
 	
 void CNewtonian_Object::Update_motion(long double dt)
-{	Spillback("Start of CNewtonian_Object::Update_motion(double dt)");
-	
+{	
 	if(Crashed == false)
 	{	VectorVictor::Vector2 Net_force(0,0);
 		for(std::vector<Force>::iterator it = Force_list.begin(); it != Force_list.end(); ++it)
 		{	Net_force += it->Force_vector.Get_rotated_vector(Theta);	// Now this makes more sense
 		}	
-		Spillback(Net_force.Get_vector("N Total Force"));
 		Acceleration.x = (Net_force.x/Get_total_mass()); 
 		Acceleration.y = (Net_force.y/Get_total_mass());	
 		Velocity.x += ((Acceleration.x)*dt);
@@ -618,13 +733,11 @@ void CNewtonian_Object::Update_motion(long double dt)
 		Position.y += (((Velocity.y)*dt) + (((0.50000000000000000)*Acceleration.y)*dt*dt));
 	}
 	
-	Spillback("End of CNewtonian_Object::Update_motion(double dt)\n");
 }
 
 
 void CNewtonian_Object::Update_rotation(long double dt)
-{	Spillback("Start of CNewtonian_Object::Update_rotation(double dt)");
-	
+{	
 	if(Crashed == false)
 	{	double alpha = 0;
 		for(std::vector<Force>::iterator it = Force_list.begin(); it != Force_list.end(); ++it)
@@ -646,7 +759,6 @@ void CNewtonian_Object::Update_rotation(long double dt)
 		}
 	}
 	
-	Spillback("End of CNewtonian_Object::Update_rotation(double dt)\n");
 }
 
 CNewtonian_Object* CNewtonian_Object::Get_Newtonian_pointer()
@@ -753,20 +865,11 @@ TVessel* TVessel::Get_Vessel_pointer()
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
 
-// -XWing
-// @line 430
+// -Delta Glider
+// @line 768
 
 
-
-
-
-
-
-
-
-
-
-// X-Wing Class ////////////////////////////////////////////////////////////////
+// Delta Glider Class //////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -781,6 +884,7 @@ DeltaGlider::DeltaGlider(double initial_x_position, double initial_y_position, d
 	Position.Set_values(initial_x_position, initial_y_position);
 	Velocity.Set_values(initial_x_velocity, initial_y_velocity);
 	Theta = initial_theta; Omega = initial_omega; 
+	Crashed = false;
 	
 	VectorVictor::Vector2 origin(0,0);
 	
@@ -985,6 +1089,7 @@ void DeltaGlider::Print_data()
 	acceleration /= Get_total_mass();
 	std::cout << "top accel " << acceleration << " - " << acceleration/9.81 << " g" <<  std::endl; 
 	std::cout << "Main engine direction: " << (Main_engines->Thruster_direction.Get_rotated_vector(Theta)).Get_vector(" ") << std::endl;
+	std::cout << "Crash state: " << Crashed << std::endl;
 }
 
 void DeltaGlider::Toggle_throttle_lock()
