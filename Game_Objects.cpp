@@ -555,38 +555,84 @@ TPlanet::TPlanet(long double initial_theta, long double omega, long double radiu
 		// this was a decent fix for issues that popped up with the terrible
 		// png circle the first time around
 		
-		// our pix length is going to be the 
+		// our pix length is going to be the diameter of the object in meters
+		// ie, the dimensions of the image shown at the greatest zoom factor
+		// This is a slight problem since large objects need massively scaled up
+		// textures from their original dimensions
+		
+		// basically the idea here is that we run a loop that creates
+		// consecutively smaller images by a factor of 10 to show at zoom levels
+		// farther and farther out.
 		pix_length /= 5;
+		// in other words, multiply our radius by 2 to get diameter, then divide
+		// by 10 to get the scale of the first zoom level (zoomed out by 10x)
 		float sprite_x, sprite_y;
+		// dimensions in pixels of the sprite at the given zoom level 
 		for(unsigned int cy = 1; cy != 16; ++cy)
 		{	sf::Sprite * planet_sprite;
 			planet_sprite = new sf::Sprite();
 			planet_sprite->setTexture(*Object_texture);
+			// we create the sprite at the given zoom level and assign it
+			// the default texture
+			
+			// this really needs to be done without pointers, just pass the
+			// reference of a normal object to the vector
 			sprite_x = Object_texture->getSize().x;	sprite_x *= planet_sprite->getScale().x;
 			sprite_y = Object_texture->getSize().y;  sprite_y *= planet_sprite->getScale().y;
+			// for each axis, we find the size of the base texture in pixels,
+			// and set the sprite dimensions to it
+			
+			// the second call involving getScale() seems to be redundant
+			// since the scale is always (1,1) they dont seem to do anything
+			// needs to be tested more just to be sure though
 			std::cout << "sprite dimensions: " << sprite_x << " , " << sprite_y << std::endl;
+			
 			planet_sprite->setOrigin((sprite_x/2), (sprite_y/2));
+			// set the origin of the sprite to the center instead of the top
+			// left corner, much eaasier to deal with
 			if(Object_texture->getSize().y != pix_length)
 			{	planet_sprite->setScale((pix_length/(Object_texture->getSize().x)),(pix_length/(Object_texture->getSize().y)));			
+				// unless we get really lucky, the size of the sprite needs to
+				// be adjusted to match its size in the game universe.
+				// This means multiplying the scale of the object so that
+				// the new size of the sprite in pixels is equivalent to the
+				// pix length
 			}
 			planet_sprite->setRotation(Theta);
 			Planet_sprites.insert(Planet_sprites.end(), planet_sprite);
+			// rotate the sprite to the appropriate angle supplied in the
+			// constructor arguments and insert it into the vector of planet
+			// sprites at the end. This means that the sprites go from larger
+			// to smaller as we go along
 			pix_length /= 10;
+			// at the end of the loop, scale back the size by 10x, since each
+			// consecutive image should be 10x smaller than the previous one
 		}
 	}
 }	// once more, my code works and I dont know why ^^
 // I need to ask Vaughan or someone about this
+// odd that the relative location of the sprite origin stays the same relative
+// to the sprites internal scale when scaled up...
+
 
 void TPlanet::Frame(double dt, long double simtime)
-{	Theta += (Omega*dt);
+{	// normal update call for the planet
+	Theta += (Omega*dt);
+	// update our rotation based on the planets normal spin
 	for(std::vector<sf::Sprite*>::iterator it = Planet_sprites.begin(); it != Planet_sprites.end(); ++it)
 	{	(*it)->setRotation(Theta);
 	}
+	// updates the sprites based on current orientation
+	// might be better done by the draw call instead, more efficient
 	Simulation_time = simtime;
+	// and sync the internal clock to the in-universe time
 }
 
 VectorVictor::Vector2 TPlanet::Get_position(long double sim_time)
 {	VectorVictor::Vector2 origin(0,0);
+	// for the moment this is sufficient for testing. Eventually this should
+	// just return the planets vector position member, after it is incremented
+	// in the frame call
 	return origin;
 }
 
@@ -603,19 +649,47 @@ bool TPlanet::In_view(SFML_Window * window, int zoom_factor)
 	else
 	{	return false;
 	}
+	// simple algorithm checks if the coordinates of the planet are within the
+	// box represented by our camera. Completely useless right now, since
+	// the planet isnt even drawn outside of map view, but surface elements
+	// will come into play later on
 }
 
 void TPlanet::Draw_flag(SFML_Window * iwindow, int zoom_factor)
-{	sf::Vector2f offset(Get_position(Simulation_time).Get_x(), Get_position(Simulation_time).Get_y());	sf::Vector2f camera_origin(iwindow->origin.x, iwindow->origin.y);
+{	// sounds odd since we dont exactly draw a flag here, but it works anyways
+	// could change this so it sounds better I guess... still early on
+	sf::Vector2f offset(Get_position(Simulation_time).Get_x(), Get_position(Simulation_time).Get_y());	
+	// we create a sf vector here with the same magnitude as the in-universe
+	// position of the planet in question
+	sf::Vector2f camera_origin(iwindow->origin.x, iwindow->origin.y);
+	// and we create a second sf vector representing the in-universe offset
+	// of the camera (specifically its upper left corner)
 	offset -= camera_origin;
-	offset.y = -offset.y;	// Dont ask ^^
+	// we find the relative offset from the camera origin to the planets center
+	offset.y = -offset.y;
+	// flip the coordinate system so up is positive y instead of vice-versa
+	// (its a peculiarity with how SFML works)
 	offset.y *= pow(0.1, (zoom_factor));
-	offset.x *= pow(0.1, (zoom_factor));		// next step is rewriting this to take advantage of the new relative position function located in VV::Rectangle...
+	offset.x *= pow(0.1, (zoom_factor));
+	// and scale back the offsets by 10^zoom_factor
+	// since we need to take in game meters and scale them back to pixels
+	// on the screen
+	
+	// looks like 1/10, 1/100, 1/1000, ... etc.
+	
 	for(std::vector<sf::Sprite*>::iterator it = Planet_sprites.begin(); it != Planet_sprites.end(); ++it)
 	{	(*it)->setPosition(offset);
-	}	// eh, just easier to do it this way. I should probably change it eventually
+	}	// eh, just easier to do it this way. I should probably change it
+	// eventually so that it only positions the one that we need
 	iwindow->window->draw(*(Planet_sprites.at(zoom_factor-1)));
+	// pretty simple. Note the zoom - 1 offset to get the right location
+	// inside the vector
 }
+
+// it would appear that the jitterbug is due to doing those relative offset
+// calculations for the position of the image in the 32 bit sf::Vector2f type,
+// I *think* this should be fixed by keeping everything up until the actual set
+// position call done by VV2s
 
 TPlanet::~TPlanet()
 {	delete Object_texture;
@@ -624,8 +698,12 @@ TPlanet::~TPlanet()
 // Newtonian Class /////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
 
+
+// no constructor here, thats done by the child classes
+
 double CNewtonian_Object::Get_omega()
 {	return Omega;
+	// value in degrees/s
 }
 
 double CNewtonian_Object::Get_theta_in_radians()
@@ -633,33 +711,40 @@ double CNewtonian_Object::Get_theta_in_radians()
 	rad_theta *= 6.283185308;		// 4/3 pau actually ;)
 	rad_theta /= 360;
 	return rad_theta;
+	// in radians/s
 }
 
 double CNewtonian_Object::Get_theta_in_degrees()
 {	return Theta;
+	// in degrees
 }
 
 double CNewtonian_Object::Get_length()
 {	return Length;
+	// in meters
 }
 
 double CNewtonian_Object::Get_hull_mass()
 {	return -1;
+	// this is not supposed to be called at this level, so it gets a error code
+	// needs a talkback error message as well I think
 }
 
 double CNewtonian_Object::Get_total_mass()
 {	double net_mass = 0;
 	for(std::vector<Vessel_component*>::iterator it = Object_components.begin(); it != Object_components.end(); ++it)
 	{	net_mass += (*it)->Get_component_mass();
-	}	return net_mass;
+	}	// just query every part on the vessel for its mass and add it all up
+	return net_mass;
+
 }
 
 void CNewtonian_Object::Update_PMI()
 {	PMI = 0;
 	for(std::vector<Vessel_component*>::iterator it = Object_components.begin(); it != Object_components.end(); ++it)
 	{	PMI += (*it)->Get_component_inertia();
-	}
-}
+	}	// reset the moment of inertia to zero, then add it up again from the
+		// inertias contributed by each vessel part 
 
 void CNewtonian_Object::Receive_inputs(key_commands * current_inputs, double dt)
 {	Talkback("Bad call to CNewtonian_Object::Receive_inputs(key_commands * current_inputs, double dt)");
@@ -674,6 +759,8 @@ void CNewtonian_Object::Print_data()
 {	Talkback("Bad call to CNewtonian_Object::Print_data()");
 }
 
+// above 3 should not be called, just error messages
+
 double CNewtonian_Object::Get_PMI()
 {	return PMI;
 }
@@ -681,28 +768,50 @@ double CNewtonian_Object::Get_PMI()
 void CNewtonian_Object::Add_force(double attack_point_x, double attack_point_y, double force_x, double force_y)
 {	VectorVictor::Vector2 vattack(attack_point_x, attack_point_y);
 	VectorVictor::Vector2 vforce(force_x, force_y);
+	// create VV2s for each component
 	Force new_force(vattack, vforce);
+	// use them to construct a force object
 	Force_list.insert(Force_list.end(), new_force);
+	// and push it back into the vector
 }
 
 void CNewtonian_Object::Add_force(VectorVictor::Vector2 attack_point, VectorVictor::Vector2 force_vector)
 {	Force new_force(attack_point, force_vector);
+	// create it
 	Force_list.insert(Force_list.end(), new_force);
+	// and insert it
 }
 	
 void CNewtonian_Object::Frame(long double dt, long double simtime, std::vector<CKeplerian_Object*> &ignition_celestials)
-{	for(std::vector<Vessel_component*>::iterator it = Object_components.begin(); it != Object_components.end(); ++it)
-	{	(*it)->Update_component(dt, Force_list);	// this is where component forces get added
+{	// Important method here, many metaphorical wheels are turning
+
+	// at the start of the call, no forces are acting on the vessel
+	for(std::vector<Vessel_component*>::iterator it = Object_components.begin(); it != Object_components.end(); ++it)
+	{	(*it)->Update_component(dt, Force_list);	
+		// we run through all of the parts on the given vessel, and let them 
+		// update themselves. This is where parts that create a force,
+		// like thrusters, wings, parts dragging in atmosphere, add a new force
+		// on to the parent Newtonian Objects force list
 	}
 	for(std::vector<CKeplerian_Object*>::iterator it = ignition_celestials.begin(); it != ignition_celestials.end(); ++it)
 	{	(*it)->Gravitate(Get_total_mass(), Get_theta_in_degrees(), Position ,Force_list);
+		// we cycle through all of the large bodies in the universe
+		// (probably excluding anything asteroid or smaller) and get them to add
+		// a gravitational force to the vessel
 	}
 	this->Update_motion(dt);
+	// the vessel uses the forces acting upon it to update its motion...
 	this->Update_rotation(dt);
-	Update_PMI();						// this needs to be selected for computatation later on. Too many operations to be running needlessly each frame
+	// ...and then does the same for rotation
+	Update_PMI();						
+	// we recalculate the vessels total moment of inertia
+	// maybe a good candidate to do selectively, since this may not be needed
+	// every single frame
 	Force_list.clear();
+	// set the net force on the object back to zero for the next frame
 	if(Crashed == false)
 	{	Crashed = Crash_state(simtime, ignition_celestials);
+		// if we arent crashed at the moment, check if we are crashed
 	}
 }
 
@@ -713,25 +822,39 @@ bool CNewtonian_Object::Crash_state(long double sim_time, std::vector<CKeplerian
 		if(offset_rad < (*it)->Get_radius(0))	// important to change this once terrain is a thing
 		{	return true;
 		}
+		// iterate through all of the large bodies in the sim and see if we seem
+		// to be 'underground'. If we are, we've probably bought the farm, so we
+		// set the Crashed state to true by returning true
 	}
 	return false;
+	// if not, we continue on our merry way
 	
 }
 	
 void CNewtonian_Object::Update_motion(long double dt)
 {	
 	if(Crashed == false)
-	{	VectorVictor::Vector2 Net_force(0,0);
+	{	// If we've made a crater in the planet, dont bother updating
+		VectorVictor::Vector2 Net_force(0,0);
+		// start with a net force of 0
 		for(std::vector<Force>::iterator it = Force_list.begin(); it != Force_list.end(); ++it)
 		{	Net_force += it->Force_vector.Get_rotated_vector(Theta);	// Now this makes more sense
+			// add up all of the forces acting on the vessel in this frame
 		}	
 		Acceleration.x = (Net_force.x/Get_total_mass()); 
 		Acceleration.y = (Net_force.y/Get_total_mass());	
+		// Newtons laws, simply
+		
+		// F = ma
+		// a = F/m
 		Velocity.x += ((Acceleration.x)*dt);
-		Velocity.y += ((Acceleration.y)*dt);	
+		Velocity.y += ((Acceleration.y)*dt);
 		Position.x += (((Velocity.x)*dt) + (((0.50000000000000000)*Acceleration.x)*dt*dt));
 		Position.y += (((Velocity.y)*dt) + (((0.50000000000000000)*Acceleration.y)*dt*dt));
+		// Simple constant acceleration equations of motion	
 	}
+	// there should be an else statement here so that we keep pace with the
+	// keplerians movement and rotation
 	
 }
 
@@ -739,14 +862,29 @@ void CNewtonian_Object::Update_motion(long double dt)
 void CNewtonian_Object::Update_rotation(long double dt)
 {	
 	if(Crashed == false)
-	{	double alpha = 0;
+	{	// again if weve crashed, dont bother
+		double alpha = 0;
+		// where alpha is our angular acceleration, the second derivative
+		// of theta with respect to time
 		for(std::vector<Force>::iterator it = Force_list.begin(); it != Force_list.end(); ++it)
 		{	alpha -= it->Get_force_torque();
+			// work through all of the forces acting on the object, and sum up
+			// the torques they cause
+			
+			// odd that this is subtraction, might be worth another look... 
 		}
 		alpha /= PMI;
+		// again, from simple 121 physics,
+		
+		// T = I*Alpha
+		// Alpha = T/I
 		Theta += ((Omega*dt)+(0.5*((alpha*dt)*dt)));
 		Omega += (alpha*dt);
+		// again, just the equations of rotational motion applied here
 		Object_sprite->setRotation(Theta);
+		// make sure that the image drawn onscreen is synchronized with what 
+		// happened here
+		
 		if(Theta >= 360)
 		{	while(Theta >= 360)
 			{	Theta -= 360;
@@ -757,6 +895,12 @@ void CNewtonian_Object::Update_rotation(long double dt)
 			{	Theta += 360;
 			}
 		}
+		// if we run over the bounds of zero or 360, nothing is technically
+		// wrong (I think), but this is better for understanding
+		
+		// this caused an occasional problem before, might be best to
+		// remove/relocate this so that its only done when saving state to
+		// a scn file
 	}
 	
 }
@@ -769,6 +913,9 @@ CNewtonian_Object* CNewtonian_Object::Get_Newtonian_pointer()
 ////////////////////////////////////////////////////////////////////////////////
 
 
+// getting a little more specific at this point, dealing with specific
+// functionality that a spacecraft really needs to have
+
 void TVessel::Rotate_left(double dt)
 {	std::cout << "Bad call to TVessel::Rotate_left(double dt) " << std::endl;
 }
@@ -777,7 +924,7 @@ void TVessel::Rotate_right(double dt)
 {	std::cout << "Bad call to TVessel::Rotate_right(double dt) " << std::endl;
 }
 
-void TVessel::Kill_rotation(double dt)					// this seems at first to conflict with rot left/right, but since input commands come in one by one, they shouldnt. I hope
+void TVessel::Kill_rotation(double dt)	
 {	std::cout << "Bad call to TVessel::Kill_rotation(double dt) " << std::endl;
 }
 
@@ -809,8 +956,10 @@ void TVessel::No_command(double dt)
 {	std::cout << "Bad call to TVessel::No_command(double dt) " << std::endl;
 }
 
+// all not handled at this level, but had to be defined anyways
+
 void TVessel::Draw_controls(SFML_Window * iwindow, bool Map_status)
-{
+{	// should be a warning message here too...
 }
 
 bool TVessel::In_view(SFML_Window * window, int zoom_factor)
@@ -825,17 +974,27 @@ bool TVessel::In_view(SFML_Window * window, int zoom_factor)
 	else
 	{	return false;
 	}
+	// just another simple function for determining if the ship should be drawn
+	// there was some logic behind squaring the distance, but I dont recall
 }
 
 void TVessel::Draw_vessel(SFML_Window * iwindow)
-{	sf::Vector2f offset(Position.Get_x(), Position.Get_y());	sf::Vector2f camera_origin(iwindow->origin.x, iwindow->origin.y);
+{	// very simple to the draw flag for TPlanets, save a few minor details
+	sf::Vector2f offset(Position.Get_x(), Position.Get_y());
+	sf::Vector2f camera_origin(iwindow->origin.x, iwindow->origin.y);
 	offset -= camera_origin;
-	offset.y = -offset.y;	// Dont ask ^^
+	offset.y = -offset.y;
 	Object_sprite->setPosition(offset);
 	//offset += sf::Vector2f(40, -40);		// never did figure this part out...
 	Flag_sprite->setPosition(offset + sf::Vector2f((10*Hull_component->Length), -(10*Hull_component->Length)));
+	// draws the flag near the vessel for some reason.
+	// really just window-dressing here, not necessary
+	
+	// probably should be removed. If this is done again, it will
+	// be done at a different level
 	iwindow->window->draw(*Object_sprite);
 	iwindow->window->draw(*Flag_sprite);
+	// and we draw them onto the window, simple as it sounds
 }
 
 void TVessel::Draw_flag(SFML_Window * iwindow, int zoom_factor)
@@ -875,7 +1034,7 @@ TVessel* TVessel::Get_Vessel_pointer()
 
 
 DeltaGlider::DeltaGlider(double initial_x_position, double initial_y_position, double initial_x_velocity, double initial_y_velocity, double initial_theta, double initial_omega, double initial_main_propellant, double initial_rcs_propellant,  sf::Sprite * iFlag_sprite, sf::Texture * XWing_texture, std::string ivessel_name, sf::Texture * status_texture, sf::Font * controls_font, sf::Texture * panel_texture1)
-{	Talkback("Constructing XWing");
+{	Talkback("Constructing Delta Glider");
 	Flag_sprite = iFlag_sprite;			// set our flag affilation here
 	Flag_sprite->setScale(0.1,0.1);
 	Object_name = ivessel_name;
@@ -889,7 +1048,8 @@ DeltaGlider::DeltaGlider(double initial_x_position, double initial_y_position, d
 	VectorVictor::Vector2 origin(0,0);
 	
 	Hull_component = new Hull(16000, 0.4, 17.5, origin);
-	Object_components.insert(Object_components.end(), Hull_component);		// the pointer passin crap didnt work ^^
+	Object_components.insert(Object_components.end(), Hull_component);		
+	// the pointer passin crap didnt work ^^
 	
 	Main_fuel = new Resource_Tank(initial_main_propellant, 800, 0.6, 0.8, 2.2, origin);
 	Fuel_tanks.insert(Fuel_tanks.end(), Main_fuel);	
@@ -1005,7 +1165,7 @@ DeltaGlider::DeltaGlider(double initial_x_position, double initial_y_position, d
 	}	
 	Object_sprite->setOrigin((Vessel_tex->getSize().x/2), (Vessel_tex->getSize().y/2));
 	Object_sprite->setRotation(Theta);
-	Talkback("...Constructed XWing");
+	Talkback("...Constructed Delta Glider");
 }	// most constructor calls will be completely off now. Needs to be updated to reflect the new changes
 	// the component pointers will also need to be fixed in order to access them in specific ways as well as through the generic polymorphic formats
 

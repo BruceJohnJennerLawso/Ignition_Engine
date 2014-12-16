@@ -16,9 +16,10 @@
 // The VectorVictor namespace //////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
 
-namespace VectorVictor	// Honourable mention goes to WectorWictor Two. Sorry Chekov
+namespace VectorVictor// Honourable mention goes to WectorWictor Two. Sorry Chekov
 {	class Vector2	
-	{	public:
+	{	// core entity of VectorVictor for now
+		public:
 		Vector2 ();
 		Vector2 (long double ix, long double iy);
 		//private:	// it really shouldnt be like this, but my patience is unbelievably low right now. The calls that are directly accessing the position need to be rewritten to use the functions at a later date

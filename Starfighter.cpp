@@ -3,16 +3,9 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 #include "Ignition_Engine.h"
-
-//#ifdef LINUX	// sketchy as hell, but it works
-//#include "Ignition_Engine.cpp"
-//#include "Inertia_moment.cpp"
-//#include "SFML_Tools.cpp"
-//#include "Game_Objects.cpp"
-//#include "VectorVictor2.cpp"
-//#endif
-
 #define  Starfighter_version " 0.10"	// see? progress ;)
+// this should be renamed to reflect the move away from Starfighter
+
 
 // Engine Pointers /////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////
@@ -148,7 +141,6 @@ void Redraw_text_displays(bool in_map_view, SFML_Window * draw_window)
 
 int main()
 {								
-	// Create the assets used by the game
 	std::string Window_title = "Ignition Engine";
 	// gotta give our baby a name
 	Window_title.append(Starfighter_version);
@@ -158,6 +150,7 @@ int main()
 	// give birth to our beautiful new engine object. Isnt it cute?
 	std::cout << "Right before Init_assets()" << std::endl;
 	Init_assets();	
+	// Create the assets used by the game
 	
 	while(Starfighter->Main_Window->window->isOpen())
 	{	// open up the SFML window embedded in the ignition object
@@ -186,6 +179,8 @@ int main()
 			// Buckle up ;)
 			// basically the above method kicks the whole show into gear
 		}	// okay, now that fixed the weird window behaviour I was seeing
+		
+			// And we have a liftoff!!! WOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO 
    		Starfighter->Main_Window->window->setSize(sf::Vector2u(Starfighter->Main_Window->Width, Starfighter->Main_Window->Height));
    		// ahh, I think this is the part where the window is forced back to its
    		// standard size as specified in the SFML window object.
@@ -205,8 +200,6 @@ int main()
 		Starfighter->Main_Window->window->display();
 		// this is important apparently...
 	}	// ahh, thats weird, why are there two calls to Ignition() ?
-	//Starfighter->Ignition();		
-	// And we have a liftoff!!! WOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO 
 	Exit_program();				
 	// Function cleans up our pointers before exit
     return 0;						
