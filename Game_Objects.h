@@ -7,6 +7,15 @@
 #ifndef GameObjects
 #define GameObjects
 
+#define Max_map_scale 16
+// the maximum scale of the map view from the base window size, ie if the base
+// window has a width of 1024 pixels, its maximum zoom scale will encompass
+// 1024*(10^16) meters in universe. Thats about 100 light years or so if I
+// recall correctly, or 1000? The scale might only go up to 10^15 or something
+// in actual practice
+
+// I should look that up
+
 class Force
 {	public:
 	// all really just a nice placeholder for two vectors, since a force acting

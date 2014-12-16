@@ -5,19 +5,19 @@
 
 Inertia_moment::Inertia_moment()
 {
-}
+}	// this should go
 
 double Inertia_moment::Get_moment_about_pivot(VectorVictor::Vector2 pivot_point, double inside_mass, double outside_mass)
 {	return 0;
-}
+}	// needs an error talkback message
 
 double Inertia_moment::Get_moment_about_pivot(double inside_mass, double outside_mass)
 {	return 0;
-}
+}	// needs an error talkback message
 
 Inertia_moment::~Inertia_moment()
 {
-}
+}	// also bad maybe
 
 // Complex Inertias ////////////////////////////////////////////////////////////
 // for when we just want a # ///////////////////////////////////////////////////

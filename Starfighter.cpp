@@ -259,7 +259,7 @@ void key_commands::Tilde()
 // both map zoom commands should be wrapped in a logical statement based on 
 
 void key_commands::Dash()
-{	if(Starfighter->zoom_exponent < 15)	// greater than 6 blows up because our width integer goes out of bounds and resets itself 
+{	if(Starfighter->zoom_exponent < (Max_map_scale -1))	// greater than 6 blows up because our width integer goes out of bounds and resets itself 
 	{	Starfighter->zoom_exponent++;
 		Starfighter->Main_Window->Set_aperture_dimensions(((Starfighter->Main_Window->Aperture_width)*(10)),((Starfighter->Main_Window->Aperture_height)*(10)));
 		Update_text_displays();
