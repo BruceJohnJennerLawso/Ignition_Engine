@@ -10,11 +10,18 @@
 std::string Input_string(std::string prompt);
 
 struct vector2
-{	long double x, y;	
+{	// old data type used by sfml tools before VV2 was available here
+	// should be removed wherever possible for consistency
+	
+	// for all intents and purposes, this is the exact same thing as VV2,
+	// but an object oriented interface is a much better idea
+	long double x, y;	
 };
 
 class Program_data
-{	Program_data();
+{	// not actually sure what this is, think it was just a passing idea
+	// that never actually got implemented
+	Program_data();
 	enum prog_state{Intro, Menu, Game}Game_status;
 	~Program_data();
 };
@@ -25,6 +32,7 @@ class Program_data
 class key_commands
 {	public:
 	key_commands();
+	// simple constructor, no params needed
 	void Enter();
 	void Space();
 	void Period();
@@ -64,30 +72,49 @@ class key_commands
 	void Numpad_9();
 	void Plus();				// oddly enough, this hasnt caused any errors by not being defined
 	void Minus();
+	// all of the functions that get called when log keystroke indicates that
+	// the key in question was pressed
 	bool enter, space, period, comma, up, down, right, left, tilde, v, c, q, w, e, a, s, d, f, n,  i, l, x, z, t, r, dash, equal, numpad0, numpad1, numpad2, numpad3, numpad4, numpad5, numpad6, numpad7, numpad8, numpad9, plus, minus;
+	// and the booleans that are set to the key down status of the given key
+	// in the same function
 	~key_commands();
 };	// important future idea for this is to retrieve mouse location & clickstate
 
 void Log_keystroke(sf::Keyboard::Key input_event, key_commands * icommands, bool key_down);
 void Null_queue();
+// I dont think this was ever defined. Probably safe to remove
 
 // SFML Window /////////////////////////////////////////////////////////////////
 // Cause I keep getting lost every time I look for this ////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 
 class SFML_Window
 {	public:
 	SFML_Window(std::string title, unsigned int h, unsigned int w);
-	sf::RenderWindow * window;
-	VectorVictor::Vector2 origin;
-	void Set_origin();
-	void Set_origin(long double x, long double y);
-	void Set_aperture_dimensions(long long unsigned int ap_w, long long unsigned int ap_h);
+	// constructor, quite simple really
 	std::string Title;
+	// the string that gets printed on the menubar at the top of the window
+	
+	// might be removable if the sf::RenderWindow already contains a string
+	// for this internally
+	sf::RenderWindow * window;
+	// the pointer to the sfml window that the class wraps
+	VectorVictor::Vector2 origin;
+	// the ingame origin (top left corner) of the windows aperture
+	// (the area that the window covers)
+	void Set_origin();
+	// if not specified, sets it to (0,0)
+	void Set_origin(long double x, long double y);
+	// or set the coordinates of the origin more explicitly
 	long long unsigned int Width, Height;
 	// the dimensions of the actual window itself, in pixels
 	long double Aperture_width, Aperture_height;
-	// the dimensions of what the window is currently spanning, in pixels(1px/m)
+	// the dimensions of what the window is currently spanning in the game
+	// universe, in meters
+	void Set_aperture_dimensions(long long unsigned int ap_w, long long unsigned int ap_h);
+	// set those dimensions in meters
 	~SFML_Window();
+	// close up shop (and delete our RenderWindow)
 };
 
 class SFML_loadscreen

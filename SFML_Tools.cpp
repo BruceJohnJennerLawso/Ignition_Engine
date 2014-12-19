@@ -462,39 +462,55 @@ SFML_Window::SFML_Window(std::string title, unsigned int h, unsigned int w)
 {	Title = title;
 	Height = h;
 	Width = w;
-	Aperture_height = h*10;
-	Aperture_width = w*10;
-	// I think this is wrong, the actual scale is directly 1m to 1 pixel
-	// but I will need to check how Ignition Engine deals with aperture height
-	// before I change anything
+	Aperture_height = h;
+	Aperture_width = w;
+	// no real rhyme or reason behind how big the aperture should be at start
+	// so we just give it the same as the window itself
+	
 	
 	// this was the reason why everything appeared 10x too big
 	Set_origin();
+	// make sure it has a value
 	window = new sf::RenderWindow(sf::VideoMode(w, h), Title);
+	// set up our RenderWindow
 	window->setSize(sf::Vector2u(h, w));
+	// and size it, but.. we dont need to here, cause the videomode already
+	// did it.
+	
+	// I think this can be removed
 	window->setTitle(Title);
+	// again think its redundant, but its a rarely used constructor, so not too
+	// concerning really
 }
 
 void SFML_Window::Set_origin()
 {	origin.x = 0;
 	origin.y = 0;
+	// If we dont know, we just say (0,0)
 }
 
 void SFML_Window::Set_origin(long double x, long double y)
 {	origin.x = x;
 	origin.y = y;
+	// set our VectorVictor2 to the right value
 }
 
 void SFML_Window::Set_aperture_dimensions(long long unsigned int ap_w, long long unsigned int ap_h)
 {	Aperture_width = ap_w;
 	Aperture_height = ap_h;
+	// same deal, now just for the aperture dimensions
 }
 
 SFML_Window::~SFML_Window()
 {	delete window;
+	//	cant forget this ;D
 }
 
 // SFML splash screen class ////////////////////////////////////////////////////
+
+// and everything after this point is an absolute mess
+
+// avert your eyes ><
 
 SFML_loadscreen::SFML_loadscreen(std::string texture_path, bool fadein, double fade_in_length, double fade_out_length)
 {	Active = true;
