@@ -90,12 +90,25 @@ class Ignition_engine
 	// Basically the function that runs everything in the Ignition_Engine object
 	// automatically
 	
+	// so you simply need to create a ignition engine object with its
+	// constructor, call Ignition, and everything is handled from there
+	
 	std::vector<CKeplerian_Object*> Celestial_list;
 	std::vector<CNewtonian_Object*> Newtonian_list;
 	std::vector<TVessel*> Vessel_list;
 	
 	void Next_vessel();
 	void Previous_vessel();
+	
+	void Map_view();
+	void Increase_map_scale();
+	// zooming out, making the area it covers bigger
+	void Decrease_map_scale();
+	// zooming in, making the area it covers smaller
+	
+	void Camera_view();
+	
+	void Set_aperture_scale();
 	
 	~Ignition_engine();
 };

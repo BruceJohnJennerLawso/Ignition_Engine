@@ -78,14 +78,14 @@ class SFML_Window
 {	public:
 	SFML_Window(std::string title, unsigned int h, unsigned int w);
 	sf::RenderWindow * window;
-	vector2 origin;
+	VectorVictor::Vector2 origin;
 	void Set_origin();
 	void Set_origin(long double x, long double y);
 	void Set_aperture_dimensions(long long unsigned int ap_w, long long unsigned int ap_h);
 	std::string Title;
 	long long unsigned int Width, Height;
 	// the dimensions of the actual window itself, in pixels
-	long long unsigned int Aperture_width, Aperture_height;
+	long double Aperture_width, Aperture_height;
 	// the dimensions of what the window is currently spanning, in pixels(1px/m)
 	~SFML_Window();
 };

@@ -31,22 +31,42 @@ Inertia_complex::Inertia_complex(double  kfactor, VectorVictor::Vector2 Position
 
 double Inertia_complex::Get_moment_about_pivot(VectorVictor::Vector2 pivot_point, double inside_mass, double outside_mass)
 {	double moment = (inside_mass*k);
+	// this should be changed, given that a moment is actually something
+	// different ;)
+	
+	// if the pivot point was the origin of the part, we're okay
 	if(pivot_point != Position)
-	{	pivot_point = Position - pivot_point;			// possible reference entanglement here if the point is referenced otherwise... not sure what that actually meant...
-		double r = pivot_point.Get_vector_magnitude();	// get the offset vector from the pivot point, and find its magnitude for PAT
-		moment += (inside_mass*(r*r));							// I(r) = Icg + (m(r^2))	
+	{	// but if not we need to apply the parallel axis theorem to find the new
+		// moment of inertia around the new axis
+		pivot_point = Position - pivot_point;
+		// so we find the relative offset vector from the parts center where
+		// our original moment of inertia was calculated, to the new axis that
+		// we are calculating the moment of inertia around
+		double r = pivot_point.Get_vector_magnitude();	
+		// we use that info to find the relative offsets magnitude
+		moment += (inside_mass*(r*r));		
+		//and finally use the PAT as stated above & below
+		// I(r) = Icg + (m(r^2))	
 	}	return moment;
 }
 
 double Inertia_complex::Get_moment_about_pivot(double inside_mass, double outside_mass)
 {	double moment = (inside_mass*k);
+	// we start as usual
 	double r = Position.Get_vector_magnitude();
+	// and we check to see if the Position of the element is offset from the
+	// center of the parent vessel
+	
+	// gotta remember, position is in the parent vessels frame of reference
 	if(r != 0)
-	{	moment += (inside_mass*(r*r));		// Apply the parallel axis theorem here
+	{	moment += (inside_mass*(r*r));
 		return moment;
+		// Apply the parallel axis theorem here
+		// to shift it relative to our new axis
 	}
 	else
 	{	return moment;
+		// other wise just send it as is
 	}
 }
 
@@ -64,8 +84,14 @@ Inertia_cylinder::Inertia_cylinder(double radius, double cylinder_height, Vector
 	height = cylinder_height;
 	hollow = false;
 	k = (height*height);
+	// weird that the 1/12 isnt applied here, but rather in the function call'
+	// itself. Oh well...
 	Position = PositionVector;
 	interior_moment = NULL;
+	// simple set calls, except for this last one, not sure why it absolutely
+	// has to be NULL, but no point in fixing an aint broke
+	
+	// I dont like this setup, this should really be done with separate objects
 }
 
 Inertia_cylinder::Inertia_cylinder(double inner_radius, double outer_radius, double cylinder_height, VectorVictor::Vector2 PositionVector)
@@ -76,6 +102,8 @@ Inertia_cylinder::Inertia_cylinder(double inner_radius, double outer_radius, dou
 	k = ((3*((Outer_radius*Outer_radius)+(Inner_radius*Inner_radius)))+(height*height));
 	Position = PositionVector;
 	interior_moment = new Inertia_cylinder(inner_radius, cylinder_height, PositionVector);
+	// similar to above, just that we calculate k differently, and the inside
+	// moment is initialized for obvious reasons
 }
 
 double Inertia_cylinder::Get_moment_about_pivot(VectorVictor::Vector2 pivot_point, double inside_mass, double outside_mass)

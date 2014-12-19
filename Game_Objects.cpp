@@ -981,23 +981,39 @@ bool TVessel::In_view(SFML_Window * window, int zoom_factor)
 
 void TVessel::Draw_vessel(SFML_Window * iwindow)
 {	// very simple to the draw flag for TPlanets, save a few minor details
-	sf::Vector2f offset(Position.Get_x(), Position.Get_y());
+	//sf::Vector2f offset(Position.Get_x(), Position.Get_y());
 	// create a sf vector representing the in-universe coords of the vessel
-	sf::Vector2f camera_origin(iwindow->origin.x, iwindow->origin.y);
+	//sf::Vector2f camera_origin(iwindow->origin.x, iwindow->origin.y);
 	// and another sf vector representing the camera origin
 	// (in this case the top left corner of the camera)
-	offset -= camera_origin;
+	//offset -= camera_origin;
 	// we find the relative offset from the camera to the object
-	offset.y = -offset.y;
+	//offset.y = -offset.y;
+	//offset.x *= 10;
+	//offset.y *= 10;
 	// flip the y axis for SFML specific reasons
-	Object_sprite->setPosition(offset);
+	//Object_sprite->setPosition(offset);
 	// we locate the sprite in the right part of the window
+	
+	VectorVictor::Vector2 offset(Position.Get_x(), Position.Get_y());
+	VectorVictor::Vector2 camera_origin(iwindow->origin.Get_x(), iwindow->origin.Get_y());
+	offset -= camera_origin;
+	offset.y *= -1;
+	offset.x *= 10;
+	offset.y *= 10;
+	
+	sf::Vector2f camera_offset(offset.x, offset.y);
+	Object_sprite->setPosition(camera_offset);
+	//k lets see what that did
+	
+	// okay so here we replace the old order of operations in drawing the vessel
+	// in order to kill the jitterbug
 	
 	//offset += sf::Vector2f(40, -40);		// never did figure this part out...
 	// this, hmmm... I dont reallly know what this is
 	// this might have been a really early workaround in the code, should just
 	// scrap it
-	Flag_sprite->setPosition(offset + sf::Vector2f((10*Hull_component->Length), -(10*Hull_component->Length)));
+	Flag_sprite->setPosition(camera_offset + sf::Vector2f((10*Hull_component->Length), -(10*Hull_component->Length)));
 	// draws the flag near the vessel for some reason.
 	// really just window-dressing here, not necessary
 	

@@ -56,6 +56,8 @@ key_commands::key_commands()
 	minus = false;
 }
 
+// may cause burning in eyes, but it is useful
+
 key_commands::~key_commands()
 {
 }
@@ -63,7 +65,24 @@ key_commands::~key_commands()
 // the function for handling which keyboard input was sent //
 
 void Log_keystroke(sf::Keyboard::Key input_event, key_commands * icommands, bool key_down)
-{	// The Enter or Return key
+{	// simple concept really, just pass whether the key is being held down
+	// as true or false to the stored value for that key, then if it is true,
+	// also call the function for that keypress (so things can be handled a bit
+	// easier in the main cpp file
+	
+	// to be honest though, it might just be easier to directly store a copy
+	// of the sf event itself
+	
+	// but I still want to store info about the keys that are up and those that
+	// are down
+	
+	// maybe the best solution here is to create a vector of strings 
+	// (or sf keyboard types, then let the receiving object take a look at them
+	// and deal with them how it sees fit
+	
+	// yes, yes, I like that. The boolean wasnt really used anyways
+	
+	// The Enter or Return key
 	if(input_event == sf::Keyboard::Return)
 	{	icommands->enter = key_down;
 		if(key_down == true)
@@ -432,6 +451,12 @@ void Log_keystroke(sf::Keyboard::Key input_event, key_commands * icommands, bool
 }
 
 // SFML_Window Utility class ///////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+
+// a really important part of the engine, because it stores data used throughout
+// basically just a plain old wrapper for sf::RenderWindow, but it does store
+// important info about the way that the window is related to the in game
+// universe
 
 SFML_Window::SFML_Window(std::string title, unsigned int h, unsigned int w)
 {	Title = title;
@@ -439,6 +464,11 @@ SFML_Window::SFML_Window(std::string title, unsigned int h, unsigned int w)
 	Width = w;
 	Aperture_height = h*10;
 	Aperture_width = w*10;
+	// I think this is wrong, the actual scale is directly 1m to 1 pixel
+	// but I will need to check how Ignition Engine deals with aperture height
+	// before I change anything
+	
+	// this was the reason why everything appeared 10x too big
 	Set_origin();
 	window = new sf::RenderWindow(sf::VideoMode(w, h), Title);
 	window->setSize(sf::Vector2u(h, w));

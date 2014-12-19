@@ -175,7 +175,8 @@ int main()
 			}
         }
    		if(Title_screen->finished == true)
-		{	Starfighter->Ignition();	
+		{	Starfighter->Set_aperture_scale();
+			Starfighter->Ignition();	
 			// Buckle up ;)
 			// basically the above method kicks the whole show into gear
 		}	// okay, now that fixed the weird window behaviour I was seeing
@@ -259,36 +260,34 @@ void key_commands::Tilde()
 // both map zoom commands should be wrapped in a logical statement based on 
 
 void key_commands::Dash()
-{	if(Starfighter->zoom_exponent < (Max_map_scale -1))	// greater than 6 blows up because our width integer goes out of bounds and resets itself 
-	{	Starfighter->zoom_exponent++;
-		Starfighter->Main_Window->Set_aperture_dimensions(((Starfighter->Main_Window->Aperture_width)*(10)),((Starfighter->Main_Window->Aperture_height)*(10)));
+{	if(Starfighter->map_view == true)
+	{
+		Starfighter->Increase_map_scale();
 		Update_text_displays();
 	}
 	else
-	{	// Super map? Evidently this will require something a little bit more complex, since the data limits on the unsigned int aperture size get overrun when going up to 10^7
-	}	// current limits are roughly 1 million km by 500-600 thousand, plenty for most any planetary/moons system, but not enough for interplanetary travel
-
-		// lol. After a bit of tinkering, this was fixed so that the new exponent goes up to 15, 107 LIGHTYEARS!!! by about 63 LY
-
+	{	// the change of the scale of the camera view once, that part is 
+		//implemented
+	}
 }	// zooms out the map view by a factor of 10
 
 void key_commands::Equal()
-{	if(Starfighter->zoom_exponent >= 2)
-	{	Starfighter->zoom_exponent--;
-		double h = Starfighter->Main_Window->Aperture_height;
-		double w = Starfighter->Main_Window->Aperture_width;
-		h /= 10;	w /= 10;
-		Starfighter->Main_Window->Set_aperture_dimensions(w, h);
+{	if(Starfighter->map_view == true)
+	{	Starfighter->Decrease_map_scale();
 		Update_text_displays();
+	}
+	else
+	{	// the change of the scale of the camera view once, that part is 
+		//implemented
 	}
 }	// Zooms in the map view by a factor of ten
 
 void key_commands::V()
 {	if(Starfighter->map_view == false)
-	{	Starfighter->map_view = true;
+	{	Starfighter->Map_view();
 	}
 	else if(Starfighter->map_view == true)
-	{	Starfighter->map_view = false;
+	{	Starfighter->Camera_view();
 	}
 }	// switches back & forth between the map view & the real view
 

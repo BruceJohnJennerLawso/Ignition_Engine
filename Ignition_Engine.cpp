@@ -137,7 +137,7 @@ int Ignition_engine::Ignition()
 					(*it)->Frame(deltat, simulation_time, Celestial_list);
 					// run the vessels frame update based on frame length
 				}
-					Main_Window->Set_origin((Current_vessel->Position.x - (Main_Window->Width/2)),(Current_vessel->Position.y + (Main_Window->Height/2)));		
+					Main_Window->Set_origin((Current_vessel->Position.x - (Main_Window->Aperture_width/2)),(Current_vessel->Position.y + (Main_Window->Aperture_height/2)));		
 					// Relocate the window to center on current vessel
 					// I always disliked how Orbiter did this, would rather
 					// have some sort of polymorphic "targetable" setup, so
@@ -226,6 +226,46 @@ void Ignition_engine::Previous_vessel()
 		}
 		cy++;
 	}
+}
+
+void Ignition_engine::Map_view()
+{	map_view = true;
+	// flip the bool so we know which mode we are in
+	Set_aperture_scale();
+	// and resize the Main windows aperture to match the current map view
+	
+}
+
+void Ignition_engine::Increase_map_scale()
+{	if(zoom_exponent < (Max_map_scale -1))
+	{	// minus one cause if we're at the max map scale, we cant go up any higher
+		zoom_exponent++;
+		Set_aperture_scale();
+	}
+}
+
+	
+void Ignition_engine::Decrease_map_scale()
+{	if(zoom_exponent >= 2)
+	{	zoom_exponent--;
+		Set_aperture_scale();
+	}
+}
+
+void Ignition_engine::Set_aperture_scale()
+{	if(map_view == true)
+	{	Main_Window->Set_aperture_dimensions(((Main_Window->Width)*(pow(10, zoom_exponent))),((Main_Window->Height)*(pow(10, zoom_exponent))));
+	}
+	else if(map_view == false)
+	{	Main_Window->Set_aperture_dimensions(((long double)Main_Window->Width/10),((long double)Main_Window->Height/10));
+	}
+}
+	
+void Ignition_engine::Camera_view()
+{	map_view = false;
+	// flip the bool so we know which mode we are in
+	Set_aperture_scale();
+	// and resize the Main windows aperture to match the current map view
 }
 
 Ignition_engine::~Ignition_engine()
