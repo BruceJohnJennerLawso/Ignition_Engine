@@ -658,27 +658,40 @@ bool TPlanet::In_view(SFML_Window * window, int zoom_factor)
 void TPlanet::Draw_flag(SFML_Window * iwindow, int zoom_factor)
 {	// sounds odd since we dont exactly draw a flag here, but it works anyways
 	// could change this so it sounds better I guess... still early on
-	sf::Vector2f offset(Get_position(Simulation_time).Get_x(), Get_position(Simulation_time).Get_y());	
+	//sf::Vector2f offset(Get_position(Simulation_time).Get_x(), Get_position(Simulation_time).Get_y());	
 	// we create a sf vector here with the same magnitude as the in-universe
 	// position of the planet in question
-	sf::Vector2f camera_origin(iwindow->origin.x, iwindow->origin.y);
+	//sf::Vector2f camera_origin(iwindow->origin.x, iwindow->origin.y);
 	// and we create a second sf vector representing the in-universe offset
 	// of the camera (specifically its upper left corner)
-	offset -= camera_origin;
+	//offset -= camera_origin;
 	// we find the relative offset from the camera origin to the planets center
-	offset.y = -offset.y;
+	//offset.y = -offset.y;
 	// flip the coordinate system so up is positive y instead of vice-versa
 	// (its a peculiarity with how SFML works)
-	offset.y *= pow(0.1, (zoom_factor));
-	offset.x *= pow(0.1, (zoom_factor));
+	//offset.y *= pow(0.1, (zoom_factor));
+	//offset.x *= pow(0.1, (zoom_factor));
 	// and scale back the offsets by 10^zoom_factor
 	// since we need to take in game meters and scale them back to pixels
 	// on the screen
 	
+	// okay jitterbug free version:
+	
+	VectorVictor::Vector2 offset(Get_position(Simulation_time).Get_x(),  Get_position(Simulation_time).Get_y());
+	VectorVictor::Vector2 camera_origin(iwindow->origin.Get_x(), iwindow->origin.Get_y());
+	offset -= camera_origin;
+	offset.y *= -1;
+	offset.y *= pow(0.1, (zoom_factor));
+	offset.x *= pow(0.1, (zoom_factor));
+	
+	sf::Vector2f camera_offset(offset.x, offset.y);
+	
+	
+	
 	// looks like 1/10, 1/100, 1/1000, ... etc.
 	
 	for(std::vector<sf::Sprite*>::iterator it = Planet_sprites.begin(); it != Planet_sprites.end(); ++it)
-	{	(*it)->setPosition(offset);
+	{	(*it)->setPosition(camera_offset);
 	}	// eh, just easier to do it this way. I should probably change it
 	// eventually so that it only positions the one that we need
 	iwindow->window->draw(*(Planet_sprites.at(zoom_factor-1)));
@@ -1006,6 +1019,9 @@ void TVessel::Draw_vessel(SFML_Window * iwindow)
 	Object_sprite->setPosition(camera_offset);
 	//k lets see what that did
 	
+	// exactly what I thought, caused by the use of sf::Vector2f instead of
+	// the higher precision long doubles in VV2
+	
 	// okay so here we replace the old order of operations in drawing the vessel
 	// in order to kill the jitterbug
 	
@@ -1025,20 +1041,31 @@ void TVessel::Draw_vessel(SFML_Window * iwindow)
 }
 
 void TVessel::Draw_flag(SFML_Window * iwindow, int zoom_factor)
-{	sf::Vector2f offset(Position.Get_x(), Position.Get_y());	
+{	//sf::Vector2f offset(Position.Get_x(), Position.Get_y());	
 	// aaand we create our sf vector for the flag position
-	sf::Vector2f camera_origin(iwindow->origin.x, iwindow->origin.y);
+	//sf::Vector2f camera_origin(iwindow->origin.x, iwindow->origin.y);
 	// and we create another one for the camera position
-	offset -= camera_origin;
+	//offset -= camera_origin;
 	// we get the relative coordinates of the vessels flag relative to the
 	// camera origin 
-	offset.y = -offset.y;
+	//offset.y = -offset.y;
 	// flip the y axis for SFML specific reasons
+	//offset.y *= pow(0.1, (zoom_factor));
+	//offset.x *= pow(0.1, (zoom_factor));
+	
+	VectorVictor::Vector2 offset(Position.Get_x(), Position.Get_y());
+	VectorVictor::Vector2 camera_origin(iwindow->origin.Get_x(), iwindow->origin.Get_y());
+	offset -= camera_origin;
+	offset.y *= -1;
 	offset.y *= pow(0.1, (zoom_factor));
 	offset.x *= pow(0.1, (zoom_factor));
+	
+	sf::Vector2f camera_offset(offset.x, offset.y);
+	
+	
 	// scale the offset back by 1/(10^zoom), since the offset in pixels needs
 	// to be shrunk to fit the scale of the window
-	Flag_sprite->setPosition(offset);
+	Flag_sprite->setPosition(camera_offset);
 	iwindow->window->draw(*Flag_sprite);
 	// and we finally locate the sprite in the window, and draw it
 }
