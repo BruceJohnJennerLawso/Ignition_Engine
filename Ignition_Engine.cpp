@@ -2,6 +2,8 @@
 #include <SFML/Audio.hpp>
 #include "Ignition_Engine.h"
 
+
+
 Ignition_engine::Ignition_engine(std::string title, unsigned int initial_window_width, unsigned int initial_window_height, std::string program_version, double redraw_displays_interval, std::string Intro_audio_path, std::string Game_audio_path)
 {	Main_Window = new SFML_Window(title, initial_window_width, initial_window_height);
 	// construct a new SFML window with title & size
@@ -39,6 +41,10 @@ Ignition_engine::Ignition_engine(std::string title, unsigned int initial_window_
 	//Current_vessel = Vessel_list.at(0);
 	// gotta have something for the current vessel, otherwise inputs go to
 	// nowhere and that would be bad. later to be loaded from a scn file
+	
+	camera_scale = 1.00;
+	k_camera = 5.5;
+	
 }
 
 int Ignition_engine::Ignition()	
@@ -95,10 +101,13 @@ int Ignition_engine::Ignition()
 				// let the event know that a particular key was released
 			}
 			
-			if (event.type == sf::Event::Closed)
+			if(event.type == sf::Event::Closed)
 			{	Main_Window->window->close();
 				// user clicked the little x button on the titlebar, 
 				// we're outa here
+			}
+			if(event.type == sf::Event::MouseWheelMoved)
+			{	Change_camera_scale(- (double)event.mouseWheel.delta);
 			}
 		}	
 		Game_audio->Update_game_audio();		
@@ -151,7 +160,7 @@ int Ignition_engine::Ignition()
 					// at least one thing verified here:
 					// premature optimization really is the root of all evil ;)
 					if((*it)->In_view(Main_Window, 0) == true)	// check if the vessel is in view
-					{	(*it)->Draw_vessel(Main_Window);																						
+					{	(*it)->Draw_vessel(Main_Window, camera_scale);																						
 						// and draw it if it is. Saves draw calls if the 
 						// vessel isnt currently onscreen
 						// this in particular seems to be the only major
@@ -246,7 +255,7 @@ void Ignition_engine::Increase_map_scale()
 
 	
 void Ignition_engine::Decrease_map_scale()
-{	if(zoom_exponent >= 2)
+{	if(zoom_exponent > Min_map_scale)
 	{	zoom_exponent--;
 		Set_aperture_scale();
 	}
@@ -257,7 +266,7 @@ void Ignition_engine::Set_aperture_scale()
 	{	Main_Window->Set_aperture_dimensions(((Main_Window->Width)*(pow(10, zoom_exponent))),((Main_Window->Height)*(pow(10, zoom_exponent))));
 	}
 	else if(map_view == false)
-	{	Main_Window->Set_aperture_dimensions(((long double)Main_Window->Width/10),((long double)Main_Window->Height/10));
+	{	Main_Window->Set_aperture_dimensions((( (long double)Main_Window->Width * camera_scale)/10),(( (long double)Main_Window->Height * camera_scale)/10));
 	}
 }
 	
@@ -267,6 +276,38 @@ void Ignition_engine::Camera_view()
 	Set_aperture_scale();
 	// and resize the Main windows aperture to match the current map view
 }
+
+void Ignition_engine::Increase_camera_scale()
+{	if(camera_scale < Max_cam_scale)
+	{	camera_scale += (deltat*k_camera);
+		Set_aperture_scale();
+	}
+}
+
+void Ignition_engine::Change_camera_scale(double wheel_delta)
+{	if((camera_scale <= Max_cam_scale)&&(camera_scale >= Min_cam_scale))
+	{	camera_scale += (deltat*k_camera*wheel_delta);
+	
+		if(camera_scale > Max_cam_scale)
+		{	camera_scale = Max_cam_scale;
+		}
+		else if(camera_scale < Min_cam_scale)
+		{	camera_scale = Min_cam_scale;
+		}
+		Set_aperture_scale();
+	}
+	else
+	{
+	}
+}
+
+void Ignition_engine::Decrease_camera_scale()
+{	if(camera_scale > Min_cam_scale)
+	{	camera_scale -= (deltat*k_camera);
+		Set_aperture_scale();
+	}
+}
+
 
 Ignition_engine::~Ignition_engine()
 {	delete commands;

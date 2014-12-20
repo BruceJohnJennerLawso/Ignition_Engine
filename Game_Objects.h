@@ -21,6 +21,11 @@
 
 // I should look that up
 
+#define Min_map_scale 1
+
+#define Max_cam_scale 10.00
+#define Min_cam_scale 0.01
+
 class Force
 {	public:
 	// all really just a nice placeholder for two vectors, since a force acting
@@ -438,6 +443,8 @@ class CNewtonian_Object
 	// this is fine for now, but I really would prefer shifting it to the
 	// vessel components (specifically the hull in this case)
 	
+	double pix_length;
+	
 	sf::Sprite * Flag_sprite;	
 	// the little icon that gets drawn in the map view.
 	// A couple of things should change for this I think, specifically the flag
@@ -509,7 +516,7 @@ class TVessel: public CNewtonian_Object
 	void Draw_flag(SFML_Window * window, int zoom_factor);	
 	// also implemented here, although no particular reason that I see
 
-	void Draw_vessel(SFML_Window * iwindow);												
+	void Draw_vessel(SFML_Window * iwindow, double cam_scale);												
 	// this should eventually become a vertex array with the thruster visuals 
 	// thrown in alongside it
 	virtual void Draw_controls(SFML_Window * iwindow, bool Map_status);

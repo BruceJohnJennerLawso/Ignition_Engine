@@ -267,7 +267,9 @@ void key_commands::Dash()
 		Update_text_displays();
 	}
 	else
-	{	// the change of the scale of the camera view once, that part is 
+	{	Starfighter->Increase_camera_scale();
+		
+		// the change of the scale of the camera view once, that part is 
 		//implemented
 	}
 }	// zooms out the map view by a factor of 10
@@ -278,7 +280,9 @@ void key_commands::Equal()
 		Update_text_displays();
 	}
 	else
-	{	// the change of the scale of the camera view once, that part is 
+	{	Starfighter->Decrease_camera_scale();
+		
+		// the change of the scale of the camera view once, that part is 
 		//implemented
 	}
 }	// Zooms in the map view by a factor of ten

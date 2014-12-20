@@ -6,6 +6,8 @@
 #ifndef IgnitionEngine
 #define IgnitionEngine
 
+
+
 class Ignition_engine
 {	public:
 	Ignition_engine(std::string title, unsigned int initial_window_width, unsigned int initial_window_height, std::string program_version, double redraw_displays_interval, std::string Intro_audio_path, std::string Game_audio_path);
@@ -47,7 +49,12 @@ class Ignition_engine
 	
 	double camera_scale;
 	// the relative scale of the camera, with the default at 1 being the normal 
-	// camera scale of 10 pixels per meter?  
+	// camera scale of 10 pixels per meter? Larger camera_scale values than one
+	// indicate that the camera is zooming out, while smaller ones are for
+	// zooming in
+	
+	double k_camera;
+	//controls how fast the camera scales in and out, bigger values mean faster
 	
 	long double deltat;	
 	// length of the frame previous to the current one in seconds. 
@@ -111,6 +118,10 @@ class Ignition_engine
 	// zooming in, making the area it covers smaller
 	
 	void Camera_view();
+	
+	void Increase_camera_scale();
+	void Change_camera_scale(double wheel_delta);
+	void Decrease_camera_scale();
 	
 	void Set_aperture_scale();
 	

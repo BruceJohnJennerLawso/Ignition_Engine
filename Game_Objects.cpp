@@ -992,7 +992,7 @@ bool TVessel::In_view(SFML_Window * window, int zoom_factor)
 	// there was some logic behind squaring the distance, but I dont recall
 }
 
-void TVessel::Draw_vessel(SFML_Window * iwindow)
+void TVessel::Draw_vessel(SFML_Window * iwindow, double cam_scale)
 {	// very simple to the draw flag for TPlanets, save a few minor details
 	//sf::Vector2f offset(Position.Get_x(), Position.Get_y());
 	// create a sf vector representing the in-universe coords of the vessel
@@ -1012,8 +1012,17 @@ void TVessel::Draw_vessel(SFML_Window * iwindow)
 	VectorVictor::Vector2 camera_origin(iwindow->origin.Get_x(), iwindow->origin.Get_y());
 	offset -= camera_origin;
 	offset.y *= -1;
-	offset.x *= 10;
-	offset.y *= 10;
+	offset.x *= (10/cam_scale);
+	offset.y *= (10/cam_scale);
+	
+	Object_sprite->setScale((pix_length/((Vessel_tex->getSize().y)*cam_scale)),(pix_length/((Vessel_tex->getSize().y)*cam_scale)));
+	// rescale the axes of the texture to match pix_length in the y and the
+	// appropriate scale for the x dimension
+		
+	// not sure why they both use y, but I think this was distorted when
+	// it used x & y.
+	// This area needs to be looked over again
+		
 	
 	sf::Vector2f camera_offset(offset.x, offset.y);
 	Object_sprite->setPosition(camera_offset);
@@ -1274,7 +1283,7 @@ DeltaGlider::DeltaGlider(double initial_x_position, double initial_y_position, d
 	// the metal looking thing at bottom right. Only there because the onscreen
 	// displays proved hard to read against the background
 	
-	double pix_length = Hull_component->Length*10;
+	pix_length = Hull_component->Length*10;
 	// get the length of the vessels long axis in meters
 	// the multiple of ten thing is fine, but the current window size was
 	// accidentally made 10x too large, so vessels appeared 10x larger than
