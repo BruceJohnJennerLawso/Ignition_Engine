@@ -280,6 +280,7 @@ bool VectorVictor::Vector2::operator != (const VectorVictor::Vector2 v)
 	
 	// specifically this function evaluates if the given functions are the
 	// *exact same*
+		
 	if(this->x != v.x)
 	{	return true;
 	}
@@ -383,7 +384,7 @@ long double VectorVictor::Vector2::Get_vector_magnitude()
 	// just passed by value to pow()
 	output = (vy + vx);
 	// add together the two components
-	output = sqrt(vy);
+	output = sqrt(output);
 	// and run an expensive call to sqrt() to finish applying pythagorean
 	// theorem
 	return output;							

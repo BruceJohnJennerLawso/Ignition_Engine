@@ -38,6 +38,17 @@ class Ignition_engine
 	bool map_view;
 	// is the map view active? False denotes normal camera view
 	
+	long long int zoom_exponent;
+	// the exponent a of the scale of our map view (ie base scale*(10^a))
+	// 10^a is multiplied by the dimensions of the base map view (1024 x 609?)
+	// originally this was some sort of issue with resets over a certain scale,
+	// but its fixed now. I think this is safe to transfer back to a normal
+	// int, the problem was located elsewhere I believe
+	
+	double camera_scale;
+	// the relative scale of the camera, with the default at 1 being the normal 
+	// camera scale of 10 pixels per meter?  
+	
 	long double deltat;	
 	// length of the frame previous to the current one in seconds. 
 	// retrieved by a lovely sf::Clock in our main loop.
@@ -53,13 +64,6 @@ class Ignition_engine
 	
 	// this should also be tied into MFD/DAI display refresh methinks, since
 	// the same problem applies there
-	
-	long long int zoom_exponent;
-	// the exponent a of the scale of our map view (ie base scale*(10^a))
-	// 10^a is multiplied by the dimensions of the base map view (1024 x 609?)
-	// originally this was some sort of issue with resets over a certain scale,
-	// but its fixed now. I think this is safe to transfer back to a normal
-	// int, the problem was located elsewhere I believe
 	
 	int time_acceleration_exponent;
 	// same concept as the zoom exponent, just multiplied by the base deltat
