@@ -188,25 +188,32 @@ std::string VectorVictor::Vector2::Get_vector(std::string unit)	// this would ma
 		// unit, so we sort through and tack an appropriate one on
 		switch(exponent)
 		{	case 1:
-			vector.append("k");		// kilo
+			vector.append("k");		
+			// kilo
 			break;
 			case 2:
-			vector.append("M"); 	// Mega
+			vector.append("M"); 	
+			// Mega
 			break;
 			case 3:
-			vector.append("G");	// Giga
+			vector.append("G");	
+			// Giga
 			break;		
 			case 4:
-			vector.append("T");		// Tera
+			vector.append("T");		
+			// Tera
 			break;
 			case 5:
-			vector.append("P");	// Peta
+			vector.append("P");	
+			// Peta
 			break;								
 			case 6:
-			vector.append("E");	// Exa		// (actual usefulness pretty much ends here)
+			vector.append("E");	
+			// Exa		// (actual usefulness pretty much ends here)
 			break;
 			case 7:
-			vector.append("Z");		// Zetta
+			vector.append("Z");		
+			// Zetta
 			break;						
 		}
 	}
@@ -253,34 +260,45 @@ VectorVictor::Vector2  VectorVictor::Vector2::operator-= (VectorVictor::Vector2 
 }
 
 VectorVictor::Vector2 VectorVictor::Vector2::operator= (const VectorVictor::Vector2 v)
-{	// copy operator, allowing us to 
+{	// copy operator, copies each element to the current Vector2
 	x = v.x;
 	y = v.y;
 	return (*this);		
 }
 
 VectorVictor::Vector2 VectorVictor::Vector2::operator *= (const double c)
-{	x *= c;
+{	// multiply every element in the vector by some value c
+	x *= c;
 	y *= c;
 	return (*this);		
 }
 
 bool VectorVictor::Vector2::operator != (const VectorVictor::Vector2 v)
-{	if(this->x != v.x)
+{	// to check if the vectors are not equivalent, we specifically look at
+	// each element in each vector to see if any are different. If both of x 
+	// and y are equivalent, we return false to indicate that it was == 
+	
+	// specifically this function evaluates if the given functions are the
+	// *exact same*
+	if(this->x != v.x)
+	{	return true;
+	}
+	else
 	{	if(this->y != v.y)
 		{	return true;
 		}
 		else
 		{	return false;
+			// both elements were the same, just not your lucky day
 		}
-	}
-	else
-	{	return false;
 	}	
 }
 
 bool VectorVictor::Vector2::operator == (const VectorVictor::Vector2 v)
-{	if(this->x == v.x)
+{	// same idea as !=, now we just to check to see if each element in each
+	// vector is the same as the one in the other
+	// iff x1==x2 & y1==y2, we return true, indicating that
+	if(this->x == v.x)
 	{	if(this->y == v.y)
 		{	return true;
 		}
@@ -298,41 +316,76 @@ bool VectorVictor::Vector2::operator == (const VectorVictor::Vector2 v)
 
 void VectorVictor::Vector2::Normalize()
 {	long double vector_magnitude = this->Get_vector_magnitude();
+	// we find the current magnitude of the vector
 	if(vector_magnitude > 0)
-	{	Set_x(x/(vector_magnitude));
+	{	// and divide by it to adjust the vector to its correct value
+		Set_x(x/(vector_magnitude));
 		Set_y(y/(vector_magnitude));
 	}
 }
 
 VectorVictor::Vector2 VectorVictor::Vector2::Vector_normal()
 {	VectorVictor::Vector2 Output;
-	long double vector_magnitude = this->Get_vector_magnitude();	std::cout << vector_magnitude << std::endl;
-	Output.Set_x(x/(vector_magnitude));	std::cout << this->Get_x() << std::endl;
-	Output.Set_y(y/(vector_magnitude));	std::cout << this->Get_y() << std::endl;
-	return Output;										
+	long double vector_magnitude = this->Get_vector_magnitude();
+	// we find our current vector magnitude	
+	Output.Set_x(x/(vector_magnitude));	
+	Output.Set_y(y/(vector_magnitude));
+	// set the output vector to the normalized value
+	return Output;
+	// and send the result on its merry way
+	// important to note: does *not* affect the contents of the calling
+	// Vector2 in any way										
 }
 
 void VectorVictor::Vector2::Rotate_vector(long double rotation)
-{	rotation = ((rotation/360)*2*Pi);				
+{	rotation = ((rotation/360)*2*Pi);	
+	// we convert our rotation from degrees to radians, since standard library
+	// math calls want radians to do their calculations			
 	x = ( (x*(cos(rotation)))+(y*(sin(rotation))) );	
-	y = ( (x*((-1)*sin(rotation)))+(y*(cos(rotation))) );															 	
-}	// Rotation is counter-clockwise, around the origin.
-	// After my conversation with Prof Mann on 11/07/13, I later realized that I wasnt multiplying the vectors properly.
+	y = ( (x*((-1)*sin(rotation)))+(y*(cos(rotation))) );
+	// multiply the vector by the 2d rotational matrix, rotating clockwise
+	// around the origin. 
+	
+	// [cos(theta)		sin(theta)]
+	// [-sin(theta		cos(theta)]
+	
+	// important to note that this vector affects the contents of the vector
+	// that calls it. If you want to get the rotated vector without affecting
+	// its current orientation, you need to call the next method below  															 	
+}	
 	
 VectorVictor::Vector2 VectorVictor::Vector2::Get_rotated_vector(long double rotation)
 {	VectorVictor::Vector2 V_rotated(0, 0);
-	rotation = ((rotation/360)*2*Pi);				
+	// pointless to be explicit about it being 0,0
+	// this would work better with setting its value as the parents
+	// x and y here instead
+	rotation = ((rotation/360)*2*Pi);
+	// convert our rotation from degrees to radians				
 	V_rotated.x = ( (x*(cos(rotation)))+(y*(sin(rotation))) );	
 	V_rotated.y = ( (x*((-1)*sin(rotation)))+(y*(cos(rotation))) );
+	// multiply the vector by the 2d rotational matrix, rotating clockwise
+	// around the origin. 
+	
+	// [cos(theta)		sin(theta)]
+	// [-sin(theta		cos(theta)]
+	
 	return V_rotated;															 	
-}	// Rotation is counter-clockwise, around the origin.
-	// After my conversation with Prof Mann on 11/07/13, I later realized that I wasnt multiplying the vectors properly.
+	// and send the resulting object on its way
+}	
 
 long double VectorVictor::Vector2::Get_vector_magnitude()
 {	long double output, vx, vy;
+	// define the variables we will need to do operations on
 	vx = pow(x, 2);
-	vy = pow(y, 2);	vy += vx;
+	vy = pow(y, 2);	
+	// square both the x and y elements
+	// does this in an odd way, but the x and y of the object are not affected
+	// just passed by value to pow()
+	output = (vy + vx);
+	// add together the two components
 	output = sqrt(vy);
+	// and run an expensive call to sqrt() to finish applying pythagorean
+	// theorem
 	return output;							
 }
 
@@ -340,7 +393,10 @@ long double VectorVictor::Vector2::Get_vector_magnitude_squared()
 {	long double output, vx, vy;
 	vx = pow(x, 2);
 	vy = pow(y, 2);
+	// define our variables just like before
 	output = (vx+vy);
+	// add them up, but simply return that result as is, since we dont need to
+	// run that expensive call to sqrt()
 	return output;				
 }
 
@@ -348,7 +404,7 @@ long double VectorVictor::Vector2::Get_vector_magnitude_squared()
 ////////////////////////////////////////////////////////////////////////////////
 
 VectorVictor::Vector2::~Vector2(void)
-{								
+{	// no memory allocations, so nothing much to do here
 }
 
 
@@ -357,6 +413,8 @@ VectorVictor::Vector2::~Vector2(void)
 
 long double VectorVictor::Get_dot_product(long double x1, long double y1, long double x2, long double y2)
 {	long double output = ((x1*x2)+(y1*y2));
+	// not much to say here, just perform the standard dot-product operation
+	// & return the result. same thing below
 	return output;
 }
 
@@ -366,19 +424,30 @@ long double VectorVictor::Get_dot_product(VectorVictor::Vector2 First_vector, Ve
 	long double x2 = Second_vector.Get_x();
 	long double y2 = Second_vector.Get_y();
 	long double output = ((x1*x2)+(y1*y2));
+	// simple dot product, now done with vector objects passed
+	// this doesnt need to be this wasteful, we could just use the pass by
+	// value vv2s that were passed as parameters instead
 	return output;
 }
 
 long double VectorVictor::Get_vector_angle(VectorVictor::Vector2 First_vector, VectorVictor::Vector2 Second_vector)
-{	long double theta, cos_theta;
+{	// given that a dot b = ||a|| ||b|| cos(theta)
+	// we look to solve for the angle between the two vectors
+	// again, not sure where this is actually used, but good to have
+	long double theta, cos_theta;
 	long double dot_product, Magnitude1, Magnitude2;
 	dot_product = VectorVictor::Get_dot_product(First_vector, Second_vector);
+	// we find the dot product of the two vectors
 	Magnitude1 = First_vector.Get_vector_magnitude();
 	Magnitude2 = Second_vector.Get_vector_magnitude();
+	// and then we find the magnitudes of the vectors so we can get the
+	// value of cos(theta)
 	cos_theta = ((dot_product)/(Magnitude1*Magnitude2));
 	theta = acos(cos_theta);
+	// finally we run a call to arccos, perhaps a wee bit expensive, but dont
+	// know any other ways of doing it, so hey
 	return theta;
-}	// cos(theta) = (a dot b)/(Maga*Magb);
+}
 
 long double VectorVictor::Get_cross_product(Vector2 First_vector, Vector2 Second_vector)
 {	long double x1, y1, x2, y2;
@@ -386,14 +455,17 @@ long double VectorVictor::Get_cross_product(Vector2 First_vector, Vector2 Second
 	y1 = First_vector.Get_y();
 	x2 = Second_vector.Get_x();
 	y2 = Second_vector.Get_y();
+	// we set up the variables from each vector
 	long double Output = ((x1*y2)-(x2*y1));
+	// then calculate the cross product, specifically the component in the k hat
+	// direction, since all vectors lie flat in the plane anyways	
 	return Output;
-}	// Sorry for the sketchiness, assumption goes that the vectors are really (x,y,0), this returns the z value of their cross products
+}	
 
 long double VectorVictor::Get_vector_separation(Vector2 First_vector, Vector2 Second_vector)
 {	long double dx = (First_vector.x - Second_vector.x);
 	long double dy = (First_vector.y - Second_vector.y);
-	
 	long double rad = sqrt((dx*dx)+(dy*dy));
+	// simple enough, just applying pythagoras again
 	return rad;
 }

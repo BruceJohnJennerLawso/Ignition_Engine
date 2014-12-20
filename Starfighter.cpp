@@ -180,6 +180,7 @@ int main()
 			// Buckle up ;)
 			// basically the above method kicks the whole show into gear
 		}	// okay, now that fixed the weird window behaviour I was seeing
+			// the if statement was in the window poll event loop
 		
 			// And we have a liftoff!!! WOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO 
    		Starfighter->Main_Window->window->setSize(sf::Vector2u(Starfighter->Main_Window->Width, Starfighter->Main_Window->Height));
