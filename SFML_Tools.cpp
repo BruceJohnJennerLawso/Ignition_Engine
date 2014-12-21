@@ -13,6 +13,30 @@
 
 
 
+Cursor_commands::Cursor_commands()
+{	position.x = 0.00;
+	position.y = 0.00;
+	
+	Right_click = false;
+	Left_click = false;
+	Middle_click = false;
+}
+
+void Cursor_commands::Set_cursor_state(float x, float y, bool right, bool left, bool middle)
+{	position.x = x;
+	position.y = y;
+	
+	Right_click = right;
+	Left_click = left;
+	Middle_click = middle;
+}
+
+Cursor_commands::~Cursor_commands()
+{
+}
+
+
+
 // this whole class is horrible, but there doesnt really seem to be any 
 // alternatives that I can see at the moment. Its just too integral to how the
 // engine handles inputs with regards to internal objects
@@ -594,6 +618,7 @@ SFML_loadscreen::~SFML_loadscreen()
 SFML_titlescreen::SFML_titlescreen(std::string texture_path, bool fadein, double fade_in_length, double fade_out_length, std::string title, std::string font_path, unsigned int textr, unsigned int textg, unsigned int textb, unsigned int pfont, sf::Vector2f Title_pos)
 {	Active = true;
 	splash_texture = new sf::Texture();
+	splash_texture->setSmooth(true);
 	splash_sprite = new sf::Sprite();
 	if(!splash_texture->loadFromFile(texture_path))
 	{	this->~SFML_titlescreen();

@@ -25,6 +25,9 @@ class Ignition_engine
 	// the awkward but effective method of handling inputs to objects
 	// gets sent to the current vessel each frame
 	
+	Cursor_commands * cursor_commands;
+	// same thing as key commands, but this time for the mouse
+	
 	TVessel * Current_vessel;
 	// Reference to the current vessel the player is controlling. Might be
 	// better to replace this with something less risky like a string handle

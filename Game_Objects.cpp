@@ -764,6 +764,10 @@ void CNewtonian_Object::Receive_inputs(key_commands * current_inputs, double dt)
 {	Talkback("Bad call to CNewtonian_Object::Receive_inputs(key_commands * current_inputs, double dt)");
 }
 
+void CNewtonian_Object::Receive_cursor_inputs(Cursor_commands * cursor_action, long double dt)
+{	Talkback("Bad call to CNewtonian_Object::Receive_cursor_inputs(Cursor_commands * cursor_action, long double dt)");
+}
+
 bool CNewtonian_Object::In_view(SFML_Window * window, int zoom_factor)
 {	Talkback("Bad call to CNewtonian_Object::In_view(SFML_Window * window, int zoom_factor)");
 	return false;
@@ -1012,8 +1016,8 @@ void TVessel::Draw_vessel(SFML_Window * iwindow, double cam_scale)
 	VectorVictor::Vector2 camera_origin(iwindow->origin.Get_x(), iwindow->origin.Get_y());
 	offset -= camera_origin;
 	offset.y *= -1;
-	offset.x *= (10/cam_scale);
-	offset.y *= (10/cam_scale);
+	offset.x *= (10.00000000/cam_scale);
+	offset.y *= (10.00000000/cam_scale);
 	
 	Object_sprite->setScale((pix_length/((Vessel_tex->getSize().y)*cam_scale)),(pix_length/((Vessel_tex->getSize().y)*cam_scale)));
 	// rescale the axes of the texture to match pix_length in the y and the
@@ -1045,7 +1049,7 @@ void TVessel::Draw_vessel(SFML_Window * iwindow, double cam_scale)
 	// probably should be removed. If this is done again, it will
 	// be done at a different level
 	iwindow->window->draw(*Object_sprite);
-	iwindow->window->draw(*Flag_sprite);
+	//iwindow->window->draw(*Flag_sprite);
 	// and we draw them onto the window, simple as it sounds
 }
 
@@ -1474,6 +1478,11 @@ void DeltaGlider::Draw_controls(SFML_Window * iwindow, bool Map_status)
 		// this happens after most in universe stuff gets drawn I think, since
 		// displays should *usually* be on top
 	}		
+}
+
+void DeltaGlider::Receive_cursor_inputs(Cursor_commands * cursor_action, long double dt)
+{	// this way we can check if the cursor is on us, and whether that merits
+	// any changes on the vessels end of things
 }
 
 void DeltaGlider::Translate_left(double dt)

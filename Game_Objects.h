@@ -433,6 +433,19 @@ class CNewtonian_Object
 	// frame, and each implementation class of the Newtonian object handles
 	// it in its own way
 	
+	virtual void Receive_cursor_inputs(Cursor_commands * cursor_action, long double dt);
+	// very similarly to Receive_inputs, except we send it info about the mouse
+	// cursor and this applies to all vessels in the window
+	
+	// super-duper important thing to remember about this:
+	// its called for any vessels in view after they get drawn in the main
+	// ignition loop, so it essentially is happening at the end of the frame,
+	// and its effects will only be felt next frame
+	// this saves some speed by piggybacking on all of the in view calls made
+	// by the main loop, but results in a bit of an odd structure, since in a
+	// perfect world this would be done after frame(dt) but before everything
+	// gets drawn onscreen
+	
 	// this should be partially moved around so that some actions are standard
 	// like rot/trans inputs should be handled from specific keys and should
 	// cause similar effects
@@ -524,6 +537,8 @@ class TVessel: public CNewtonian_Object
 	// a very specific display (ie maybe an Apollo AGC display for a LEM?)
 	// in SFML types, then draw it onscreen each frame.
 	
+
+	
 	// preferably, I think this can be moved upstairs to the Newtonian
 	// and renamed Draw_displays
 	// no reason why it cant be applied to asteroids & somesuch
@@ -575,6 +590,7 @@ class DeltaGlider: public TVessel
 	// throttles constant if untouched. Might be a decent candidate to make
 	// an optional feature
 	void Receive_inputs(key_commands * current_inputs, double dt);
+	void Receive_cursor_inputs(Cursor_commands * cursor_action, long double dt);
 	// finally, specific implementation of how the class type handles input
 	// from the user
 	double Get_total_mass();

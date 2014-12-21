@@ -217,6 +217,8 @@ void key_commands::Space()
 
 	std::cout << "Frame Rate   " << (1/Starfighter->deltat) <<  "   Zoom factor:   "  << Starfighter->zoom_exponent << "   pow(zoom factor)   " << pow(10, Starfighter->zoom_exponent) << "   \n" << std::endl;
 
+	std::cout << "Mouse data: (" << Starfighter->cursor_commands->position.x << ", " << Starfighter->cursor_commands->position.y << ")" << std::endl;
+
 	std::cout << Starfighter->Current_vessel->Get_vessel_name() << std::endl;
 	std::cout << "Rot   " << Starfighter->Current_vessel->Get_theta_in_degrees() << std::endl;
 	std::cout << "Omega   " << Starfighter->Current_vessel->Get_omega() << std::endl;

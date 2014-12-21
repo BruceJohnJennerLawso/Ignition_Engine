@@ -29,6 +29,27 @@ class Program_data
 	~Program_data();
 };
 
+// Mouse_commands class ////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+
+class Cursor_commands
+{	public:
+	Cursor_commands();
+	sf::Vector2f position;
+	// the coordinates of the mouse relative to the window?
+	
+	// I dont actually know yet, so this is kinda going in blind. We'll see how
+	// sfml likes to handle things
+	
+	// my working assumption here is that it will be in pixels, from the window origin
+	bool Right_click, Left_click, Middle_click;
+	// if the given mouse button is down, its true, otherwise false
+	// dont want to mess about with extra buttons just yet
+	
+	void Set_cursor_state(float x, float y, bool right, bool left, bool middle);
+	~Cursor_commands();
+};
+
 // Key_commands class //////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
 

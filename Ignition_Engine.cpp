@@ -8,7 +8,8 @@ Ignition_engine::Ignition_engine(std::string title, unsigned int initial_window_
 {	Main_Window = new SFML_Window(title, initial_window_width, initial_window_height);
 	// construct a new SFML window with title & size
 	commands = new key_commands();
-	// just a necessary constructor, nothing to see here
+	cursor_commands = new Cursor_commands();
+	// just a necessary constructors, nothing to see here
 	deltat = 0;
 	// or -1 or something. Just a placeholder for some reason
 	map_view = false;
@@ -43,7 +44,7 @@ Ignition_engine::Ignition_engine(std::string title, unsigned int initial_window_
 	// nowhere and that would be bad. later to be loaded from a scn file
 	
 	camera_scale = 1.00;
-	k_camera = 5.5;
+	k_camera = 9.5;
 	
 }
 
@@ -109,6 +110,32 @@ int Ignition_engine::Ignition()
 			if(event.type == sf::Event::MouseWheelMoved)
 			{	Change_camera_scale(- (double)event.mouseWheel.delta);
 			}
+			if(event.type == sf::Event::MouseMoved)
+			{	cursor_commands->Set_cursor_state(((event.mouseMove.x)), ((event.mouseMove.y)), false, false, false);
+				// now that we get the coords from mouseMove, this works just fine
+			}
+			if(event.type == sf::Event::MouseButtonPressed)
+			{	if(event.mouseButton.button == sf::Mouse::Button::Left)
+				{	cursor_commands->Set_cursor_state(event.mouseButton.x, event.mouseButton.y, true, false, false);
+				}
+				if(event.mouseButton.button == sf::Mouse::Button::Right)
+				{	cursor_commands->Set_cursor_state(event.mouseButton.x, event.mouseButton.y, false, true, false);
+				}
+				if(event.mouseButton.button == sf::Mouse::Button::Middle)
+				{	cursor_commands->Set_cursor_state(event.mouseButton.x, event.mouseButton.y, false, false, true);
+				}
+			}
+			if(event.type == sf::Event::MouseButtonReleased)
+			{	if(event.mouseButton.button == sf::Mouse::Button::Left)
+				{	cursor_commands->Set_cursor_state(event.mouseButton.x, event.mouseButton.y, false, false, false);
+				}
+				if(event.mouseButton.button == sf::Mouse::Button::Right)
+				{	cursor_commands->Set_cursor_state(event.mouseButton.x, event.mouseButton.y, false, false, false);
+				}
+				if(event.mouseButton.button == sf::Mouse::Button::Middle)
+				{	cursor_commands->Set_cursor_state(event.mouseButton.x, event.mouseButton.y, false, false, false);
+				}
+			}
 		}	
 		Game_audio->Update_game_audio();		
 		// again, no clue how this works now
@@ -170,6 +197,8 @@ int Ignition_engine::Ignition()
 						// current in-game viewport that checks for drawables
 						// on a refresh rate like the displays do. A bit clumsy,
 						// but it could bring terrific performance increases
+					
+						(*it)->Receive_cursor_inputs(cursor_commands, deltat);
 					}	
 				}	break;	// Break out of the switch for map view and onwards!																		
 			}
@@ -190,7 +219,9 @@ int Ignition_engine::Ignition()
 				{	(*it)->Frame(deltat, simulation_time, Celestial_list);																													// Update vessel with frame dt
 					Main_Window->Set_origin((Current_vessel->Position.x - (Main_Window->Aperture_width/2)),(Current_vessel->Position.y + (Main_Window->Aperture_height/2)));		// Relocate the window to center on current vessels flag sprite
 					if((*it)->In_view(Main_Window, zoom_exponent) == true)														// Check if the flag is within the current camera coordinates
-					{	(*it)->Draw_flag(Main_Window, zoom_exponent);																// Draw the flag onscreen
+					{	(*it)->Draw_flag(Main_Window, zoom_exponent);	
+						// Draw the flag onscreen
+						(*it)->Receive_cursor_inputs(cursor_commands, deltat);
 					}	
 				}	break;	// Break out of the switch
 			}	
@@ -279,14 +310,14 @@ void Ignition_engine::Camera_view()
 
 void Ignition_engine::Increase_camera_scale()
 {	if(camera_scale < Max_cam_scale)
-	{	camera_scale += (deltat*k_camera);
+	{	camera_scale += (deltat*((long double)k_camera));
 		Set_aperture_scale();
 	}
 }
 
 void Ignition_engine::Change_camera_scale(double wheel_delta)
 {	if((camera_scale <= Max_cam_scale)&&(camera_scale >= Min_cam_scale))
-	{	camera_scale += (deltat*k_camera*wheel_delta);
+	{	camera_scale += (deltat*((long double)k_camera)*((long double)wheel_delta));
 	
 		if(camera_scale > Max_cam_scale)
 		{	camera_scale = Max_cam_scale;
@@ -303,7 +334,7 @@ void Ignition_engine::Change_camera_scale(double wheel_delta)
 
 void Ignition_engine::Decrease_camera_scale()
 {	if(camera_scale > Min_cam_scale)
-	{	camera_scale -= (deltat*k_camera);
+	{	camera_scale -= (deltat*((long double)k_camera));
 		Set_aperture_scale();
 	}
 }
