@@ -48,6 +48,7 @@ class Cursor_commands
 	
 	void Set_cursor_state(float x, float y, bool right, bool left, bool middle);
 	~Cursor_commands();
+	// surprisingly this whole section went off without a hitch. suspicious...
 };
 
 // Key_commands class //////////////////////////////////////////////////////////
@@ -107,6 +108,29 @@ class key_commands
 void Log_keystroke(sf::Keyboard::Key input_event, key_commands * icommands, bool key_down);
 void Null_queue();
 // I dont think this was ever defined. Probably safe to remove
+
+
+
+
+// Generic displays ////////////////////////////////////////////////////////////
+// This whole section is kinda hazy. Basically, the idea is that we wrap ///////
+// anything that is sf::Drawable into a wrapper class with some useful /////////
+// methods so that working with it is much easier //////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+
+class Ignition_drawable
+{	public:
+	virtual void Draw_element(SFML_Window * iwindow);
+};
+
+class Ignition_text: public Ignition_drawable
+{	public:
+	Ignition_text();
+	// this needs params specific to sf::Text, and sf::Font
+	void Draw_element(SFML_Window * iwindow);
+	sf::Text text;
+};
+
 
 // SFML Window /////////////////////////////////////////////////////////////////
 // Cause I keep getting lost every time I look for this ////////////////////////

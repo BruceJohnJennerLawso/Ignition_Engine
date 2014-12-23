@@ -21,3 +21,21 @@ void Talkback(std::string console_output)
 }
 #endif
 
+std::string Convert_to_string(float num, int precision)
+{	// the solution to all the problems with MS Windows not having a proper
+	// to_string() call, we simply dump any value into the function, and get it
+	// printed back at whatever precision we like
+	
+	// this should be made a template function for the type of the value to
+	// be passed through
+	std::stringstream s;
+	s << std::setprecision(precision) << num;
+	return s.str();
+}	
+// this is a really handy function
+// so much of like
+// my preciousss
+
+std::string SI::Get_formatted_value(float value, int precision, std::string unit)
+{	
+}

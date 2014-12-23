@@ -342,6 +342,7 @@ void Ignition_engine::Decrease_camera_scale()
 
 Ignition_engine::~Ignition_engine()
 {	delete commands;
+	delete cursor_commands;
 	delete Main_Window;
 	delete Background_sprite;
 	delete Background_tex;
