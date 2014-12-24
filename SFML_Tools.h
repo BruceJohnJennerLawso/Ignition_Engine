@@ -121,14 +121,22 @@ void Null_queue();
 class Ignition_drawable
 {	public:
 	virtual void Draw_element(SFML_Window * iwindow);
+	std::vector<std::vector<*Ignition_drawable>> idrawable_pointers;
 };
 
 class Ignition_text: public Ignition_drawable
 {	public:
-	Ignition_text();
+	Ignition_text(sf::Font &text_font, std::string initial_text, sf::Color initial_colour);
+	// should receive a sf::Font by reference
+	void Set_element(std::string text_string);
 	// this needs params specific to sf::Text, and sf::Font
 	void Draw_element(SFML_Window * iwindow);
-	sf::Text text;
+	sf::Text Drawable_text;
+	
+	~Ignition_text();
+	// later on this destructor will use info stored about the stored references
+	// to this object to clean up all of said references so that null pointers
+	// arent laying around like landmines
 };
 
 
