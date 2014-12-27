@@ -677,14 +677,14 @@ void TPlanet::Draw_flag(SFML_Window * iwindow, int zoom_factor)
 	
 	// okay jitterbug free version:
 	
-	VectorVictor::Vector2 offset(Get_position(Simulation_time).Get_x(),  Get_position(Simulation_time).Get_y());
-	VectorVictor::Vector2 camera_origin(iwindow->origin.Get_x(), iwindow->origin.Get_y());
-	offset -= camera_origin;
-	offset.y *= -1;
-	offset.y *= pow(0.1, (zoom_factor));
-	offset.x *= pow(0.1, (zoom_factor));
+	//VectorVictor::Vector2 offset(Get_position(Simulation_time).Get_x(),  Get_position(Simulation_time).Get_y());
+	//VectorVictor::Vector2 camera_origin(iwindow->origin.Get_x(), iwindow->origin.Get_y());
+	//offset -= camera_origin;
+	//offset.y *= -1;
+	//offset.y *= pow(0.1, (zoom_factor));
+	//offset.x *= pow(0.1, (zoom_factor));
 	
-	sf::Vector2f camera_offset(offset.x, offset.y);
+	sf::Vector2f camera_offset = Get_window_coordinates(Get_position(Simulation_time), iwindow, zoom_factor);
 	
 	
 	
@@ -1012,12 +1012,12 @@ void TVessel::Draw_vessel(SFML_Window * iwindow, double cam_scale)
 	//Object_sprite->setPosition(offset);
 	// we locate the sprite in the right part of the window
 	
-	VectorVictor::Vector2 offset(Position.Get_x(), Position.Get_y());
-	VectorVictor::Vector2 camera_origin(iwindow->origin.Get_x(), iwindow->origin.Get_y());
-	offset -= camera_origin;
-	offset.y *= -1;
-	offset.x *= (10.00000000/(long double)cam_scale);
-	offset.y *= (10.00000000/(long double)cam_scale);
+	//VectorVictor::Vector2 offset(Position.Get_x(), Position.Get_y());
+	//VectorVictor::Vector2 camera_origin(iwindow->origin.Get_x(), iwindow->origin.Get_y());
+	//offset -= camera_origin;
+	//offset.y *= -1;
+	//offset.x *= (10.00000000/(long double)cam_scale);
+	//offset.y *= (10.00000000/(long double)cam_scale);
 	
 	Object_sprite->setScale((pix_length/((Vessel_tex->getSize().y)*cam_scale)),(pix_length/((Vessel_tex->getSize().y)*cam_scale)));
 	// rescale the axes of the texture to match pix_length in the y and the
@@ -1028,7 +1028,7 @@ void TVessel::Draw_vessel(SFML_Window * iwindow, double cam_scale)
 	// This area needs to be looked over again
 		
 	
-	sf::Vector2f camera_offset(offset.x, offset.y);
+	sf::Vector2f camera_offset = Get_window_coordinates(Position, iwindow, cam_scale);
 	Object_sprite->setPosition(camera_offset);
 	//k lets see what that did
 	
@@ -1066,14 +1066,14 @@ void TVessel::Draw_flag(SFML_Window * iwindow, int zoom_factor)
 	//offset.y *= pow(0.1, (zoom_factor));
 	//offset.x *= pow(0.1, (zoom_factor));
 	
-	VectorVictor::Vector2 offset(Position.Get_x(), Position.Get_y());
-	VectorVictor::Vector2 camera_origin(iwindow->origin.Get_x(), iwindow->origin.Get_y());
-	offset -= camera_origin;
-	offset.y *= -1;
-	offset.y *= pow(0.1, (zoom_factor));
-	offset.x *= pow(0.1, (zoom_factor));
+	//VectorVictor::Vector2 offset(Position.Get_x(), Position.Get_y());
+	//VectorVictor::Vector2 camera_origin(iwindow->origin.Get_x(), iwindow->origin.Get_y());
+	//offset -= camera_origin;
+	//offset.y *= -1;
+	//offset.y *= pow(0.1, (zoom_factor));
+	//offset.x *= pow(0.1, (zoom_factor));
 	
-	sf::Vector2f camera_offset(offset.x, offset.y);
+	sf::Vector2f camera_offset = Get_window_coordinates(Position, iwindow, zoom_factor);
 	
 	
 	// scale the offset back by 1/(10^zoom), since the offset in pixels needs
