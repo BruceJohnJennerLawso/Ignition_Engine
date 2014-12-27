@@ -474,6 +474,87 @@ void Log_keystroke(sf::Keyboard::Key input_event, key_commands * icommands, bool
 	}
 }
 
+
+// Ignition Drawables //////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+
+class Ignition_circle: public Ignition_drawable
+{	public:
+	Ignition_circle(sf::Vector2f initial_position, sf::Color initial_colour, float initial_radius);
+	// later this will have a second constructor to texture it with a passed
+	// sf::Texture reference
+	void Set_element(float new_radius);
+	void Set_element(sf::Vector2f new_position);	
+	void Set_element(sf::Color new_colour);	
+	void Set_element(float new_radius, sf::Vector2f new_position);
+	void Set_element(float new_radius, sf::Vector2f new_position, sf::Color new_colour);
+	void Set_element(float new_radius, sf::Vector2f new_position);
+	void Set_element(float new_radius, sf::Color new_colour);
+	void Set_element(sf::Vector2f new_position, sf::Color new_colour);	
+	// all of the given setters, applied directly to our sf::CircleShape,
+	// instead of holding internal variables. There could be a lot of displays
+	// in sim, so we want to keep memory usage to a bare minimum
+	void Draw_element(SFML_Window * iwindow);
+	sf::CircleShape circle_shape;
+	// oddly, sfml seems to automatically pick a point count for circles by
+	// default, so that the given circle looks halfway decent. oh well...
+	~Ignition_circle();
+};
+
+Ignition_circle::Ignition_circle(sf::Vector2f initial_position, sf::Color initial_colour, float initial_radius)
+{	circle_shape.setPosition(initial_position);
+	circle_shape.setColor(initial_colour);
+	circle_shape.setRadius(initial_radius);
+}
+
+void Ignition_circle::Set_element(float new_radius)
+{	circle_shape.setRadius(new_radius);
+}
+
+void Ignition_circle::Set_element(sf::Vector2f new_position)
+{	circle_shape.setPosition(new_position);
+}
+
+void Ignition_circle::Set_element(sf::Color new_colour)
+{	circle_shape.setColor(new_colour);
+}
+
+void Ignition_circle::Set_element(float new_radius, sf::Vector2f new_position)
+{	this->Set_element(new_radius);
+	this->Set_element(new_position);
+}
+
+void Ignition_circle::Set_element(float new_radius, sf::Vector2f new_position, sf::Color new_colour)
+{	this->Set_element(new_radius);
+	this->Set_element(new_position);
+	this->Set_element(new_colour);
+}
+
+void Ignition_circle::Set_element(float new_radius, sf::Color new_colour)
+{	this->Set_element(new_radius);
+	this->Set_element(new_colour);
+}
+
+void Ignition_circle::Set_element(sf::Vector2f new_position, sf::Color new_colour)
+{	this->Set_element(new_position);
+	this->Set_element(new_colour);
+}
+
+void Ignition_circle::Draw_element(SFML_Window * iwindow)
+{	iwindow->window->draw(circle_shape);
+}
+
+Ignition_circle::~Ignition_circle()
+{	// no pointers, no problems
+}
+
+
+
+
+
+
+
+
 // SFML_Window Utility class ///////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
 

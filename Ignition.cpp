@@ -21,6 +21,19 @@ void Talkback(std::string console_output)
 }
 #endif
 
+
+Ignition_handle::Ignition_handle(T * new_handle)
+{	type_handle = new_handle;
+}
+
+Ignition_handle::Ignition_handle(T  &new_handle)
+{	(*type_handle) = new_handle;
+}
+
+Ignition_handle::~Ignition_handle()
+{	
+}
+
 std::string Convert_to_string(float num, int precision)
 {	// the solution to all the problems with MS Windows not having a proper
 	// to_string() call, we simply dump any value into the function, and get it

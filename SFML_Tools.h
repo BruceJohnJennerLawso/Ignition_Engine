@@ -121,22 +121,89 @@ void Null_queue();
 class Ignition_drawable
 {	public:
 	virtual void Draw_element(SFML_Window * iwindow);
-	std::vector<std::vector<*Ignition_drawable>> idrawable_pointers;
+	//std::vector<std::vector<*Ignition_drawable>> idrawable_pointers;
+	//std::vector<Ignition_handle<Ignition_drawable>
+	//bool Clean_drawable_references();
+	// this idea must wait for now
 };
 
 class Ignition_text: public Ignition_drawable
 {	public:
-	Ignition_text(sf::Font &text_font, std::string initial_text, sf::Color initial_colour);
+	Ignition_text(sf::Font &text_font, sf::Vector2f initial_position, std::string initial_text, sf::Color initial_colour);
 	// should receive a sf::Font by reference
 	void Set_element(std::string text_string);
-	// this needs params specific to sf::Text, and sf::Font
+	void Set_element(sf::Vector2f new_position);
+	void Set_element(sf::Color new_colour);	
+	void Set_element(std::string text_string, sf::Vector2f new_position);
+	void Set_element(std::string text_string, sf::Vector2f new_position, sf::Color new_colour);
+	void Set_element(std::string text_string, sf::Vector2f new_position);
+	void Set_element(std::string text_string, sf::Color new_colour);
+	void Set_element(sf::Vector2f new_position, sf::Color new_colour);
+	//
 	void Draw_element(SFML_Window * iwindow);
-	sf::Text Drawable_text;
+	sf::Text text;
 	
 	~Ignition_text();
 	// later on this destructor will use info stored about the stored references
 	// to this object to clean up all of said references so that null pointers
 	// arent laying around like landmines
+};
+
+class Ignition_circle: public Ignition_drawable
+{	public:
+	Ignition_circle(sf::Vector2f initial_position, sf::Color initial_colour, float initial_radius);
+	// later this will have a second constructor to texture it with a passed
+	// sf::Texture reference
+	void Set_element(float new_radius);
+	void Set_element(sf::Vector2f new_position);	
+	void Set_element(sf::Color new_colour);	
+	void Set_element(float new_radius, sf::Vector2f new_position);
+	void Set_element(float new_radius, sf::Vector2f new_position, sf::Color new_colour);
+	void Set_element(float new_radius, sf::Color new_colour);
+	void Set_element(sf::Vector2f new_position, sf::Color new_colour);	
+	// all of the given setters, applied directly to our sf::CircleShape,
+	// instead of holding internal variables. There could be a lot of displays
+	// in sim, so we want to keep memory usage to a bare minimum
+	void Draw_element(SFML_Window * iwindow);
+	sf::CircleShape circle_shape;
+	// oddly, sfml seems to automatically pick a point count for circles by
+	// default, so that the given circle looks halfway decent. oh well...
+	~Ignition_circle();
+};
+
+class Ignition_rectangle: public Ignition_drawable
+{	public:
+	Ignition_rectangle(sf::Vector2f initial_position, sf::Color initial_colour, float width, float height);
+	// later this will have a second constructor to texture it with a passed
+	// sf::Texture reference
+	void Set_element(float new_width, float new_height);
+	void Set_element(sf::Vector2f new_position);	
+	void Set_element(sf::Color new_colour);	
+	void Set_element(float new_width, float new_height, sf::Vector2f new_position);
+	void Set_element(float new_width, float new_height, sf::Vector2f new_position, sf::Color new_colour);
+	void Set_element(float new_width, float new_height, sf::Color new_colour);
+	void Set_element(sf::Vector2f new_position, sf::Color new_colour);	
+	
+	void Draw_element(SFML_Window * iwindow);
+	sf::RectangleShape rect_shape;
+	~Ignition_rectangle();
+};
+
+
+class Ignition_line: public Ignition_drawable
+{	public:
+	Ignition_line();
+	sf::VertexArray line;
+	~Ignition_line();	
+};
+
+class Ignition_triangle: public Ignition_drawable
+{	public:
+	Ignition_triangle();
+	sf::VertexArray triangle;
+	// gotta find the appropriate setters here
+	~Ignition_triangle();
+	// a nice sf primitive vertex here
 };
 
 

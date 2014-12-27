@@ -22,6 +22,14 @@
 	#define LINUX
 #endif
 
+template <class T> class Ignition_handle
+{	public:
+	Ignition_handle(T * new_handle);
+	Ignition_handle(T &new_handle);
+	T * type_handle;
+	~Ignition_handle();
+};
+
 
 void Talkback(std::string console_output);
 // a quick function that can be used for printing debugging messages to the
