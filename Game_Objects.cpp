@@ -1016,8 +1016,8 @@ void TVessel::Draw_vessel(SFML_Window * iwindow, double cam_scale)
 	VectorVictor::Vector2 camera_origin(iwindow->origin.Get_x(), iwindow->origin.Get_y());
 	offset -= camera_origin;
 	offset.y *= -1;
-	offset.x *= (10.00000000/cam_scale);
-	offset.y *= (10.00000000/cam_scale);
+	offset.x *= (10.00000000/(long double)cam_scale);
+	offset.y *= (10.00000000/(long double)cam_scale);
 	
 	Object_sprite->setScale((pix_length/((Vessel_tex->getSize().y)*cam_scale)),(pix_length/((Vessel_tex->getSize().y)*cam_scale)));
 	// rescale the axes of the texture to match pix_length in the y and the

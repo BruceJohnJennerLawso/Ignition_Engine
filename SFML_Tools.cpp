@@ -531,6 +531,78 @@ SFML_Window::~SFML_Window()
 	//	cant forget this ;D
 }
 
+// Utility functions to transform between window relative coordinates to ///////
+// ignition universe coordinates and back again ////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+
+
+sf::Vector2f Get_window_coordinates(VectorVictor::Vector2 sim_point, SFML_Window * iwindow, int map_scale)
+{	VectorVictor::Vector2 camera_origin(iwindow->origin.Get_x(), iwindow->origin.Get_y());
+	sim_point -= camera_origin;
+	sim_point.y *= -1;
+	sim_point.y *= pow(0.1, (zoom_factor));
+	sim_point.x *= pow(0.1, (zoom_factor));
+	sf::Vector2f camera_offset(sim_point.x, sim_point.y);
+	return camera_offset;
+}
+
+sf::Vector2f Get_window_coordinates(VectorVictor::Vector2 sim_point, SFML_Window * iwindow, double cam_scale)
+{	VectorVictor::Vector2 camera_origin(iwindow->origin.Get_x(), iwindow->origin.Get_y());
+	sim_point -= camera_origin;
+	sim_point.y *= -1;
+	sim_point.x *= (10.00000000/(long double)cam_scale);
+	sim_point.y *= (10.00000000/(long double)cam_scale);
+	// of course! Because at cam_scale = 1 (or default), the window has
+	// dimensions 10x smaller in meters than its actual window dimensions
+	// in pixels, ie dimensions of 102.4 x 60.9 meters for a window with
+	// size of 1024 x 609. So thats why we have to scale it up by 10x
+	
+	sf::Vector2f camera_offset(sim_point.x, sim_point.y);
+	return camera_offset;
+}
+
+VectorVictor::Vector2 Get_simulation_coordinates(sf::Vector2f window_point, SFML_Window * iwindow, int map_scale)
+{	VectorVictor::Vector2 sim_point(window_point.x, window_point.y);
+	// so we start with our relative offset of the point in the window
+	// in pixels
+	sim_point.y *= pow(10, (zoom_factor));
+	sim_point.x *= pow(10, (zoom_factor));
+	// and we scale it up by the zoom factor so we get the relative offset
+	// of the point from the camera origin in universe coordinates
+	sim_point.y *= -1;
+	// we flip the y axis, since the SFML coordinates will be mirrored
+	// vertically compared to  
+	sim_point += iwindow->origin;
+	// we add the main windows origin point to transform the point to the sim
+	// sessions global origin point (0,0)
+	return sim_point;
+	// actually wasnt that complex I guess, just the previous operations in
+	// reverse
+}
+
+VectorVictor::Vector2 Get_simulation_coordinates(sf::Vector2f window_point, SFML_Window * iwindow, double cam_scale)
+{	VectorVictor::Vector2 sim_point(window_point.x, window_point.y);
+	
+	sim_point.x /= (10.00000000/(long double)cam_scale);
+	sim_point.y /= (10.00000000/(long double)cam_scale);
+	// here we now shrink it back, since the pixel coordinates are bigger
+	// than the actual universe coordinates by a factor of 10/cam_scale
+	sim_point.y *= -1;
+	// again, flip the y axis because SFML has down as positive y, for reasons
+	// that are its own
+	sim_point += iwindow->origin;
+	// we add the main windows origin point to transform the point to the sim
+	// sessions global origin point (0,0)
+	return sim_point;
+	// and we return the vector point now in universe coordinates
+}
+
+// gonna probably need to write at least one of these from scratch methinks
+
+
+
+
+
 
 // Ignition Drawables //////////////////////////////////////////////////////////
 // wrapper classes for stuff that needs to be drawn to the window like text ////

@@ -143,6 +143,24 @@ class SFML_Window
 	// close up shop (and delete our RenderWindow)
 };
 
+// helper functions here to automate transforming a sf::Vector2f location in ///
+// a window with float precision to a VV2 with long double precision in the ////
+// engines global coordinate system ////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+// there isnt anything really new here, just an automation of an existing //////
+// process that a couple of functions implemented each in their own way ////////
+
+sf::Vector2f Get_window_coordinates(VectorVictor::Vector2 sim_point, SFML_Window * iwindow, int map_scale);
+
+sf::Vector2f Get_window_coordinates(VectorVictor::Vector2 sim_point, SFML_Window * iwindow, double cam_scale);
+
+VectorVictor::Vector2 Get_simulation_coordinates(sf::Vector2f window_point, SFML_Window * iwindow, int map_scale);
+
+VectorVictor::Vector2 Get_simulation_coordinates(sf::Vector2f window_point, SFML_Window * iwindow, double cam_scale);
+
+
+
+
 // Generic displays ////////////////////////////////////////////////////////////
 // This whole section is kinda hazy. Basically, the idea is that we wrap ///////
 // anything that is sf::Drawable into a wrapper class with some useful /////////

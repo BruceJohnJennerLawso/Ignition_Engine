@@ -226,7 +226,6 @@ void key_commands::Dash()
 	}
 	else
 	{	Starfighter->Increase_camera_scale();
-		
 		// the change of the scale of the camera view once, that part is 
 		//implemented
 	}
@@ -238,7 +237,6 @@ void key_commands::Equal()
 	}
 	else
 	{	Starfighter->Decrease_camera_scale();
-		
 		// the change of the scale of the camera view once, that part is 
 		//implemented
 	}
