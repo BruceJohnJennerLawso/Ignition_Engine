@@ -4,7 +4,7 @@
 
 
 
-Ignition_engine::Ignition_engine(std::string title, unsigned int initial_window_width, unsigned int initial_window_height, std::string program_version, double redraw_displays_interval, std::string Intro_audio_path, std::string Game_audio_path)
+Ignition_engine::Ignition_engine(std::string title, unsigned int initial_window_width, unsigned int initial_window_height, std::string program_version, double redraw_displays_interval, std::string standard_display_font, std::string Intro_audio_path, std::string Game_audio_path)
 {	Main_Window = new SFML_Window(title, initial_window_width, initial_window_height);
 	// construct a new SFML window with title & size
 	commands = new key_commands();
@@ -46,7 +46,68 @@ Ignition_engine::Ignition_engine(std::string title, unsigned int initial_window_
 	camera_scale = 1.00;
 	k_camera = 9.5;
 	
+	if(standard_font.loadFromFile(standard_display_font))
+	{	sf::Color init_colour(50, 255, 255);
+		standard_display_colour = init_colour;
+		// think this works
+		if(this->Init_standard_displays())
+		{	// I dunno, but we are done here
+		}
+		else
+		{	Talkback("Unable to init standard displays");
+		}
+	}
+	else
+	{	Talkback("Unable to load standard font at: ");
+		Talkback(standard_display_font);
+	}
+	
 }
+
+
+bool Ignition_engine::Init_standard_displays()
+{	
+	// this needs to be a member in ignition later on
+	fps_meter = new Ignition_text(standard_font, sf::Vector2f(20, 40), "0", standard_display_colour, 15, false);
+	map_scale_meter =  new Ignition_text(standard_font, sf::Vector2f(20, 60), "0", standard_display_colour, 15, false);
+	time_accel_meter = new Ignition_text(standard_font, sf::Vector2f(20, 80), "0", standard_display_colour, 15, false);
+	sim_time_meter = new Ignition_text(standard_font, sf::Vector2f(20, 100), "0", standard_display_colour, 15, false);
+	
+	camera_target_name = new Ignition_text(standard_font, sf::Vector2f(875, 40), "0", standard_display_colour, 15, false);
+}
+
+void Ignition_engine::Update_standard_displays()
+{	if(Displays_active == true)
+	{	unsigned int fps = (1/deltat);
+		std::string framerate = SI::Get_formatted_value("FPS:", (long int)fps, 3, "");
+		fps_meter->Set_element(framerate);
+		// we set the fps meter
+		std::string zoomfactor = SI::Get_formatted_value("Map Scale:", ((long int)pow(10, zoom_exponent)), "x");
+		map_scale_meter->Set_element(zoomfactor);
+		// and then set the map scale meter based on '10^zoom_exponent x'"
+		std::string timewarp = SI::Get_formatted_value( "Time Accel:", ((long int)pow(10, time_acceleration_exponent)), "x");
+		time_accel_meter->Set_element(timewarp);
+		// and do the same thing for time acceleration
+		std::string simtime = SI::Get_formatted_value("Simulation Time:", ((long int)simulation_time) , "s");
+		sim_time_meter->Set_element(simtime);
+		// set the simulation time, with sim time cast as an int cause we like
+		// it that way
+		camera_target_name->Set_element(Current_vessel->Get_vessel_name());
+		// and do things directly with setting the current vessel name
+		
+		// *** This WILL be changed later ***
+		// specifically vessel name will not always work like this
+	}
+}
+
+void Ignition_engine::Draw_standard_displays()
+{	this->fps_meter->Draw_element(Main_Window);
+	this->map_scale_meter->Draw_element(Main_Window);
+	this->time_accel_meter->Draw_element(Main_Window);
+	this->sim_time_meter->Draw_element(Main_Window);
+	this->camera_target_name->Draw_element(Main_Window);
+}
+
 
 int Ignition_engine::Ignition()	
 {	// All I can think of with this is the Freedom 7 scene from The Right Stuff
@@ -80,7 +141,7 @@ int Ignition_engine::Ignition()
 		redraw_timer += redraw_clock.restart().asSeconds();
 		// keep updating the time since we last updated the displays
 		if(redraw_timer >= Redraw_interval)
-		{	Update_text_displays();
+		{	this->Update_standard_displays();
 			redraw_timer = 0;
 			// if the timer goes off, redraw our displays, then reset the timer
 			// back to zero so it can work back up to the refresh time
@@ -228,7 +289,7 @@ int Ignition_engine::Ignition()
 		}	
 		if(Displays_active == true)	// check if displays are in fact on
 		{	Current_vessel->Draw_controls(Main_Window, map_view);
-			Redraw_text_displays(map_view, Main_Window);
+			this->Draw_standard_displays();
 			// drawing the generic displays, along with the vessel specific ones
 		}
 		Main_Window->window->display();	// good SFML stuff
@@ -246,10 +307,12 @@ void Ignition_engine::Next_vessel()
 			else if (it < (Vessel_list.end() -1))
 			{	Current_vessel = Vessel_list.at(cy + 1);
 			}
+			this->Update_standard_displays();
 			break;	
 		}
 		cy++;
 	}
+	
 }
 
 void Ignition_engine::Previous_vessel()
@@ -262,6 +325,7 @@ void Ignition_engine::Previous_vessel()
 			else if (it > Vessel_list.begin())
 			{	Current_vessel = Vessel_list.at(cy - 1);
 			}
+			this->Update_standard_displays();
 			break;
 		}
 		cy++;
@@ -273,6 +337,7 @@ void Ignition_engine::Map_view()
 	// flip the bool so we know which mode we are in
 	Set_aperture_scale();
 	// and resize the Main windows aperture to match the current map view
+	this->Update_standard_displays();
 	
 }
 
@@ -281,6 +346,7 @@ void Ignition_engine::Increase_map_scale()
 	{	// minus one cause if we're at the max map scale, we cant go up any higher
 		zoom_exponent++;
 		Set_aperture_scale();
+		this->Update_standard_displays();
 	}
 }
 
@@ -289,6 +355,7 @@ void Ignition_engine::Decrease_map_scale()
 {	if(zoom_exponent > Min_map_scale)
 	{	zoom_exponent--;
 		Set_aperture_scale();
+		this->Update_standard_displays();
 	}
 }
 
@@ -306,12 +373,14 @@ void Ignition_engine::Camera_view()
 	// flip the bool so we know which mode we are in
 	Set_aperture_scale();
 	// and resize the Main windows aperture to match the current map view
+	this->Update_standard_displays();
 }
 
 void Ignition_engine::Increase_camera_scale()
 {	if(camera_scale < Max_cam_scale)
 	{	camera_scale += (deltat*((long double)k_camera));
 		Set_aperture_scale();
+		this->Update_standard_displays();
 	}
 }
 
@@ -336,12 +405,33 @@ void Ignition_engine::Decrease_camera_scale()
 {	if(camera_scale > Min_cam_scale)
 	{	camera_scale -= (deltat*((long double)k_camera));
 		Set_aperture_scale();
+		this->Update_standard_displays();
 	}
 }
 
+void Ignition_engine::Decrease_time_acceleration()
+{	if(time_acceleration_exponent >= 1)
+	{	time_acceleration_exponent--;
+		this->Update_standard_displays();
+	}
+}	// slow down time acceleration by 10 times
+
+void Ignition_engine::Increase_time_acceleration()
+{	if(time_acceleration_exponent < 10)
+	{	time_acceleration_exponent++;
+		this->Update_standard_displays();
+	}
+}	// speed up time acceleration by 10 times
+
 
 Ignition_engine::~Ignition_engine()
-{	delete commands;
+{	delete fps_meter;
+	delete map_scale_meter;
+	delete time_accel_meter;
+	delete sim_time_meter;
+	delete camera_target_name;
+	
+	delete commands;
 	delete cursor_commands;
 	delete Main_Window;
 	delete Background_sprite;

@@ -22,8 +22,7 @@ sf::Clock * Utility_clock;
 // cant recall what this does. I think its related to the info displays refresh rate
 sf::Font * displays_font;
 // the font used to draw default displays (the FPS, simtime meters,etc.)
-std::vector<sf::Text> Data_displays;	
-// the data displays independent of the vessels own controls
+
 
 
 sf::Texture * GCW_Flags_tex;
@@ -90,45 +89,6 @@ void Set_current_vessel(TVessel * target_vessel);
 // Pretty much what it says on the mobius strip
 
 
-void Update_text_displays()
-{	switch(Starfighter->Displays_active)
-	{	// checked if we actually needed to bother, displays arent always on
-		
-		case true:
-		{	unsigned int fps = (1/Starfighter->deltat);
-			std::string framerate;	framerate = "FPS: ";	framerate.append(std::to_string(fps));
-			(Data_displays.at(0)).setString(framerate);
-			// the FPS meter is set here
-			(Data_displays.at(1)).setString(Starfighter->Current_vessel->Get_vessel_name());
-			// Name of the current vessel. Maybe redundant if independent cameras ever become a thing in Ignition
-			std::string zoomfactor; zoomfactor = "Map scale: "; zoomfactor.append(std::to_string((long int)pow(10, Starfighter->zoom_exponent)));
-			(Data_displays.at(2)).setString(zoomfactor);
-			// the zoom factor of the map. Kinda lacks clarity though...
-			std::string timewarp; timewarp = "Time Accel: "; timewarp.append(std::to_string((long int)pow(10, Starfighter->time_acceleration_exponent)));	timewarp.append("x");
-			(Data_displays.at(3)).setString(timewarp);
-			// relative time acceleration
-			std::string simtime = "Simulation Time: ";
-			simtime.append(std::to_string((long int)Starfighter->simulation_time));	simtime.append(" s");
-			(Data_displays.at(4)).setString(simtime);
-			// how long the sim has been going for
-			// this would be a good spot to integrate that time class from
-			// my countdown project. Seconds are a bit unwieldy in this case
-			
-		}
-		case false:
-		{	// I dunno.
-			// this is probably pointless, given that nothing of the sort
-			// is drawn when displays are off...
-			// should just be a logical statement instead
-		}
-	}
-}
-
-void Redraw_text_displays(bool in_map_view, SFML_Window * draw_window)
-{	for(std::vector<sf::Text>::iterator it = Data_displays.begin(); it != Data_displays.end(); ++it)
-	{	draw_window->window->draw(*it);
-	}	// iterate through our data displays & throw em up onscreen
-}
 
 // 0	frame rate
 // 1	map scale
@@ -146,7 +106,7 @@ int main()
 	Window_title.append(Starfighter_version);
 	// stick the version numbah on the end
 	std::cout << "Constructing Ignition Engine" << std::endl;
-	Starfighter = new Ignition_engine(Window_title, 609, 1024, Starfighter_version, 0.2, "./Data/Audio/Menu_Fade_In.ogg",  "./Data/Audio/Game_music_Yavin.ogg");	
+	Starfighter = new Ignition_engine(Window_title, 609, 1024, Starfighter_version, 0.2, "./Data/Fonts/orbitron-light.ttf",  "./Data/Audio/Menu_Fade_In.ogg",  "./Data/Audio/Game_music_Yavin.ogg");	
 	// give birth to our beautiful new engine object. Isnt it cute?
 	std::cout << "Right before Init_assets()" << std::endl;
 	Init_assets();	
@@ -230,12 +190,10 @@ void key_commands::Space()
 
 void key_commands::Comma()
 {	Starfighter->Previous_vessel();
-	Update_text_displays();
 }	// move the current vessel to the previous vessel in the main vessel list.
 
 void key_commands::Period()
 {	Starfighter->Next_vessel();
-	Update_text_displays();
 }	// move the current vessel to the next vessel in the main vessel list.
 
 void key_commands::Up()
@@ -264,9 +222,7 @@ void key_commands::Tilde()
 
 void key_commands::Dash()
 {	if(Starfighter->map_view == true)
-	{
-		Starfighter->Increase_map_scale();
-		Update_text_displays();
+	{	Starfighter->Increase_map_scale();
 	}
 	else
 	{	Starfighter->Increase_camera_scale();
@@ -279,7 +235,6 @@ void key_commands::Dash()
 void key_commands::Equal()
 {	if(Starfighter->map_view == true)
 	{	Starfighter->Decrease_map_scale();
-		Update_text_displays();
 	}
 	else
 	{	Starfighter->Decrease_camera_scale();
@@ -372,17 +327,11 @@ void key_commands::C()
 }
 
 void key_commands::R()
-{	if(Starfighter->time_acceleration_exponent >= 1)
-	{	Starfighter->time_acceleration_exponent--;
-		Update_text_displays();
-	}
+{	Starfighter->Decrease_time_acceleration();
 }	// slow down time acceleration by 10 times
 
 void key_commands::T()
-{	if(Starfighter->time_acceleration_exponent < 10)
-	{	Starfighter->time_acceleration_exponent++;
-		Update_text_displays();
-	}
+{	Starfighter->Increase_time_acceleration();
 }	// speed up time acceleration by 10 times
 
 // some sort of safety lock on the time acceleration might be nice in order
@@ -391,15 +340,17 @@ void key_commands::T()
 
 void key_commands::L()
 {	// again, no clue
+	// think this used to be the throttle lock
 }
 
 void key_commands::I()
 {	if(Starfighter->Displays_active == true)
 	{	Starfighter->Displays_active = false;
+		Starfighter->Update_standard_displays();
 	}
 	else
 	{	Starfighter->Displays_active = true;
-		Update_text_displays();
+		Starfighter->Update_standard_displays();
 	}
 }	// turns the feedback displays on or off
 
@@ -488,38 +439,9 @@ void Init_assets()
 	Starfighter->Celestial_list.insert(Starfighter->Celestial_list.end(), Earth);
 	std::cout << "Finished constructing Vessels" << std::endl;
 	std::cout << "Initializing text displays" << std::endl;
-	Init_text_displays();
 	std::cout << "Finished initializing text displays" << std::endl;
 	std::cout << "Vessel list size " << Starfighter->Vessel_list.size() << " Newtonian list size " << Starfighter->Newtonian_list.size() << std::endl;
 }
-
-void Init_text_displays()
-{	Data_displays.emplace_back("0" , *displays_font, 30);
-	(Data_displays.at(0)).setCharacterSize(15);
-	(Data_displays.at(0)).setColor(sf::Color(50, 255, 255));
-	(Data_displays.at(0)).setPosition(20, 40);
-	(Data_displays.at(0)).setString(std::to_string(0));
-	Data_displays.emplace_back("0" , *displays_font, 30);
-	(Data_displays.at(1)).setCharacterSize(15);
-	(Data_displays.at(1)).setColor(sf::Color(50, 255, 255));
-	(Data_displays.at(1)).setPosition(875, 40);
-	(Data_displays.at(1)).setString(std::to_string(0));
-	Data_displays.emplace_back("0" , *displays_font, 30);
-	(Data_displays.at(2)).setCharacterSize(15);
-	(Data_displays.at(2)).setColor(sf::Color(50, 255, 255));
-	(Data_displays.at(2)).setPosition(20, 60);
-	(Data_displays.at(2)).setString(std::to_string(0));
-	Data_displays.emplace_back("0" , *displays_font, 30);
-	(Data_displays.at(3)).setCharacterSize(15);
-	(Data_displays.at(3)).setColor(sf::Color(50, 255, 255));
-	(Data_displays.at(3)).setPosition(20, 80);
-	(Data_displays.at(3)).setString(std::to_string(0));
-	Data_displays.emplace_back("0" , *displays_font, 30);
-	(Data_displays.at(4)).setCharacterSize(15);
-	(Data_displays.at(4)).setColor(sf::Color(50, 255, 255));
-	(Data_displays.at(4)).setPosition(20, 100);
-	(Data_displays.at(4)).setString(std::to_string(0));
-}	// 
 
 void Exit_program()
 {	delete Title_screen;

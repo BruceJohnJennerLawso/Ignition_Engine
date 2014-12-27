@@ -2,8 +2,6 @@
 #include <iostream>
 #include <math.h>	// Roger, Roger.
 //#include "Inertia_moment.h"
-#include <sstream>
-#include <iomanip>
 
 
 // The VectorVictor namespace //////////////////////////////////////////////////

@@ -22,15 +22,15 @@ void Talkback(std::string console_output)
 #endif
 
 
-Ignition_handle::Ignition_handle(T * new_handle)
+template <class T> Ignition_handle<T>::Ignition_handle(T * new_handle)
 {	type_handle = new_handle;
 }
 
-Ignition_handle::Ignition_handle(T  &new_handle)
+template <class T> Ignition_handle<T>::Ignition_handle(T  &new_handle)
 {	(*type_handle) = new_handle;
 }
 
-Ignition_handle::~Ignition_handle()
+template <class T> Ignition_handle<T>::~Ignition_handle()
 {	
 }
 
@@ -49,6 +49,50 @@ std::string Convert_to_string(float num, int precision)
 // so much of like
 // my preciousss
 
+std::string Convert_to_string(long int num)
+{	// the solution to all the problems with MS Windows not having a proper
+	// to_string() call, we simply dump any value into the function, and get it
+	// printed back at whatever precision we like
+	
+	// this should be made a template function for the type of the value to
+	// be passed through
+	std::stringstream s;
+	s << std::to_string(num);
+	return s.str();
+}	
+
 std::string SI::Get_formatted_value(float value, int precision, std::string unit)
-{	
+{	std::string formatted_value = Convert_to_string(value, precision);
+	std::string space = " ";
+	formatted_value.append(space);
+	formatted_value.append(unit);
+	return formatted_value;
+}
+
+std::string SI::Get_formatted_value(std::string prefix, float value, int precision, std::string unit)
+{	std::string formatted_value = Convert_to_string(value, precision);
+	std::string space = " ";
+	prefix.append(space);
+	prefix.append(formatted_value);
+	prefix.append(space);
+	prefix.append(unit);
+	return prefix;
+}
+
+std::string SI::Get_formatted_value(long int value, std::string unit)
+{	std::string formatted_value = Convert_to_string(value);
+	std::string space = " ";
+	formatted_value.append(space);
+	formatted_value.append(unit);
+	return formatted_value;
+}
+
+std::string SI::Get_formatted_value(std::string prefix, long int value, std::string unit)
+{	std::string formatted_value = Convert_to_string(value);
+	std::string space = " ";
+	prefix.append(space);
+	prefix.append(formatted_value);
+	prefix.append(space);
+	prefix.append(unit);
+	return prefix;
 }

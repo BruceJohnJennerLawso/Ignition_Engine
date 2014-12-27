@@ -10,11 +10,17 @@
 
 class Ignition_engine
 {	public:
-	Ignition_engine(std::string title, unsigned int initial_window_width, unsigned int initial_window_height, std::string program_version, double redraw_displays_interval, std::string Intro_audio_path, std::string Game_audio_path);
+	Ignition_engine(std::string title, unsigned int initial_window_width, unsigned int initial_window_height, std::string program_version, double redraw_displays_interval, std::string standard_display_font, std::string Intro_audio_path, std::string Game_audio_path);
 	// base constructor
 	// future versions should eventually have more overloads for things like
 	// start on construction, loading from a scn file or somesuch...
 	// constructors always seem to be such exhausting work for some reason...
+	
+	bool Init_standard_displays();
+	
+	void Update_standard_displays();
+	
+	void Draw_standard_displays();
 	
 	
 	SFML_Window * Main_Window;
@@ -39,6 +45,15 @@ class Ignition_engine
 	SFML_gameaudio * Game_audio;
 	// Hideous thing that handles our music. Needs a lot of work eventually
 	// but its working for now, so dont touch
+	
+	sf::Font standard_font;
+	sf::Color standard_display_colour;
+	
+	Ignition_text * fps_meter, * map_scale_meter, * time_accel_meter, * sim_time_meter;
+	
+	Ignition_text * camera_target_name;
+	// right now it is always a vessel, but eventually it can be to anything
+	// so ya
 	
 	bool map_view;
 	// is the map view active? False denotes normal camera view
@@ -128,23 +143,14 @@ class Ignition_engine
 	
 	void Set_aperture_scale();
 	
+	void Increase_time_acceleration();
+	void Decrease_time_acceleration();
+	
 	~Ignition_engine();
 };
 
 void Init_assets();
 // load up our external assets in a baddish way. really needs fixing soon
-
-
-void Init_text_displays();
-// same as assets, just the default feedback displays (fps, simtime, time accel)
-// at the very least this should clearly be done in the Ignition_Engine object
-
-void Update_text_displays();
-// ah gets feedback from the Ignition object to update those generic outputs
-// another thing that should go ignition native
-
-void Redraw_text_displays(bool in_map_view, SFML_Window * draw_window);
-// same as above, just the draw calls for generic displays
 
 void Exit_program();
 // ugly cleanup function that never seems to have everything it needs.

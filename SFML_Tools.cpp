@@ -475,86 +475,6 @@ void Log_keystroke(sf::Keyboard::Key input_event, key_commands * icommands, bool
 }
 
 
-// Ignition Drawables //////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////
-
-class Ignition_circle: public Ignition_drawable
-{	public:
-	Ignition_circle(sf::Vector2f initial_position, sf::Color initial_colour, float initial_radius);
-	// later this will have a second constructor to texture it with a passed
-	// sf::Texture reference
-	void Set_element(float new_radius);
-	void Set_element(sf::Vector2f new_position);	
-	void Set_element(sf::Color new_colour);	
-	void Set_element(float new_radius, sf::Vector2f new_position);
-	void Set_element(float new_radius, sf::Vector2f new_position, sf::Color new_colour);
-	void Set_element(float new_radius, sf::Vector2f new_position);
-	void Set_element(float new_radius, sf::Color new_colour);
-	void Set_element(sf::Vector2f new_position, sf::Color new_colour);	
-	// all of the given setters, applied directly to our sf::CircleShape,
-	// instead of holding internal variables. There could be a lot of displays
-	// in sim, so we want to keep memory usage to a bare minimum
-	void Draw_element(SFML_Window * iwindow);
-	sf::CircleShape circle_shape;
-	// oddly, sfml seems to automatically pick a point count for circles by
-	// default, so that the given circle looks halfway decent. oh well...
-	~Ignition_circle();
-};
-
-Ignition_circle::Ignition_circle(sf::Vector2f initial_position, sf::Color initial_colour, float initial_radius)
-{	circle_shape.setPosition(initial_position);
-	circle_shape.setColor(initial_colour);
-	circle_shape.setRadius(initial_radius);
-}
-
-void Ignition_circle::Set_element(float new_radius)
-{	circle_shape.setRadius(new_radius);
-}
-
-void Ignition_circle::Set_element(sf::Vector2f new_position)
-{	circle_shape.setPosition(new_position);
-}
-
-void Ignition_circle::Set_element(sf::Color new_colour)
-{	circle_shape.setColor(new_colour);
-}
-
-void Ignition_circle::Set_element(float new_radius, sf::Vector2f new_position)
-{	this->Set_element(new_radius);
-	this->Set_element(new_position);
-}
-
-void Ignition_circle::Set_element(float new_radius, sf::Vector2f new_position, sf::Color new_colour)
-{	this->Set_element(new_radius);
-	this->Set_element(new_position);
-	this->Set_element(new_colour);
-}
-
-void Ignition_circle::Set_element(float new_radius, sf::Color new_colour)
-{	this->Set_element(new_radius);
-	this->Set_element(new_colour);
-}
-
-void Ignition_circle::Set_element(sf::Vector2f new_position, sf::Color new_colour)
-{	this->Set_element(new_position);
-	this->Set_element(new_colour);
-}
-
-void Ignition_circle::Draw_element(SFML_Window * iwindow)
-{	iwindow->window->draw(circle_shape);
-}
-
-Ignition_circle::~Ignition_circle()
-{	// no pointers, no problems
-}
-
-
-
-
-
-
-
-
 // SFML_Window Utility class ///////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -610,6 +530,217 @@ SFML_Window::~SFML_Window()
 {	delete window;
 	//	cant forget this ;D
 }
+
+
+// Ignition Drawables //////////////////////////////////////////////////////////
+// wrapper classes for stuff that needs to be drawn to the window like text ////
+// displays & other infographics that the vessel instance draws as ui //////////
+// displays and things like that ///////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+
+
+
+void Ignition_drawable::Draw_element(SFML_Window * iwindow)
+{	Talkback("Bad call to Ignition_drawable::Draw_element(SFML_Window * iwindow)");
+}
+
+void Ignition_drawable::Center_element()
+{	Talkback("Ignition_drawable::Center_element()");
+}
+
+Ignition_text::Ignition_text(sf::Font &text_font, sf::Vector2f initial_position, std::string initial_text, sf::Color initial_colour, unsigned int character_size, bool center_origin)
+{	text.setFont(text_font);
+	text.setPosition(initial_position);
+	text.setString(initial_text);
+	text.setColor(initial_colour);
+	text.setCharacterSize(character_size);
+	if(center_origin == true)
+	{	this->Center_element();
+	}
+}
+
+
+void Ignition_text::Set_element(std::string text_string)
+{	text.setString(text_string);
+}
+
+void Ignition_text::Set_element(sf::Vector2f new_position)
+{	text.setPosition(new_position);
+}
+
+void Ignition_text::Set_element(sf::Color new_colour)
+{	text.setColor(new_colour);
+}
+
+void Ignition_text::Set_element(unsigned int character_size)
+{	text.setCharacterSize(character_size);
+}
+
+void Ignition_text::Set_element(std::string text_string, sf::Vector2f new_position)
+{	this->Set_element(text_string);
+	this->Set_element(new_position);		
+}
+
+void Ignition_text::Set_element(std::string text_string, sf::Vector2f new_position, sf::Color new_colour)
+{	this->Set_element(text_string);
+	this->Set_element(new_position);
+	this->Set_element(new_colour);
+}
+
+void Ignition_text::Set_element(std::string text_string, sf::Color new_colour)
+{	this->Set_element(text_string);
+	this->Set_element(new_colour);
+}
+
+void Ignition_text::Set_element(sf::Vector2f new_position, sf::Color new_colour)
+{	this->Set_element(new_position);
+	this->Set_element(new_colour);
+}
+
+void Ignition_text::Draw_element(SFML_Window * iwindow)
+{	iwindow->window->draw(text);
+}
+
+void Ignition_text::Center_element()
+{	if(Centered == false)
+	{	// do some centering
+		// not sure how with sf::Text really
+		// I mean what are the dimensions of the text strip?
+		
+		// important question to get answered
+		Centered = true;
+	}
+}
+	
+Ignition_text::~Ignition_text()
+{
+}
+
+
+// Ignition Circle /////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+
+
+Ignition_circle::Ignition_circle(sf::Vector2f initial_position, sf::Color initial_colour, float initial_radius, bool center_origin)
+{	circle_shape.setPosition(initial_position);
+	circle_shape.setFillColor(initial_colour);
+	circle_shape.setRadius(initial_radius);
+	if(center_origin == true)
+	{	this->Center_element();
+	}
+}
+
+void Ignition_circle::Set_element(float new_radius)
+{	circle_shape.setRadius(new_radius);
+}
+
+void Ignition_circle::Set_element(sf::Vector2f new_position)
+{	circle_shape.setPosition(new_position);
+}
+
+void Ignition_circle::Set_element(sf::Color new_colour)
+{	circle_shape.setFillColor(new_colour);
+}
+
+void Ignition_circle::Set_element(float new_radius, sf::Vector2f new_position)
+{	this->Set_element(new_radius);
+	this->Set_element(new_position);
+}
+
+void Ignition_circle::Set_element(float new_radius, sf::Vector2f new_position, sf::Color new_colour)
+{	this->Set_element(new_radius);
+	this->Set_element(new_position);
+	this->Set_element(new_colour);
+}
+
+void Ignition_circle::Set_element(float new_radius, sf::Color new_colour)
+{	this->Set_element(new_radius);
+	this->Set_element(new_colour);
+}
+
+void Ignition_circle::Set_element(sf::Vector2f new_position, sf::Color new_colour)
+{	this->Set_element(new_position);
+	this->Set_element(new_colour);
+}
+
+void Ignition_circle::Draw_element(SFML_Window * iwindow)
+{	iwindow->window->draw(circle_shape);
+}
+
+void Ignition_circle::Center_element()
+{	if(Centered == false)
+	{	// do some centering stuffz
+		circle_shape.setOrigin(sf::Vector2f(circle_shape.getRadius(), circle_shape.getRadius()));
+		Centered = true;
+	}
+}
+
+Ignition_circle::~Ignition_circle()
+{	// no pointers, no problems
+}
+
+
+Ignition_rectangle::Ignition_rectangle(sf::Vector2f initial_position, sf::Color initial_colour, float width, float height, bool center_origin)
+{	rect_shape.setPosition(initial_position);
+	rect_shape.setFillColor(initial_colour);
+	rect_shape.setSize(sf::Vector2f(width, height));
+	if(center_origin == true)
+	{	Center_element();
+	}
+}
+
+void Ignition_rectangle::Set_element(float new_width, float new_height)
+{	rect_shape.setSize(sf::Vector2f(new_width, new_height));
+}
+
+void Ignition_rectangle::Set_element(sf::Vector2f new_position)
+{	rect_shape.setPosition(new_position);
+}
+
+void Ignition_rectangle::Set_element(sf::Color new_colour)
+{	rect_shape.setFillColor(new_colour);
+}
+
+void Ignition_rectangle::Set_element(float new_width, float new_height, sf::Vector2f new_position)
+{	this->Set_element(new_width, new_height);
+	this->Set_element(new_position);	
+}
+
+void Ignition_rectangle::Set_element(float new_width, float new_height, sf::Vector2f new_position, sf::Color new_colour)
+{	this->Set_element(new_width, new_height);
+	this->Set_element(new_position);
+	this->Set_element(new_colour);
+}
+
+void Ignition_rectangle::Set_element(float new_width, float new_height, sf::Color new_colour)
+{	this->Set_element(new_width, new_height);
+	this->Set_element(new_colour);
+}
+
+void Ignition_rectangle::Set_element(sf::Vector2f new_position, sf::Color new_colour)
+{	this->Set_element(new_position);
+	this->Set_element(new_colour);
+}	
+	
+void Ignition_rectangle::Draw_element(SFML_Window * iwindow)
+{	iwindow->window->draw(rect_shape);
+}
+
+void Ignition_rectangle::Center_element()
+{	if(Centered == false)
+	{	rect_shape.setOrigin(sf::Vector2f((rect_shape.getSize().x)/2, (rect_shape.getSize().y)/2));
+		// looks good
+		Centered = true;
+	}
+}
+
+Ignition_rectangle::~Ignition_rectangle()
+{
+}
+
+
+
+
 
 // SFML splash screen class ////////////////////////////////////////////////////
 

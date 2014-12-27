@@ -4,6 +4,8 @@
 
 #include <iostream>
 #include <string>
+#include <sstream>
+#include <iomanip>
 
 #ifndef Ignitionh
 #define Ignitionh
@@ -30,6 +32,7 @@ template <class T> class Ignition_handle
 	~Ignition_handle();
 };
 
+// this is just archived for now
 
 void Talkback(std::string console_output);
 // a quick function that can be used for printing debugging messages to the
@@ -37,9 +40,14 @@ void Talkback(std::string console_output);
 // like though
 
 std::string Convert_to_string(float num, int precision);
+std::string Convert_to_string(long int num);
 
 namespace SI
 {	std::string Get_formatted_value(float value, int precision, std::string unit);
+	std::string Get_formatted_value(std::string prefix, float value, int precision, std::string unit);
+	
+	std::string Get_formatted_value(long int value, std::string unit);
+	std::string Get_formatted_value(std::string prefix, long int value, std::string unit);
 }
 
 #endif
