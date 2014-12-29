@@ -644,6 +644,19 @@ void CKeplerian_Object::Draw_flag(SFML_Window * iwindow, int zoom_factor)
 // TPlanet /////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
 
+
+
+void TPlanet::Init_vessel_type()
+{	
+	
+	// we start by setting up our thruster groups, just empty containers with
+	// the appropriate throttle settings and group type ids
+}
+
+
+
+
+
 TPlanet::TPlanet(long double initial_theta, long double omega, long double radius, long double atmosphere_height, long double mass, std::string planet_texture_path)
 {	Theta = initial_theta;
 	Omega = omega;

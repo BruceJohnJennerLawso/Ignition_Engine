@@ -451,11 +451,6 @@ class CNewtonian_Object
 	std::vector<Vessel_component*> Object_components;
 	// literally any component on the vessel that is of the vessel component 
 	// type
-	Thruster_group Rotate_clockwise, Rotate_cclockwise;
-	// clockwise and counterclockwise, respectively
-	Thruster_group Translate_forward, Translate_backward, Translate_left, Translate_right;
-	// translation, exactly what they sound like
-	Thruster_group Main_engines, Retro_engines, Hover_engines;
 	void Add_force(double attack_point_x, double attack_point_y, double force_x, double force_y);
 	// this... um, might be worthless
 	
@@ -561,6 +556,13 @@ class TVessel: public CNewtonian_Object
 	// how could it possibly not?
 	
 	// I mean like things like position and whatnot
+	// although the init will probably
+	
+	Thruster_group Rotate_clockwise, Rotate_cclockwise;
+	// clockwise and counterclockwise, respectively
+	Thruster_group Translate_forward, Translate_backward, Translate_left, Translate_right;
+	// translation, exactly what they sound like
+	Thruster_group Main_engines, Retro_engines, Hover_engines;
 	
 	virtual void Rotate_left(double dt);
 	virtual void Rotate_right(double dt);
