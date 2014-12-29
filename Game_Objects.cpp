@@ -154,6 +154,41 @@ void Thruster::Throttle_down(double dt, double k_throttle)
 	// 0<throttle<1, negative throttles would do some weeeird things
 }
 
+void Thruster::Throttle_up(double dt, double k_throttle)
+{	Thruster_throttle += (k_throttle*dt);
+	if(Thruster_throttle > 1.00000000000)
+	{	Thruster_throttle = 1.000000000000;
+	}
+	// same as throttle down, even more important that we dont exceed one here
+	// or physics will break
+}
+
+void Thruster::Throttle_to(double dt, double k_throttle, double Throttle_target)
+{	if(Throttle_target > 1.000000000000000)
+	{	Throttle_target = 1.000000000000000;
+	}
+	else if(Throttle_target < 0.000000000000000)
+	{	Throttle_target = 0.000000000000000;
+	}
+	
+	if(Thruster_throttle != Throttle_target)
+	{	double delta = Throttle_target - Thruster_throttle;
+		// we get the relative difference between the two throttle levels
+		if(delta >= (dt*k_throttle))
+		{	Thruster_throttle += (dt*k_throttle);
+		}
+		else if(delta <= -(dt*k_throttle))
+		{	Thruster_throttle -= (dt*k_throttle);
+		}
+		else
+		{	// if we are closer to the target than the magnitude of
+			// dt*k_throttle , just jump straight to the value itself
+			Thruster_throttle = Throttle_target;
+		}
+	}
+	// otherwise we are already there, so dont need to do anything
+}
+
 double Thruster::Get_component_mass()
 {	return Thruster_mass;
 }
@@ -171,19 +206,94 @@ double Thruster::Get_component_inertia()
 	// weird that this is done at this level..., but I guess it does work
 }	
 
-void Thruster::Throttle_up(double dt, double k_throttle)
-{	Thruster_throttle += (k_throttle*dt);
-	if(Thruster_throttle > 1.00000000000)
-	{	Thruster_throttle = 1.000000000000;
+Thruster* Thruster::Get_thruster_pointer()
+{	return this;
+}
+
+// and now for something completely different
+
+// Thruster group //////////////////////////////////////////////////////////////
+// a container to hold references to thrusters in a given group. ///////////////
+////////////////////////////////////////////////////////////////////////////////
+
+Thruster_group::Thruster_group(double initial_throttle_value, thruster_group group_type)
+{	Group_throttle = initial_throttle_value;
+	// set the throttle of the group to whatever	
+	Group_id = group_type;
+	// and correctly set the type of the group to whatever was passed
+	Empty = true;
+	// since we didnt insert any thrusters at this point, the vector is empty
+}
+
+void Thruster_group::Set_group(double throttle_value, thruster_group group_type, bool empty)
+{	Group_throttle = throttle_value;
+	// set the throttle of the group to whatever	
+	Group_id = group_type;
+	// and correctly set the type of the group to whatever was passed
+	Empty = empty;
+	// since we didnt insert any thrusters at this point, the vector is empty
+}
+
+void Thruster_group::Assign_thruster(Thruster * new_thruster)
+{	group_thrusters.insert(group_thrusters.end(), new_thruster);
+}
+
+void Thruster_group::Throttle_group()
+{	if(Empty == false)
+	{	for(std::vector<*Thruster>::iterator it = group_thrusters.begin(); it != group_thrusters.end(); ++it)
+		{	(*it)->Thruster_throttle = this->Group_throttle;
+			// nice and simple
+		}
+	}
+}
+
+void Thruster_group::Throttle_down(double dt, double k_throttle)
+{	this->Group_throttle -= (k_throttle*dt);
+	if(this->Group_throttle < 0.00000000000)
+	{	this->Group_throttle = 0.000000000000;
+	}
+	// quite simple, just increment the value down, but make sure it stays
+	// 0<throttle<1, negative throttles would do some weeeird things
+}
+
+void Thruster_group::Throttle_up(double dt, double k_throttle)
+{	this->Group_throttle += (k_throttle*dt);
+	if(this->Group_throttle > 1.00000000000)
+	{	this->Group_throttle = 1.000000000000;
 	}
 	// same as throttle down, even more important that we dont exceed one here
 	// or physics will break
 }
 
-Thruster* Thruster::Get_thruster_pointer()
-{	return this;
+void Thruster_group::Throttle_to(double dt, double k_throttle, double Throttle_target)
+{	if(Throttle_target > 1.000000000000000)
+	{	Throttle_target = 1.000000000000000;
+	}
+	else if(Throttle_target < 0.000000000000000)
+	{	Throttle_target = 0.000000000000000;
+	}
+	
+	if(Thruster_throttle != Throttle_target)
+	{	double delta = Throttle_target - this->Group_throttle;
+		// we get the relative difference between the two throttle levels
+		if(delta >= (dt*k_throttle))
+		{	this->Group_throttle += (dt*k_throttle);
+		}
+		else if(delta <= -(dt*k_throttle))
+		{	this->Group_throttle -= (dt*k_throttle);
+		}
+		else
+		{	// if we are closer to the target than the magnitude of
+			// dt*k_throttle , just jump straight to the value itself
+			this->Group_throttle = Throttle_target;
+		}
+	}
+	// otherwise we are already there, so dont need to do anything
 }
 
+Thruster_group::Thruster_group()
+{
+}
 
 // Monopropellant Thrusters ////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////

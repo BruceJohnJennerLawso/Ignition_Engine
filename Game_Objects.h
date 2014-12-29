@@ -133,13 +133,16 @@ class Resource_Tank: public Vessel_component
 
 class Thruster: public Vessel_component
 {	public:
-	// no constructor since we never create a plain thruster, only its derived
-	// types as defined below
+	// no constructor since we never create a generic thruster, only its
+	// derived types as defined below
 	void Update_component(double dt, std::vector<Force> &parent_force_list);
 	// standard update function called by the parent vessel
-	double Exhaust_velocity, Maximum_flow_rate, Thruster_throttle, Thruster_mass;
+	double Exhaust_velocity, Maximum_flow_rate, Thruster_mass;
 	// common info about the given engine & what it can do. Exhaust_velocity
-	// should actually be max Ve, but not really a big deal, just semantics.		
+	// should actually be max Ve, but not really a big deal, just semantics.
+	double Thruster_throttle;
+	// thruster throttle is a value between 0 and 1, with 1 being full throttle
+	// and 0 being completely shut off		
 	
 	// mix ratio is (mass oxidizer/mass fuel) for optimum exhaust velocity
 	VectorVictor::Vector2 Thruster_position;						
@@ -155,8 +158,14 @@ class Thruster: public Vessel_component
 	void Throttle_down(double dt, double k_throttle);
 	void Throttle_up(double dt, double k_throttle);
 	// exactly what they sound like, k_throttle moderates how fast the
-	// slider moves, has units of (slider units/s)
+	// slider moves, has units of (slider units/s)	
+	void Throttle_to(double dt, double k_throttle, double Throttle_target);
+	// instead of simply moving the throttle up or down, maybe we need to
+	// move the throttle to a given setting. So we move towards that setting
+	// at our max rate, and if we are close enough, we fine tune the k_throttle
+	// back so that we dont overshoot (this is done in the function)
 	bool empty_tank;		
+	
 	// this is completely temporary	// I swear, totally	
 	// actually this would be good as a quick "precheck before continuing" sort
 	// of thing // Ill at least make it uppercase
@@ -167,12 +176,58 @@ class Thruster: public Vessel_component
 	// is swapped though
 
 	// I think I see the danger here now, this area could cause problems
+	// really dont like this, it needs to be changed
+	
 	double Get_component_mass();
 	double Get_component_inertia();		
 	// same as usual, physical properties of the thruster
 	Thruster* Get_thruster_pointer();
 	// another abstraction like Vessel Component pointers
 	// this case applies to any component that acts as a thruster
+};
+
+enum thruster_group{rotate_clockwise, rotate_counterclockwise, translate_forward, translate_back, translate_right, translate_left, main_engines, retro_engines, hover_engines};
+// on second thought, does this even really need to have hover engines?
+// the difference between hover and main in 2d is really non-existent
+
+class Thruster_group
+{	public:
+	Thruster_group(double initial_throttle_value, thruster_group group_type);
+	void Set_group(double throttle_value, thruster_group group_type, bool empty);
+	void Assign_thruster(Thruster * new_thruster);
+	// put the pointer of a new thruster into the list of thrusters held by the
+	// group
+	thruster_group Group_id;
+	// what role this group fulfills, main engines, rotate the craft left, etc.
+	thruster_group Get_group_id();
+	// return what the group is supposed to do, based on its stored group_id
+	std::vector<*Thruster> group_thrusters;
+	// pointers to all of the thrusters in the group
+	double Group_throttle;
+	// exact same concept as the Thruster_throttle, but this time applied to 
+	// all of the thrusters in the group
+	bool Empty;
+	// does the group have anything 
+	void Throttle_group();
+	// iterates through all of the thrusters in the group and tries to apply its
+	// command to the thrusters in the group. which works because commands
+	// only come in one at a time in theory
+	
+	// IN THEORY ANYWAYS!!! BAHAHAHAHA!!!
+	// WE ALWAYS SAY THAT AND THEN SHIT FLIES OUT THE WINDOW!!!
+	void Throttle_down(double dt, double k_throttle);
+	void Throttle_up(double dt, double k_throttle);
+	// exactly what they sound like, k_throttle moderates how fast the
+	// slider moves, has units of (slider units/s)
+	// here applied to the groups throttle in the same way as we did with the
+	// thrusters themselves. I dont want to have any weirdness with lag here,
+	// so the group simply sets all throttles of its thrusters to the correct
+	// value. The throttle to functions and the like are just useful tools
+	// for any future/in-depth work
+	void Throttle_to(double dt, double k_throttle, double Throttle_target);
+	// and another function here, just like its counterpart for the Thruster
+	// class 
+	~Thruster_group();
 };
 
 class Monopropellant_thruster: public Thruster
@@ -345,6 +400,8 @@ class CNewtonian_Object
 	//	God said "Let Newton be" and all was light.
 	
 	// rather true
+	// and I certainly wouldnt be doing any of this if it werent for him, so...
+	// yeah...
 	VectorVictor::Vector2 Position;
 	// Where we are
 	VectorVictor::Vector2 Velocity;
@@ -394,6 +451,11 @@ class CNewtonian_Object
 	std::vector<Vessel_component*> Object_components;
 	// literally any component on the vessel that is of the vessel component 
 	// type
+	Thruster_group Rotate_clockwise, Rotate_cclockwise;
+	// clockwise and counterclockwise, respectively
+	Thruster_group Translate_forward, Translate_backward, Translate_left, Translate_right;
+	// translation, exactly what they sound like
+	Thruster_group Main_engines, Retro_engines, Hover_engines;
 	void Add_force(double attack_point_x, double attack_point_y, double force_x, double force_y);
 	// this... um, might be worthless
 	
@@ -493,6 +555,12 @@ class TVessel: public CNewtonian_Object
 	Hull * Hull_component;
 	// the hull, of which there should only ever be one
 	// I cant imagine why a second one of these should ever be needed
+	
+	void Init_vessel_type();
+	// it doesnt now, but this must need arguments in the future
+	// how could it possibly not?
+	
+	// I mean like things like position and whatnot
 	
 	virtual void Rotate_left(double dt);
 	virtual void Rotate_right(double dt);
