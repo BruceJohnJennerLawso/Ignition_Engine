@@ -1611,10 +1611,36 @@ void DeltaGlider::Rotate_right(double dt)
 	}
 }	
 
+void DeltaGlider::Rotate_right(double dt, double throttle_target)
+{	for(std::vector<Thruster*>::iterator it = Thrusters.begin(); it != Thrusters.end(); ++it)
+	{	if((*it)->Is_in_group(rotate_clockwise))
+		{	(*it)->Throttle_to(dt, k_throttle, throttle_target);
+		}
+		else
+		{	if((*it)->Is_RCS == true)
+			{	(*it)->Throttle_down(dt, k_throttle);
+			}
+		}
+	}
+}	
+
 void DeltaGlider::Rotate_left(double dt)
 {	for(std::vector<Thruster*>::iterator it = Thrusters.begin(); it != Thrusters.end(); ++it)
 	{	if((*it)->Is_in_group(rotate_counterclockwise))
 		{	(*it)->Throttle_up(dt, k_throttle);
+		}
+		else
+		{	if((*it)->Is_RCS == true)
+			{	(*it)->Throttle_down(dt, k_throttle);
+			}
+		}
+	}
+}	
+
+void DeltaGlider::Rotate_left(double dt, double throttle_target)
+{	for(std::vector<Thruster*>::iterator it = Thrusters.begin(); it != Thrusters.end(); ++it)
+	{	if((*it)->Is_in_group(rotate_counterclockwise))
+		{	(*it)->Throttle_to(dt, k_throttle, throttle_target);
 		}
 		else
 		{	if((*it)->Is_RCS == true)
@@ -1660,7 +1686,8 @@ void DeltaGlider::Kill_rotation(double dt)
 			}
 			else
 			{	if(last_alpha > delta_omega)
-				{	No_command(dt*((last_alpha) - delta_omega));
+				{	double percentage = (delta_omega/last_alpha);
+					Rotate_left(dt, percentage);
 				}
 				else
 				{	Rotate_left(dt);
@@ -1673,7 +1700,8 @@ void DeltaGlider::Kill_rotation(double dt)
 			}
 			else
 			{	if(last_alpha > delta_omega)
-				{	No_command(dt*((last_alpha) - delta_omega));
+				{	double percentage = (delta_omega/last_alpha);
+					Rotate_right(dt, percentage);
 				}
 				else
 				{	Rotate_right(dt);

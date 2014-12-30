@@ -566,6 +566,8 @@ class TVessel: public CNewtonian_Object
 	// thrusters based on the number and type of arguments supplied to the
 	// function
 	
+	long double Get_max_alpha(rotation_direction direction);
+	
 	sf::Texture * Vessel_tex;
 	// pointer to the texture of the vessels hull. Pointer is kind of nice here
 	// so we dont need to make a copy of the same texture every time a
@@ -661,6 +663,10 @@ class DeltaGlider: public TVessel
 	
 	void Rotate_left(double dt);
 	void Rotate_right(double dt);
+	
+	void Rotate_left(double dt, double throttle_target);
+	void Rotate_right(double dt, double throttle_target);
+	
 	void Translate_forward(double dt);
 	void Translate_backward(double dt);
 	void Translate_left(double dt);
