@@ -131,6 +131,8 @@ class Resource_Tank: public Vessel_component
 	~Resource_Tank();
 };
 
+enum thruster_group{rotate_clockwise, rotate_counterclockwise, translate_forward, translate_back, translate_right, translate_left, main_engines, retro_engines, hover_engines};
+
 class Thruster: public Vessel_component
 {	public:
 	// no constructor since we never create a generic thruster, only its
@@ -155,6 +157,10 @@ class Thruster: public Vessel_component
 	// gotta have a magnitude of 1
 	// this is the direction that the nozzle points in, opposite to the
 	// direction of the actual force vector
+	std::vector<thruster_group> Groups;
+	// a list of all of the groups that
+	bool Is_in_group(thruster_group group);
+	// returns if this thruster is of the type passed by group
 	void Throttle_down(double dt, double k_throttle);
 	void Throttle_up(double dt, double k_throttle);
 	// exactly what they sound like, k_throttle moderates how fast the
@@ -178,6 +184,8 @@ class Thruster: public Vessel_component
 	// I think I see the danger here now, this area could cause problems
 	// really dont like this, it needs to be changed
 	
+	bool Is_RCS;
+	
 	double Get_component_mass();
 	double Get_component_inertia();		
 	// same as usual, physical properties of the thruster
@@ -185,56 +193,17 @@ class Thruster: public Vessel_component
 	// another abstraction like Vessel Component pointers
 	// this case applies to any component that acts as a thruster
 };
-
-enum thruster_group{rotate_clockwise, rotate_counterclockwise, translate_forward, translate_back, translate_right, translate_left, main_engines, retro_engines, hover_engines};
 // on second thought, does this even really need to have hover engines?
 // the difference between hover and main in 2d is really non-existent
 
-class Thruster_group
-{	public:
-	Thruster_group(double initial_throttle_value, thruster_group group_type);
-	void Set_group(double throttle_value, thruster_group group_type, bool empty);
-	void Assign_thruster(Thruster * new_thruster);
-	// put the pointer of a new thruster into the list of thrusters held by the
-	// group
-	thruster_group Group_id;
-	// what role this group fulfills, main engines, rotate the craft left, etc.
-	thruster_group Get_group_id();
-	// return what the group is supposed to do, based on its stored group_id
-	std::vector<*Thruster> group_thrusters;
-	// pointers to all of the thrusters in the group
-	double Group_throttle;
-	// exact same concept as the Thruster_throttle, but this time applied to 
-	// all of the thrusters in the group
-	bool Empty;
-	// does the group have anything 
-	void Throttle_group();
-	// iterates through all of the thrusters in the group and tries to apply its
-	// command to the thrusters in the group. which works because commands
-	// only come in one at a time in theory
-	
-	// IN THEORY ANYWAYS!!! BAHAHAHAHA!!!
-	// WE ALWAYS SAY THAT AND THEN SHIT FLIES OUT THE WINDOW!!!
-	void Throttle_down(double dt, double k_throttle);
-	void Throttle_up(double dt, double k_throttle);
-	// exactly what they sound like, k_throttle moderates how fast the
-	// slider moves, has units of (slider units/s)
-	// here applied to the groups throttle in the same way as we did with the
-	// thrusters themselves. I dont want to have any weirdness with lag here,
-	// so the group simply sets all throttles of its thrusters to the correct
-	// value. The throttle to functions and the like are just useful tools
-	// for any future/in-depth work
-	void Throttle_to(double dt, double k_throttle, double Throttle_target);
-	// and another function here, just like its counterpart for the Thruster
-	// class 
-	~Thruster_group();
-};
 
 class Monopropellant_thruster: public Thruster
 {	public:
 	// any thruster which uses only one type of fuel 
 	// (and in this case one fuel tank)
-	Monopropellant_thruster(double thruster_mass, double vexhaust, double max_flow_rate, double position_x, double position_y, double direction_x, double direction_y, double inner_radius, double outer_radius, Resource_Tank * fuel_tank);
+	Monopropellant_thruster(bool is_rcs, double thruster_mass, double vexhaust, double max_flow_rate, double position_x, double position_y, double direction_x, double direction_y, double inner_radius, double outer_radius, Resource_Tank * fuel_tank, thruster_group group_one);
+	Monopropellant_thruster(bool is_rcs, double thruster_mass, double vexhaust, double max_flow_rate, double position_x, double position_y, double direction_x, double direction_y, double inner_radius, double outer_radius, Resource_Tank * fuel_tank, thruster_group group_one, thruster_group group_two);
+	Monopropellant_thruster(bool is_rcs, double thruster_mass, double vexhaust, double max_flow_rate, double position_x, double position_y, double direction_x, double direction_y, double inner_radius, double outer_radius, Resource_Tank * fuel_tank, thruster_group group_one, thruster_group group_two, thruster_group group_three);		
 	Resource_Tank * Fuel_tank;
 	// pointer to the fuel tank that we drain our fuel mass away from. This is...
 	// ahh... not great practice, but I feel like a string based solution might
@@ -558,12 +527,6 @@ class TVessel: public CNewtonian_Object
 	// I mean like things like position and whatnot
 	// although the init will probably
 	
-	Thruster_group Rotate_clockwise, Rotate_cclockwise;
-	// clockwise and counterclockwise, respectively
-	Thruster_group Translate_forward, Translate_backward, Translate_left, Translate_right;
-	// translation, exactly what they sound like
-	Thruster_group Main_engines, Retro_engines, Hover_engines;
-	
 	virtual void Rotate_left(double dt);
 	virtual void Rotate_right(double dt);
 	virtual void Kill_rotation(double dt);					
@@ -588,12 +551,12 @@ class TVessel: public CNewtonian_Object
 	// amount, that should work
 	std::vector<Thruster*> Thrusters;
 	// the global list containing every thruster on the craft
-	bool Init_thruster(double thruster_mass, double vexhaust, double max_flow_rate, double position_x, double position_y, double direction_x, double direction_y, double inner_radius, double outer_radius, Resource_Tank * fuel_tank, thruster_group group_id);
+	bool Init_thruster(bool is_rcs, double thruster_mass, double vexhaust, double max_flow_rate, double position_x, double position_y, double direction_x, double direction_y, double inner_radius, double outer_radius, Resource_Tank * fuel_tank, thruster_group group_id);
 	// we get all of the parameters needed to make a new object of type, and we
 	// pass it the id type of which thruster group it will be placed in
-	bool Init_thruster(double thruster_mass, double vexhaust, double max_flow_rate, double position_x, double position_y, double direction_x, double direction_y, double inner_radius, double outer_radius, Resource_Tank * fuel_tank, thruster_group group_id1, thruster_group group_id2);
+	bool Init_thruster(bool is_rcs, double thruster_mass, double vexhaust, double max_flow_rate, double position_x, double position_y, double direction_x, double direction_y, double inner_radius, double outer_radius, Resource_Tank * fuel_tank, thruster_group group_id1, thruster_group group_id2);
 	// and we do the same thing, except now with two groups
-	bool Init_thruster(double thruster_mass, double vexhaust, double max_flow_rate, double position_x, double position_y, double direction_x, double direction_y, double inner_radius, double outer_radius, Resource_Tank * fuel_tank, thruster_group group_id1, thruster_group group_id2, thruster_group group_id3);
+	bool Init_thruster(bool is_rcs, double thruster_mass, double vexhaust, double max_flow_rate, double position_x, double position_y, double direction_x, double direction_y, double inner_radius, double outer_radius, Resource_Tank * fuel_tank, thruster_group group_id1, thruster_group group_id2, thruster_group group_id3);
 	// and with three groups. Seriously, how can we possibly need more than 3
 	// groups to a thruster?
 	
@@ -601,7 +564,6 @@ class TVessel: public CNewtonian_Object
 	// thrusters based on the number and type of arguments supplied to the
 	// function
 	
-	void Insert_thruster_to_group(Thruster * new_thruster, thruster_group group_id);
 	sf::Texture * Vessel_tex;
 	// pointer to the texture of the vessels hull. Pointer is kind of nice here
 	// so we dont need to make a copy of the same texture every time a
@@ -711,8 +673,6 @@ class DeltaGlider: public TVessel
 	
 	Resource_Tank * Main_fuel, * RCS_fuel;
 	// Fuel tanks, with no specific connection to anything above this class
-	Thruster * Main_engines, * Bow_left, * Bow_right, * Bow_fore, * Stern_left, * Stern_right, * Stern_aft;
-	// same for the thrusters
 	sf::Color * text_colour;
 	// doesnt really need to be only one, but if its working, dont touch
 	// abstraction will remove this anyways

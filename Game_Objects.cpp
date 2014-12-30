@@ -145,6 +145,15 @@ void Thruster::Update_component(double dt, std::vector<Force> &parent_force_list
 	// cant have this, needs to be the child class definition
 }
 
+bool Thruster::Is_in_group(thruster_group group)
+{	for(std::vector<thruster_group>::iterator it = Groups.begin(); it != Groups.end(); ++it)
+	{	if((*it) == group)
+		{	return true;
+		}
+	}
+	return false;
+}
+
 void Thruster::Throttle_down(double dt, double k_throttle)
 {	Thruster_throttle -= (k_throttle*dt);
 	if(Thruster_throttle < 0.00000000000)
@@ -210,97 +219,13 @@ Thruster* Thruster::Get_thruster_pointer()
 {	return this;
 }
 
-// and now for something completely different
 
-// Thruster group //////////////////////////////////////////////////////////////
-// a container to hold references to thrusters in a given group. ///////////////
-////////////////////////////////////////////////////////////////////////////////
-
-Thruster_group::Thruster_group(double initial_throttle_value, thruster_group group_type)
-{	Group_throttle = initial_throttle_value;
-	// set the throttle of the group to whatever	
-	Group_id = group_type;
-	// and correctly set the type of the group to whatever was passed
-	Empty = true;
-	// since we didnt insert any thrusters at this point, the vector is empty
-}
-
-void Thruster_group::Set_group(double throttle_value, thruster_group group_type, bool empty)
-{	Group_throttle = throttle_value;
-	// set the throttle of the group to whatever	
-	Group_id = group_type;
-	// and correctly set the type of the group to whatever was passed
-	Empty = empty;
-	// since we didnt insert any thrusters at this point, the vector is empty
-}
-
-void Thruster_group::Assign_thruster(Thruster * new_thruster)
-{	group_thrusters.insert(group_thrusters.end(), new_thruster);
-	Empty = false;
-}
-
-void Thruster_group::Throttle_group()
-{	if(Empty == false)
-	{	for(std::vector<*Thruster>::iterator it = group_thrusters.begin(); it != group_thrusters.end(); ++it)
-		{	(*it)->Thruster_throttle = this->Group_throttle;
-			// nice and simple
-		}
-	}
-}
-
-void Thruster_group::Throttle_down(double dt, double k_throttle)
-{	this->Group_throttle -= (k_throttle*dt);
-	if(this->Group_throttle < 0.00000000000)
-	{	this->Group_throttle = 0.000000000000;
-	}
-	// quite simple, just increment the value down, but make sure it stays
-	// 0<throttle<1, negative throttles would do some weeeird things
-}
-
-void Thruster_group::Throttle_up(double dt, double k_throttle)
-{	this->Group_throttle += (k_throttle*dt);
-	if(this->Group_throttle > 1.00000000000)
-	{	this->Group_throttle = 1.000000000000;
-	}
-	// same as throttle down, even more important that we dont exceed one here
-	// or physics will break
-}
-
-void Thruster_group::Throttle_to(double dt, double k_throttle, double Throttle_target)
-{	if(Throttle_target > 1.000000000000000)
-	{	Throttle_target = 1.000000000000000;
-	}
-	else if(Throttle_target < 0.000000000000000)
-	{	Throttle_target = 0.000000000000000;
-	}
-	
-	if(Thruster_throttle != Throttle_target)
-	{	double delta = Throttle_target - this->Group_throttle;
-		// we get the relative difference between the two throttle levels
-		if(delta >= (dt*k_throttle))
-		{	this->Group_throttle += (dt*k_throttle);
-		}
-		else if(delta <= -(dt*k_throttle))
-		{	this->Group_throttle -= (dt*k_throttle);
-		}
-		else
-		{	// if we are closer to the target than the magnitude of
-			// dt*k_throttle , just jump straight to the value itself
-			this->Group_throttle = Throttle_target;
-		}
-	}
-	// otherwise we are already there, so dont need to do anything
-}
-
-Thruster_group::Thruster_group()
-{
-}
 
 // Monopropellant Thrusters ////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
 
-Monopropellant_thruster::Monopropellant_thruster(double thruster_mass, double vexhaust, double max_flow_rate, double position_x, double position_y, double direction_x, double direction_y, double inner_radius, double outer_radius, Resource_Tank * fuel_tank)
+Monopropellant_thruster::Monopropellant_thruster(bool is_rcs, double thruster_mass, double vexhaust, double max_flow_rate, double position_x, double position_y, double direction_x, double direction_y, double inner_radius, double outer_radius, Resource_Tank * fuel_tank, thruster_group group_one)
 {	Exhaust_velocity = vexhaust;
 	Maximum_flow_rate = max_flow_rate;
 	Thruster_position.Set_values(position_x, position_y);
@@ -312,6 +237,45 @@ Monopropellant_thruster::Monopropellant_thruster(double thruster_mass, double ve
 	Thruster_mass = thruster_mass;
 	Fuel_tank = fuel_tank;
 	Component_moment = new Inertia_sphere(inner_radius, outer_radius, Thruster_position);
+	Groups.insert(Groups.end(), group_one);
+	Is_RCS = is_rcs;
+	// all the nice initialization
+}
+
+Monopropellant_thruster::Monopropellant_thruster(bool is_rcs, double thruster_mass, double vexhaust, double max_flow_rate, double position_x, double position_y, double direction_x, double direction_y, double inner_radius, double outer_radius, Resource_Tank * fuel_tank, thruster_group group_one, thruster_group group_two)
+{	Exhaust_velocity = vexhaust;
+	Maximum_flow_rate = max_flow_rate;
+	Thruster_position.Set_values(position_x, position_y);
+	Thruster_direction.Set_values(direction_x, direction_y);
+	Thruster_direction.Normalize();
+	// Important that it has a normalized direction, otherwise stuff goes nuts
+	Thruster_throttle = 0.0000000000000000;
+	empty_tank = false;
+	Thruster_mass = thruster_mass;
+	Fuel_tank = fuel_tank;
+	Component_moment = new Inertia_sphere(inner_radius, outer_radius, Thruster_position);
+	Groups.insert(Groups.end(), group_one);
+	Groups.insert(Groups.end(), group_two);
+	Is_RCS = is_rcs;
+	// all the nice initialization
+}
+
+Monopropellant_thruster::Monopropellant_thruster(bool is_rcs, double thruster_mass, double vexhaust, double max_flow_rate, double position_x, double position_y, double direction_x, double direction_y, double inner_radius, double outer_radius, Resource_Tank * fuel_tank, thruster_group group_one, thruster_group group_two, thruster_group group_three)
+{	Exhaust_velocity = vexhaust;
+	Maximum_flow_rate = max_flow_rate;
+	Thruster_position.Set_values(position_x, position_y);
+	Thruster_direction.Set_values(direction_x, direction_y);
+	Thruster_direction.Normalize();
+	// Important that it has a normalized direction, otherwise stuff goes nuts
+	Thruster_throttle = 0.0000000000000000;
+	empty_tank = false;
+	Thruster_mass = thruster_mass;
+	Fuel_tank = fuel_tank;
+	Component_moment = new Inertia_sphere(inner_radius, outer_radius, Thruster_position);
+	Groups.insert(Groups.end(), group_one);
+	Groups.insert(Groups.end(), group_two);
+	Groups.insert(Groups.end(), group_three);
+	Is_RCS = is_rcs;
 	// all the nice initialization
 }
 
@@ -644,27 +608,6 @@ void CKeplerian_Object::Draw_flag(SFML_Window * iwindow, int zoom_factor)
 
 // TPlanet /////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
-
-
-
-void TPlanet::Init_vessel_type()
-{	Rotate_clockwise.Set_group(0.0000, rotate_clockwise, true);
-	Rotate_cclockwise.Set_group(0.0000, rotate_counterclockwise, true);
-	Translate_forward.Set_group(0.0000, translate_forward, true);
-	Translate_backward.Set_group(0.0000, translate_back, true);
-	Translate_left.Set_group(0.0000, translate_left, true);
-	Translate_right.Set_group(0.0000, translate_right, true);
-	
-	Main_engines.Set_group(0.0000, main_engines, true);
-	Retro_engines.Set_group(0.0000, retro_engines, true);
-	Hover_engines.Set_group(0.0000, hover_engines, true);
-	// we start by setting up our thruster groups, just empty containers with
-	// the appropriate throttle settings and group type ids
-	
-	// they just need to be set so that they actually have values since
-	// declaring them normally only calls the default constructor without any
-	// parameters. So yeah...
-}
 
 
 
@@ -1067,6 +1010,10 @@ CNewtonian_Object* CNewtonian_Object::Get_Newtonian_pointer()
 ////////////////////////////////////////////////////////////////////////////////
 
 
+void TVessel::Init_vessel_type()
+{	
+}
+
 // getting a little more specific at this point, dealing with specific
 // functionality that a spacecraft really needs to have
 
@@ -1116,56 +1063,25 @@ void TVessel::Draw_controls(SFML_Window * iwindow, bool Map_status)
 {	// should be a warning message here too...
 }
 
-bool TVessel::Init_thruster(double thruster_mass, double vexhaust, double max_flow_rate, double position_x, double position_y, double direction_x, double direction_y, double inner_radius, double outer_radius, Resource_Tank * fuel_tank, thruster_group group_id)
-{	Thruster * new_thruster = new Monopropellant_thruster(thruster_mass, vexhaust, max_flow_rate, position_x, position_y, direction_x, direction_y, inner_radius, outer_radius, fuel_tank);
-	this->Insert_thruster_to_group(new_thruster, group_id);
+bool TVessel::Init_thruster(bool is_rcs, double thruster_mass, double vexhaust, double max_flow_rate, double position_x, double position_y, double direction_x, double direction_y, double inner_radius, double outer_radius, Resource_Tank * fuel_tank, thruster_group group_id)
+{	Thruster * new_thruster = new Monopropellant_thruster(is_rcs, thruster_mass, vexhaust, max_flow_rate, position_x, position_y, direction_x, direction_y, inner_radius, outer_radius, fuel_tank, group_id);
 	this->Object_components.insert(this->Object_components.end(), new_thruster->Get_vessel_component_pointer());	
+	Thrusters.insert(Thrusters.end(), new_thruster);
+	return true;
 }
 	
-bool TVessel::Init_thruster(double thruster_mass, double vexhaust, double max_flow_rate, double position_x, double position_y, double direction_x, double direction_y, double inner_radius, double outer_radius, Resource_Tank * fuel_tank, thruster_group group_id1, thruster_group group_id2)
-{	Thruster * new_thruster = new Monopropellant_thruster(thruster_mass, vexhaust, max_flow_rate, position_x, position_y, direction_x, direction_y, inner_radius, outer_radius, fuel_tank);
-	this->Insert_thruster_to_group(new_thruster, group_id1);
-	this->Insert_thruster_to_group(new_thruster, group_id2);
+bool TVessel::Init_thruster(bool is_rcs, double thruster_mass, double vexhaust, double max_flow_rate, double position_x, double position_y, double direction_x, double direction_y, double inner_radius, double outer_radius, Resource_Tank * fuel_tank, thruster_group group_id1, thruster_group group_id2)
+{	Thruster * new_thruster = new Monopropellant_thruster(is_rcs, thruster_mass, vexhaust, max_flow_rate, position_x, position_y, direction_x, direction_y, inner_radius, outer_radius, fuel_tank, group_id1, group_id2);
 	this->Object_components.insert(this->Object_components.end(), new_thruster->Get_vessel_component_pointer());	
+	Thrusters.insert(Thrusters.end(), new_thruster);
+	return true;
 }
 
-bool TVessel::Init_thruster(double thruster_mass, double vexhaust, double max_flow_rate, double position_x, double position_y, double direction_x, double direction_y, double inner_radius, double outer_radius, Resource_Tank * fuel_tank, thruster_group group_id1, thruster_group group_id2, thruster_group group_id3)
-{	Thruster * new_thruster = new Monopropellant_thruster(thruster_mass, vexhaust, max_flow_rate, position_x, position_y, direction_x, direction_y, inner_radius, outer_radius, fuel_tank);
-	this->Insert_thruster_to_group(new_thruster, group_id1);
-	this->Insert_thruster_to_group(new_thruster, group_id2);
-	this->Insert_thruster_to_group(new_thruster, group_id3);	
+bool TVessel::Init_thruster(bool is_rcs, double thruster_mass, double vexhaust, double max_flow_rate, double position_x, double position_y, double direction_x, double direction_y, double inner_radius, double outer_radius, Resource_Tank * fuel_tank, thruster_group group_id1, thruster_group group_id2, thruster_group group_id3)
+{	Thruster * new_thruster = new Monopropellant_thruster(is_rcs, thruster_mass, vexhaust, max_flow_rate, position_x, position_y, direction_x, direction_y, inner_radius, outer_radius, fuel_tank, group_id1, group_id2, group_id3);
 	this->Object_components.insert(this->Object_components.end(), new_thruster->Get_vessel_component_pointer());	
-}
-	
-void TVessel::Insert_thruster_to_group(Thruster * new_thruster, thruster_group group_id)
-{	if(group_id == rotate_clockwise)
-	{	Rotate_clockwise.Assign_thruster(new_thruster);
-	}
-	else if(group_id == rotate_counterclockwise)
-	{	Rotate_cclockwise.Assign_thruster(new_thruster);
-	}
-	else if(group_id == translate_back)
-	{	Translate_backward.Assign_thruster(new_thruster);
-	}
-	else if(group_id == translate_forward)
-	{	Translate_forward.Assign_thruster(new_thruster);
-	}
-	else if(group_id == translate_left)
-	{	Translate_left.Assign_thruster(new_thruster);
-	}
-	else if(group_id == translate_right)				
-	{	Translate_right.Assign_thruster(new_thruster);
-	}
-	else if(group_id == main_engines)
-	{	Main_engines.Assign_thruster(new_thruster);
-	}
-	else if(group_id == retro_engines)
-	{	Retro_engines.Assign_thruster(new_thruster);
-	}
-	else if(group_id == hover_engines)
-	{	Hover_engines.Assign_thruster(new_thruster);
-	}		
-	
+	Thrusters.insert(Thrusters.end(), new_thruster);	
+	return true;
 }
 
 bool TVessel::In_view(SFML_Window * window, int zoom_factor)
@@ -1343,9 +1259,7 @@ DeltaGlider::DeltaGlider(double initial_x_position, double initial_y_position, d
 	// Come to think of it, why exactly is there a separate list for fuel tanks?
 	// they arent even accessed that way, not yet anyways
 	
-	Main_engines = new Monopropellant_thruster(4000, 50000, 290, 0, -6.2000, 0, -1, 0.4, 0.49, Main_fuel); 
-	Thrusters.insert(Thrusters.end(), Main_engines);
-	Object_components.insert(Object_components.end(), Main_engines->Get_vessel_component_pointer());
+	Init_thruster(false, 4000, 50000, 290, 0, -6.2000, 0, -1, 0.4, 0.49, Main_fuel, main_engines); 
 	// construct the main engine thrsuter, insert it into the thruster vector
 	// and the general components vector
 	
@@ -1358,29 +1272,13 @@ DeltaGlider::DeltaGlider(double initial_x_position, double initial_y_position, d
 	Fuel_tanks.insert(Fuel_tanks.end(), RCS_fuel);		
 	Object_components.insert(Object_components.end(), RCS_fuel->Get_vessel_component_pointer());	
 	
-	Bow_left = new Monopropellant_thruster(470, 49000, 610, 0, 6.2000, -1, 0, 0.10, 0.12, RCS_fuel);
-	Thrusters.insert(Thrusters.end(), Bow_left);
-	Object_components.insert(Object_components.end(), Bow_left->Get_vessel_component_pointer());
+	Init_thruster(true, 470, 49000, 610, 0, 6.2000, -1, 0, 0.10, 0.12, RCS_fuel, rotate_clockwise, translate_right);
+	Init_thruster(true, 470, 49000, 610, 0, 6.2000, 1, 0, 0.10, 0.12, RCS_fuel, rotate_counterclockwise, translate_left);
+	Init_thruster(true, 470, 49000, 460, 0, 6.400, 0, 1, 0.10, 0.12, RCS_fuel, translate_back); 
+	Init_thruster(true, 470, 49000, 630, -0.20, -6.0000, -1, 0, 0.10, 0.12, RCS_fuel, rotate_counterclockwise, translate_right); 
+	Init_thruster(true, 470, 49000, 630, -0.20, -6.0000, 1, 0, 0.10, 0.12, RCS_fuel, rotate_clockwise, translate_left); 
+	Init_thruster(true, 470, 49000, 460, -0.2, -6.0000, 0, -1, 0.10, 0.12, RCS_fuel, translate_forward);
 		
-	Bow_right = new Monopropellant_thruster(470, 49000, 610, 0, 6.2000, 1, 0, 0.10, 0.12, RCS_fuel);
-	Thrusters.insert(Thrusters.end(), Bow_right);
-	Object_components.insert(Object_components.end(), Bow_right->Get_vessel_component_pointer());	
-	
-	Bow_fore = new Monopropellant_thruster(470, 49000, 460, 0, 6.400, 0, 1, 0.10, 0.12, RCS_fuel); 
-	Thrusters.insert(Thrusters.end(), Bow_fore);
-	Object_components.insert(Object_components.end(), Bow_fore->Get_vessel_component_pointer());		
-	
-	Stern_left = new Monopropellant_thruster(470, 49000, 630, -0.20, -6.0000, -1, 0, 0.10, 0.12, RCS_fuel); 
-	Thrusters.insert(Thrusters.end(), Stern_left);
-	Object_components.insert(Object_components.end(), Stern_left->Get_vessel_component_pointer());		
-	
-	Stern_right = new Monopropellant_thruster(470, 49000, 630, -0.20, -6.0000, 1, 0, 0.10, 0.12, RCS_fuel); 
-	Thrusters.insert(Thrusters.end(), Stern_right);
-	Object_components.insert(Object_components.end(), Stern_right->Get_vessel_component_pointer());		
-	
-	Stern_aft = new Monopropellant_thruster(470, 49000, 460, -0.2, -6.0000, 0, -1, 0.10, 0.12, RCS_fuel);
-	Thrusters.insert(Thrusters.end(), Stern_aft);
-	Object_components.insert(Object_components.end(), Stern_aft->Get_vessel_component_pointer());		
 	// and we construct all of the RCS thrusters in the same way
 	
 	// this should definitely be a function to minimize mistakes
@@ -1546,35 +1444,6 @@ void DeltaGlider::Receive_inputs(key_commands * current_inputs, double dt)
 	}	// the throttle back of every thruster since no inputs are being sent
 		// intended for RCS thrusters, but also applies to main/retro/hover,
 		// not exactly a perfect setup here
-	if(current_inputs->l == true)
-	{	Toggle_throttle_lock();
-	}	// forgot this was even here
-	
-	switch(Throttle_lock)
-	{	// we check if the throttle lock is on to determine which behaviour
-		// will be used
-		case true:
-		{	if(current_inputs->up == true)
-			{	Throttle_up(dt);
-			}
-			else if(current_inputs->down == true)
-			{	Throttle_down(dt);
-			}	// not too hard to understand, just keeps the rate of throttling
-				// lower so we can have fine control
-				
-				// this could use a second look though...
-			break;
-		}
-		case false:
-		{	if(current_inputs->up == true)
-			{	Throttle_up(50*dt);
-			}	// throttle up faster for some reason... hmm
-			else
-			{	Throttle_down(50*dt);
-			}	// otherwise bring the mains back down quickly
-			break;
-		}
-	}
 }
 
 double DeltaGlider::Get_total_mass()
@@ -1591,20 +1460,7 @@ double DeltaGlider::Get_PMI()
 }
 
 void DeltaGlider::Print_data()
-{	std::cout << "Engines Main: " << Main_engines->Thruster_throttle << "		" << Main_fuel->Resource_mass << std::endl;
-	std::cout << "RCS Engines " << std::endl;
-	std::cout << Bow_fore ->Thruster_throttle << std::endl;
-	std::cout << Bow_left->Thruster_throttle <<  std::endl;
-	std::cout << Bow_right->Thruster_throttle <<  std::endl;
-	std::cout << Stern_aft->Thruster_throttle << std::endl;
-	std::cout << Stern_left->Thruster_throttle << std::endl;
-	std::cout << Stern_right->Thruster_throttle << std::endl;
-	std::cout << "RCS Fuel: " << RCS_fuel->Resource_mass << std::endl;
-	double acceleration;
-	acceleration = (Main_engines->Exhaust_velocity*Main_engines->Maximum_flow_rate);
-	acceleration /= Get_total_mass();
-	std::cout << "top accel " << acceleration << " - " << acceleration/9.81 << " g" <<  std::endl; 
-	std::cout << "Main engine direction: " << (Main_engines->Thruster_direction.Get_rotated_vector(Theta)).Get_vector(" ") << std::endl;
+{	std::cout << "RCS Fuel: " << RCS_fuel->Resource_mass << std::endl;
 	std::cout << "Crash state: " << Crashed << std::endl;
 	// general useful data
 	
@@ -1678,14 +1534,17 @@ void DeltaGlider::Receive_cursor_inputs(Cursor_commands * cursor_action, long do
 }
 
 void DeltaGlider::Translate_left(double dt)
-{	// Throttles up ////////////////////////////////////////////////////////////
-	Bow_right->Throttle_up(dt, k_throttle);
-	Stern_right->Throttle_up(dt, k_throttle);
-	// Throttles down //////////////////////////////////////////////////////////
-	Bow_left->Throttle_down(dt, k_throttle);
-	Stern_left->Throttle_down(dt, k_throttle);
-	Bow_fore->Throttle_down(dt, k_throttle);
-	Stern_aft->Throttle_down(dt, k_throttle);
+{	std::cout << "Translating left" << std::endl;
+	for(std::vector<Thruster*>::iterator it = Thrusters.begin(); it != Thrusters.end(); ++it)
+	{	if((*it)->Is_in_group(translate_left))
+		{	(*it)->Throttle_up(dt, k_throttle);
+		}
+		else
+		{	if((*it)->Is_RCS == true)
+			{	(*it)->Throttle_down(dt, k_throttle);
+			}
+		}
+	}
 }
 
 // obvious as it gets, just adjust throttles based on dt and the k_throttle
@@ -1694,83 +1553,115 @@ void DeltaGlider::Translate_left(double dt)
 // I smell disaster there, so its better not to tempt fate
 
 void DeltaGlider::Translate_right(double dt)
-{	// Throttles up ////////////////////////////////////////////////////////////
-	Bow_left->Throttle_up(dt, k_throttle);
-	Stern_left->Throttle_up(dt, k_throttle);
-	// Throttles down //////////////////////////////////////////////////////////
-	Bow_right->Throttle_down(dt, k_throttle);
-	Stern_right->Throttle_down(dt, k_throttle);
-	Bow_fore->Throttle_down(dt, k_throttle);
-	Stern_aft->Throttle_down(dt, k_throttle);
+{	for(std::vector<Thruster*>::iterator it = Thrusters.begin(); it != Thrusters.end(); ++it)
+	{	if((*it)->Is_in_group(translate_right))
+		{	(*it)->Throttle_up(dt, k_throttle);
+		}
+		else
+		{	if((*it)->Is_RCS == true)
+			{	(*it)->Throttle_down(dt, k_throttle);
+			}
+		}
+	}
 }
 
 void DeltaGlider::Translate_backward(double dt)
-{	// Throttles up ////////////////////////////////////////////////////////////
-	Bow_fore->Throttle_up(dt, k_throttle);
-	// Throttles down //////////////////////////////////////////////////////////
-	Bow_right->Throttle_down(dt, k_throttle);
-	Bow_left->Throttle_down(dt, k_throttle);
-	Stern_aft->Throttle_down(dt, k_throttle);
-	Stern_left->Throttle_down(dt, k_throttle);
-	Stern_right->Throttle_down(dt, k_throttle);
-}	// next is translate forwards
+{	for(std::vector<Thruster*>::iterator it = Thrusters.begin(); it != Thrusters.end(); ++it)
+	{	if((*it)->Is_in_group(translate_back))
+		{	(*it)->Throttle_up(dt, k_throttle);
+		}
+		else
+		{	if((*it)->Is_RCS == true)
+			{	(*it)->Throttle_down(dt, k_throttle);
+			}
+		}
+	}
+}
 
 void DeltaGlider::Translate_forward(double dt)
-{	// Throttles up ////////////////////////////////////////////////////////////
-	Stern_aft->Throttle_up(dt, k_throttle);
-	// Throttles down //////////////////////////////////////////////////////////
-	Bow_right->Throttle_down(dt, k_throttle);
-	Bow_left->Throttle_down(dt, k_throttle);
-	Bow_fore->Throttle_down(dt, k_throttle);
-	Stern_left->Throttle_down(dt, k_throttle);
-	Stern_right->Throttle_down(dt, k_throttle);
+{	for(std::vector<Thruster*>::iterator it = Thrusters.begin(); it != Thrusters.end(); ++it)
+	{	if((*it)->Is_in_group(translate_forward))
+		{	(*it)->Throttle_up(dt, k_throttle);
+		}
+		else
+		{	if((*it)->Is_RCS == true)
+			{	(*it)->Throttle_down(dt, k_throttle);
+			}
+		}
+	}
 }	
 
 void DeltaGlider::Rotate_right(double dt)
-{	// Throttles up ////////////////////////////////////////////////////////////
-	Bow_left->Throttle_up(dt, k_throttle);
-	Stern_right->Throttle_up(dt, k_throttle);
-	// Throttles down //////////////////////////////////////////////////////////
-	Bow_right->Throttle_down(dt, k_throttle);
-	Stern_aft->Throttle_down(dt, k_throttle);
-	Stern_left->Throttle_down(dt, k_throttle);
-	Bow_fore->Throttle_down(dt, k_throttle);
+{	for(std::vector<Thruster*>::iterator it = Thrusters.begin(); it != Thrusters.end(); ++it)
+	{	if((*it)->Is_in_group(rotate_clockwise))
+		{	(*it)->Throttle_up(dt, k_throttle);
+		}
+		else
+		{	if((*it)->Is_RCS == true)
+			{	(*it)->Throttle_down(dt, k_throttle);
+			}
+		}
+	}
 }	
 
 void DeltaGlider::Rotate_left(double dt)
-{	// Throttles up ////////////////////////////////////////////////////////////
-	Bow_right->Throttle_up(dt, k_throttle);
-	Stern_left->Throttle_up(dt, k_throttle);
-	// Throttles down //////////////////////////////////////////////////////////
-	Bow_left->Throttle_down(dt, k_throttle);
-	Stern_aft->Throttle_down(dt, k_throttle);
-	Stern_right->Throttle_down(dt, k_throttle);
-	Bow_fore->Throttle_down(dt, k_throttle);
+{	std::cout << "Rotating left" << std::endl;
+	for(std::vector<Thruster*>::iterator it = Thrusters.begin(); it != Thrusters.end(); ++it)
+	{	if((*it)->Is_in_group(rotate_counterclockwise))
+		{	(*it)->Throttle_up(dt, k_throttle);
+		}
+		else
+		{	if((*it)->Is_RCS == true)
+			{	(*it)->Throttle_down(dt, k_throttle);
+			}
+		}
+	}
 }	
 
 void DeltaGlider::No_command(double dt)
-{	// Throttles down //////////////////////////////////////////////////////////
-	 Bow_right->Throttle_down(dt, k_throttle);
-	 Bow_left->Throttle_down(dt, k_throttle);
-	 Bow_fore->Throttle_down(dt, k_throttle);
-	 Stern_aft->Throttle_down(dt, k_throttle);
-	 Stern_left->Throttle_down(dt, k_throttle);
-	 Stern_right->Throttle_down(dt, k_throttle);
+{	for(std::vector<Thruster*>::iterator it = Thrusters.begin(); it != Thrusters.end(); ++it)
+	{	if((*it)->Is_RCS == true)
+		{	(*it)->Throttle_down(dt, k_throttle);
+		}
+	}
 }	
 
 void DeltaGlider::Throttle_up(double dt)
-{	// Throttles up ////////////////////////////////////////////////////////////
-	Main_engines->Throttle_up(dt, k_throttle);
+{	for(std::vector<Thruster*>::iterator it = Thrusters.begin(); it != Thrusters.end(); ++it)
+	{	if((*it)->Is_in_group(main_engines))
+		{	(*it)->Throttle_up(dt, k_throttle);
+		}
+		else
+		{	if((*it)->Is_RCS == true)
+			{	(*it)->Throttle_down(dt, k_throttle);
+			}
+		}
+	}
+	
 }
 
 void DeltaGlider::Throttle_down(double dt)
-{	// Throttles down //////////////////////////////////////////////////////////
-	Main_engines->Throttle_down(dt, k_throttle);
+{	for(std::vector<Thruster*>::iterator it = Thrusters.begin(); it != Thrusters.end(); ++it)
+	{	if((*it)->Is_in_group(main_engines))
+		{	(*it)->Throttle_down(dt, k_throttle);
+		}
+		else
+		{	if((*it)->Is_RCS == true)
+			{	(*it)->Throttle_down(dt, k_throttle);
+			}
+		}
+	}
 }	
 
 void DeltaGlider::Kill_rotation(double dt)
 {	if(Omega != 0.000000000000)
-	{	if(Omega > 0.000000000000)
+	{	
+		
+		// here we need to find the max domega for the ship in a given direction
+		// (clock + or counter -) check if it is bigger than the current omega
+		// in magnitude, if it is, we multiply our dt by a relative fraction so
+		// that the final omega becomes equivalent to the current Omega 
+		if(Omega > 0.000000000000)
 		{	Rotate_left(dt);
 		}
 		else 	// the negative case
@@ -1789,13 +1680,6 @@ void DeltaGlider::Kill_rotation(double dt)
 DeltaGlider::~DeltaGlider()
 {	Thrusters.clear();
 	Fuel_tanks.clear();
-	delete Main_engines;
-	delete Bow_left;
-	delete Bow_right;
-	delete Bow_fore;
-	delete Stern_left;
-	delete Stern_right;
-	delete Stern_aft;
 	delete Object_sprite;
 	delete main_fuel_level;
 	delete rcs_fuel_level;
