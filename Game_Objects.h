@@ -133,6 +133,8 @@ class Resource_Tank: public Vessel_component
 
 enum thruster_group{rotate_clockwise, rotate_counterclockwise, translate_forward, translate_back, translate_right, translate_left, main_engines, retro_engines, hover_engines};
 
+enum rotation_direction{clockwise, counterclockwise};
+
 class Thruster: public Vessel_component
 {	public:
 	// no constructor since we never create a generic thruster, only its
@@ -394,7 +396,7 @@ class CNewtonian_Object
 	// if we aint crashed, check if our position implies that we are
 	// auch, this is why the setup above was so ugly, shouldnt need to have
 	// simtime to check this
-	double Theta, Omega;
+	double Theta, Omega, Alpha;
 	// Our orientation in space and how its changing
 	// both stored in degrees
 	double Get_omega();

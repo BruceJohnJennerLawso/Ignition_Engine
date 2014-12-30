@@ -92,4 +92,6 @@ namespace VectorVictor
 	// Not sure this was ever even used, but I dont think it can hurt anything..
 };
 
+long double Absolute_value(long double value);
+
 #endif

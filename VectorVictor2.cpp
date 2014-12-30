@@ -453,3 +453,10 @@ long double VectorVictor::Get_vector_separation(Vector2 First_vector, Vector2 Se
 	// simple enough, just applying pythagoras again
 	return rad;
 }
+
+long double Absolute_value(long double value)
+{	if(value < 0)
+	{	value = -value;
+	}
+	return value;
+}

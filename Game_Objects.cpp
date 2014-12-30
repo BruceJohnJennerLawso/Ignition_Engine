@@ -960,23 +960,23 @@ void CNewtonian_Object::Update_rotation(long double dt)
 {	
 	if(Crashed == false)
 	{	// again if weve crashed, dont bother
-		double alpha = 0;
+		Alpha = 0;
 		// where alpha is our angular acceleration, the second derivative
 		// of theta with respect to time
 		for(std::vector<Force>::iterator it = Force_list.begin(); it != Force_list.end(); ++it)
-		{	alpha -= it->Get_force_torque();
+		{	Alpha -= it->Get_force_torque();
 			// work through all of the forces acting on the object, and sum up
 			// the torques they cause
 			
 			// odd that this is subtraction, might be worth another look... 
 		}
-		alpha /= PMI;
+		Alpha /= PMI;
 		// again, from simple 121 physics,
 		
 		// T = I*Alpha
 		// Alpha = T/I
-		Theta += ((Omega*dt)+(0.5*((alpha*dt)*dt)));
-		Omega += (alpha*dt);
+		Theta += ((Omega*dt)+(0.5*((Alpha*dt)*dt)));
+		Omega += (Alpha*dt);
 		// again, just the equations of rotational motion applied here
 		Object_sprite->setRotation(Theta);
 		// make sure that the image drawn onscreen is synchronized with what 
@@ -1083,6 +1083,7 @@ bool TVessel::Init_thruster(bool is_rcs, double thruster_mass, double vexhaust, 
 	Thrusters.insert(Thrusters.end(), new_thruster);	
 	return true;
 }
+
 
 bool TVessel::In_view(SFML_Window * window, int zoom_factor)
 {	if((Position.Get_x() >= (window->origin.x-(Hull_component->Get_hull_length_squared())))&&(Position.Get_x() <= ((window->origin.x + (window->Aperture_width+(Hull_component->Get_hull_length_squared()))))))
@@ -1444,6 +1445,13 @@ void DeltaGlider::Receive_inputs(key_commands * current_inputs, double dt)
 	}	// the throttle back of every thruster since no inputs are being sent
 		// intended for RCS thrusters, but also applies to main/retro/hover,
 		// not exactly a perfect setup here
+		
+	if(current_inputs->up == true)
+	{	Throttle_up(dt*5);
+	}
+	else if(current_inputs->down == true)
+	{	Throttle_down(dt*5);
+	}
 }
 
 double DeltaGlider::Get_total_mass()
@@ -1534,8 +1542,7 @@ void DeltaGlider::Receive_cursor_inputs(Cursor_commands * cursor_action, long do
 }
 
 void DeltaGlider::Translate_left(double dt)
-{	std::cout << "Translating left" << std::endl;
-	for(std::vector<Thruster*>::iterator it = Thrusters.begin(); it != Thrusters.end(); ++it)
+{	for(std::vector<Thruster*>::iterator it = Thrusters.begin(); it != Thrusters.end(); ++it)
 	{	if((*it)->Is_in_group(translate_left))
 		{	(*it)->Throttle_up(dt, k_throttle);
 		}
@@ -1605,8 +1612,7 @@ void DeltaGlider::Rotate_right(double dt)
 }	
 
 void DeltaGlider::Rotate_left(double dt)
-{	std::cout << "Rotating left" << std::endl;
-	for(std::vector<Thruster*>::iterator it = Thrusters.begin(); it != Thrusters.end(); ++it)
+{	for(std::vector<Thruster*>::iterator it = Thrusters.begin(); it != Thrusters.end(); ++it)
 	{	if((*it)->Is_in_group(rotate_counterclockwise))
 		{	(*it)->Throttle_up(dt, k_throttle);
 		}
@@ -1631,11 +1637,6 @@ void DeltaGlider::Throttle_up(double dt)
 	{	if((*it)->Is_in_group(main_engines))
 		{	(*it)->Throttle_up(dt, k_throttle);
 		}
-		else
-		{	if((*it)->Is_RCS == true)
-			{	(*it)->Throttle_down(dt, k_throttle);
-			}
-		}
 	}
 	
 }
@@ -1645,32 +1646,46 @@ void DeltaGlider::Throttle_down(double dt)
 	{	if((*it)->Is_in_group(main_engines))
 		{	(*it)->Throttle_down(dt, k_throttle);
 		}
-		else
-		{	if((*it)->Is_RCS == true)
-			{	(*it)->Throttle_down(dt, k_throttle);
-			}
-		}
 	}
 }	
 
 void DeltaGlider::Kill_rotation(double dt)
 {	if(Omega != 0.000000000000)
 	{	
-		
-		// here we need to find the max domega for the ship in a given direction
-		// (clock + or counter -) check if it is bigger than the current omega
-		// in magnitude, if it is, we multiply our dt by a relative fraction so
-		// that the final omega becomes equivalent to the current Omega 
+		double delta_omega = Absolute_value(Omega);
+		double last_alpha = Absolute_value(Alpha);
 		if(Omega > 0.000000000000)
-		{	Rotate_left(dt);
+		{	if(Alpha > 0.000000000000)
+			{	Rotate_left(dt);
+			}
+			else
+			{	if(last_alpha > delta_omega)
+				{	No_command(dt*((last_alpha) - delta_omega));
+				}
+				else
+				{	Rotate_left(dt);
+				}
+			}
 		}
 		else 	// the negative case
-		{	Rotate_right(dt);
+		{	if(Alpha < 0.000000000000)
+			{	Rotate_right(dt);
+			}
+			else
+			{	if(last_alpha > delta_omega)
+				{	No_command(dt*((last_alpha) - delta_omega));
+				}
+				else
+				{	Rotate_right(dt);
+				}
+			}
 		}	// well... that was easier than expected
 	}	// easy, but not very good
 	// the problem here was that normal rotate L/R commands were too coarse,
 	// making the vessel seesaw back & forth while wasting fuel. The program
 	// needs to taper its thrust back to zero as we approach omega = 0
+	
+	// lets see what happens now
 	else
 	{	No_command(dt);
 	}
