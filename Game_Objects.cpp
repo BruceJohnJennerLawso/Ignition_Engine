@@ -236,6 +236,7 @@ void Thruster_group::Set_group(double throttle_value, thruster_group group_type,
 
 void Thruster_group::Assign_thruster(Thruster * new_thruster)
 {	group_thrusters.insert(group_thrusters.end(), new_thruster);
+	Empty = false;
 }
 
 void Thruster_group::Throttle_group()
@@ -647,10 +648,22 @@ void CKeplerian_Object::Draw_flag(SFML_Window * iwindow, int zoom_factor)
 
 
 void TPlanet::Init_vessel_type()
-{	
+{	Rotate_clockwise.Set_group(0.0000, rotate_clockwise, true);
+	Rotate_cclockwise.Set_group(0.0000, rotate_counterclockwise, true);
+	Translate_forward.Set_group(0.0000, translate_forward, true);
+	Translate_backward.Set_group(0.0000, translate_back, true);
+	Translate_left.Set_group(0.0000, translate_left, true);
+	Translate_right.Set_group(0.0000, translate_right, true);
 	
+	Main_engines.Set_group(0.0000, main_engines, true);
+	Retro_engines.Set_group(0.0000, retro_engines, true);
+	Hover_engines.Set_group(0.0000, hover_engines, true);
 	// we start by setting up our thruster groups, just empty containers with
 	// the appropriate throttle settings and group type ids
+	
+	// they just need to be set so that they actually have values since
+	// declaring them normally only calls the default constructor without any
+	// parameters. So yeah...
 }
 
 
@@ -1103,6 +1116,58 @@ void TVessel::Draw_controls(SFML_Window * iwindow, bool Map_status)
 {	// should be a warning message here too...
 }
 
+bool TVessel::Init_thruster(double thruster_mass, double vexhaust, double max_flow_rate, double position_x, double position_y, double direction_x, double direction_y, double inner_radius, double outer_radius, Resource_Tank * fuel_tank, thruster_group group_id)
+{	Thruster * new_thruster = new Monopropellant_thruster(thruster_mass, vexhaust, max_flow_rate, position_x, position_y, direction_x, direction_y, inner_radius, outer_radius, fuel_tank);
+	this->Insert_thruster_to_group(new_thruster, group_id);
+	this->Object_components.insert(this->Object_components.end(), new_thruster->Get_vessel_component_pointer());	
+}
+	
+bool TVessel::Init_thruster(double thruster_mass, double vexhaust, double max_flow_rate, double position_x, double position_y, double direction_x, double direction_y, double inner_radius, double outer_radius, Resource_Tank * fuel_tank, thruster_group group_id1, thruster_group group_id2)
+{	Thruster * new_thruster = new Monopropellant_thruster(thruster_mass, vexhaust, max_flow_rate, position_x, position_y, direction_x, direction_y, inner_radius, outer_radius, fuel_tank);
+	this->Insert_thruster_to_group(new_thruster, group_id1);
+	this->Insert_thruster_to_group(new_thruster, group_id2);
+	this->Object_components.insert(this->Object_components.end(), new_thruster->Get_vessel_component_pointer());	
+}
+
+bool TVessel::Init_thruster(double thruster_mass, double vexhaust, double max_flow_rate, double position_x, double position_y, double direction_x, double direction_y, double inner_radius, double outer_radius, Resource_Tank * fuel_tank, thruster_group group_id1, thruster_group group_id2, thruster_group group_id3)
+{	Thruster * new_thruster = new Monopropellant_thruster(thruster_mass, vexhaust, max_flow_rate, position_x, position_y, direction_x, direction_y, inner_radius, outer_radius, fuel_tank);
+	this->Insert_thruster_to_group(new_thruster, group_id1);
+	this->Insert_thruster_to_group(new_thruster, group_id2);
+	this->Insert_thruster_to_group(new_thruster, group_id3);	
+	this->Object_components.insert(this->Object_components.end(), new_thruster->Get_vessel_component_pointer());	
+}
+	
+void TVessel::Insert_thruster_to_group(Thruster * new_thruster, thruster_group group_id)
+{	if(group_id == rotate_clockwise)
+	{	Rotate_clockwise.Assign_thruster(new_thruster);
+	}
+	else if(group_id == rotate_counterclockwise)
+	{	Rotate_cclockwise.Assign_thruster(new_thruster);
+	}
+	else if(group_id == translate_back)
+	{	Translate_backward.Assign_thruster(new_thruster);
+	}
+	else if(group_id == translate_forward)
+	{	Translate_forward.Assign_thruster(new_thruster);
+	}
+	else if(group_id == translate_left)
+	{	Translate_left.Assign_thruster(new_thruster);
+	}
+	else if(group_id == translate_right)				
+	{	Translate_right.Assign_thruster(new_thruster);
+	}
+	else if(group_id == main_engines)
+	{	Main_engines.Assign_thruster(new_thruster);
+	}
+	else if(group_id == retro_engines)
+	{	Retro_engines.Assign_thruster(new_thruster);
+	}
+	else if(group_id == hover_engines)
+	{	Hover_engines.Assign_thruster(new_thruster);
+	}		
+	
+}
+
 bool TVessel::In_view(SFML_Window * window, int zoom_factor)
 {	if((Position.Get_x() >= (window->origin.x-(Hull_component->Get_hull_length_squared())))&&(Position.Get_x() <= ((window->origin.x + (window->Aperture_width+(Hull_component->Get_hull_length_squared()))))))
 	{	if((Position.Get_y() <= (window->origin.y+(Hull_component->Get_hull_length_squared())))&&(Position.Get_y() >= (window->origin.y - ((window->Aperture_height+(Hull_component->Get_hull_length_squared()))))))
@@ -1234,6 +1299,10 @@ TVessel* TVessel::Get_Vessel_pointer()
 DeltaGlider::DeltaGlider(double initial_x_position, double initial_y_position, double initial_x_velocity, double initial_y_velocity, double initial_theta, double initial_omega, double initial_main_propellant, double initial_rcs_propellant,  sf::Sprite * iFlag_sprite, sf::Texture * XWing_texture, std::string ivessel_name, sf::Texture * status_texture, sf::Font * controls_font, sf::Texture * panel_texture1)
 {	Talkback("Constructing Delta Glider");
 	// we write to the console for feedback while debugging
+	
+	Init_vessel_type();
+	// run the setup function
+	
 	Flag_sprite = iFlag_sprite;			
 	// set our flag affilation here
 	// this looks wrongish, I think this needs to be copied by value, definitely

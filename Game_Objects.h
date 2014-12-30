@@ -588,6 +588,20 @@ class TVessel: public CNewtonian_Object
 	// amount, that should work
 	std::vector<Thruster*> Thrusters;
 	// the global list containing every thruster on the craft
+	bool Init_thruster(double thruster_mass, double vexhaust, double max_flow_rate, double position_x, double position_y, double direction_x, double direction_y, double inner_radius, double outer_radius, Resource_Tank * fuel_tank, thruster_group group_id);
+	// we get all of the parameters needed to make a new object of type, and we
+	// pass it the id type of which thruster group it will be placed in
+	bool Init_thruster(double thruster_mass, double vexhaust, double max_flow_rate, double position_x, double position_y, double direction_x, double direction_y, double inner_radius, double outer_radius, Resource_Tank * fuel_tank, thruster_group group_id1, thruster_group group_id2);
+	// and we do the same thing, except now with two groups
+	bool Init_thruster(double thruster_mass, double vexhaust, double max_flow_rate, double position_x, double position_y, double direction_x, double direction_y, double inner_radius, double outer_radius, Resource_Tank * fuel_tank, thruster_group group_id1, thruster_group group_id2, thruster_group group_id3);
+	// and with three groups. Seriously, how can we possibly need more than 3
+	// groups to a thruster?
+	
+	// the three previous calls are implicitly assumed to be monopropellant
+	// thrusters based on the number and type of arguments supplied to the
+	// function
+	
+	void Insert_thruster_to_group(Thruster * new_thruster, thruster_group group_id);
 	sf::Texture * Vessel_tex;
 	// pointer to the texture of the vessels hull. Pointer is kind of nice here
 	// so we dont need to make a copy of the same texture every time a
@@ -629,8 +643,7 @@ class TVessel: public CNewtonian_Object
 	// in functions I guess
 };
 
-//std::vector<TVessel*> Vessel_list;
-// last travesty of this type I hope
+
 
 class DeltaGlider: public TVessel
 {	public:
@@ -679,6 +692,9 @@ class DeltaGlider: public TVessel
 	// pretty much what they sound like
 	// Draw controls should become Draw displays if the change I mentioned
 	// above with the instance specific readouts goes into effect
+	
+	
+	
 	void Rotate_left(double dt);
 	void Rotate_right(double dt);
 	void Translate_forward(double dt);
@@ -690,6 +706,9 @@ class DeltaGlider: public TVessel
 	void No_command(double dt);
 	void Kill_rotation(double dt);
 	// implementations of what gets executed when the commands are called
+	
+	// this is all about to bite the dust
+	
 	Resource_Tank * Main_fuel, * RCS_fuel;
 	// Fuel tanks, with no specific connection to anything above this class
 	Thruster * Main_engines, * Bow_left, * Bow_right, * Bow_fore, * Stern_left, * Stern_right, * Stern_aft;
