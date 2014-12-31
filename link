@@ -2,6 +2,6 @@
 
 #!g++ Starfighter.o -o Starfighter -lsfml-graphics -lsfml-window -lsfml-system -lsfml-audio
 
-g++ Starfighter.o Ignition_Engine.o Game_Objects.o Inertia_moment.o SFML_Tools.o VectorVictor2.o Ignition.o -o Starfighter -lsfml-graphics -lsfml-window -lsfml-system -lsfml-audio
+g++ Starfighter.o Ignition_Engine.o Game_Objects.o Game_physics.o SFML_Tools.o VectorVictor2.o Ignition.o -o Starfighter -lsfml-graphics -lsfml-window -lsfml-system -lsfml-audio
 
 exit 0

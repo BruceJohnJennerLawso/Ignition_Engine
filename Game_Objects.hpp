@@ -7,7 +7,7 @@
 #include <iostream>
 #include <math.h>
 #include <vector>
-#include "Inertia_moment.hpp"
+#include "Game_physics.hpp"
 
 #ifndef GameObjects
 #define GameObjects

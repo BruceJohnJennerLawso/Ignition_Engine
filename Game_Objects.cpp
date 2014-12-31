@@ -1751,11 +1751,9 @@ void DeltaGlider::Kill_rotation(double dt)
 				{	Rotate_right(dt);
 				}
 			}
-		}	// well... that was easier than expected
-	}	// easy, but not very good
-	// the problem here was that normal rotate L/R commands were too coarse,
-	// making the vessel seesaw back & forth while wasting fuel. The program
-	// needs to taper its thrust back to zero as we approach omega = 0
+		}	
+	}	
+	// awwww yeahhhh, thats what Im talkin about
 	
 	// lets see what happens now
 	else
