@@ -57,7 +57,7 @@ std::string Convert_to_string(long int num)
 	// this should be made a template function for the type of the value to
 	// be passed through
 	std::stringstream s;
-	s << std::to_string(num);
+	s << std::to_string((long long)num);
 	return s.str();
 }	
 

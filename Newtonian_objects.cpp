@@ -1032,28 +1032,29 @@ DeltaGlider::DeltaGlider(double initial_x_position, double initial_y_position, d
 	main_fuel_level->setFont(*controls_font);
 	main_fuel_level->setCharacterSize(14);
 	main_fuel_level->setColor(*text_colour);
-	main_fuel_level->setString(std::to_string((float)Main_fuel->Resource_mass));
+	main_fuel_level->setString(std::to_string((long double)Main_fuel->Resource_mass));
+	// $%@#$% MICROSOFT
 	main_fuel_level->setPosition(20, 420);
 	
 	rcs_fuel_level = new sf::Text();
 	rcs_fuel_level->setFont(*controls_font);	
 	rcs_fuel_level->setCharacterSize(14);
 	rcs_fuel_level->setColor(*text_colour);
-	rcs_fuel_level->setString(std::to_string((float)RCS_fuel->Resource_mass));	
+	rcs_fuel_level->setString(std::to_string((long double)RCS_fuel->Resource_mass));	
 	rcs_fuel_level->setPosition(20, 440);
 	
 	omega_value = new sf::Text();
 	omega_value->setFont(*controls_font);	
 	omega_value->setCharacterSize(14);
 	omega_value->setColor(*text_colour);
-	omega_value->setString(std::to_string((float)Omega));	
+	omega_value->setString(std::to_string((long double)Omega));	
 	omega_value->setPosition(20, 460);
 	
 	theta_value = new sf::Text();
 	theta_value->setFont(*controls_font);	
 	theta_value->setCharacterSize(14);
 	theta_value->setColor(*text_colour);
-	theta_value->setString(std::to_string((float)Theta));	
+	theta_value->setString(std::to_string((long double)Theta));	
 	theta_value->setPosition(20, 480);
 	
 	position_values = new sf::Text();
@@ -1196,14 +1197,14 @@ void DeltaGlider::Toggle_throttle_lock()
 }
 
 void DeltaGlider::Draw_controls(SFML_Window * iwindow, bool Map_status)
-{	std::string mainfuel = std::to_string((int)Main_fuel->Resource_mass);
+{	std::string mainfuel = std::to_string((long long int)Main_fuel->Resource_mass);
 	mainfuel.append(" kg");
 	main_fuel_level->setString(mainfuel);
-	std::string rcsfuel = std::to_string((int)RCS_fuel->Resource_mass);
+	std::string rcsfuel = std::to_string((long long int)RCS_fuel->Resource_mass);
 	rcsfuel.append(" kg");
 	rcs_fuel_level->setString(rcsfuel);	
-	omega_value->setString(std::to_string((int)Omega));	
-	theta_value->setString(std::to_string((int)Theta));
+	omega_value->setString(std::to_string((long long int)Omega));	
+	theta_value->setString(std::to_string((long long int)Theta));
 	std::string pos = "Position ";
 	pos.append(Position.Get_vector("m"));	
 	position_values->setString(pos);	

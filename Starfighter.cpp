@@ -175,7 +175,7 @@ void key_commands::Enter()
 void key_commands::Space()
 {	std::cout << "Window aperture w,h   " << Starfighter->Main_Window->Aperture_width << " , " << Starfighter->Main_Window->Aperture_height << std::endl;
 
-	std::cout << "Frame Rate   " << (1/Starfighter->deltat) <<  "   Zoom factor:   "  << Starfighter->zoom_exponent << "   pow(zoom factor)   " << pow(10, Starfighter->zoom_exponent) << "   \n" << std::endl;
+	std::cout << "Frame Rate   " << (1/Starfighter->deltat) <<  "   Zoom factor:   "  << Starfighter->zoom_exponent << "   pow(zoom factor)   " << pow((long double)10, (int)Starfighter->zoom_exponent) << "   \n" << std::endl;
 
 	std::cout << "Mouse data: (" << Starfighter->cursor_commands->position.x << ", " << Starfighter->cursor_commands->position.y << ")" << std::endl;
 

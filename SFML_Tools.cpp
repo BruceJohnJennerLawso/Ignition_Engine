@@ -565,8 +565,8 @@ VectorVictor::Vector2 Get_simulation_coordinates(sf::Vector2f window_point, SFML
 {	VectorVictor::Vector2 sim_point(window_point.x, window_point.y);
 	// so we start with our relative offset of the point in the window
 	// in pixels
-	sim_point.y *= pow(10, (map_scale));
-	sim_point.x *= pow(10, (map_scale));
+	sim_point.y *= pow((long double)10, (map_scale));
+	sim_point.x *= pow((long double)10, (map_scale));
 	// and we scale it up by the zoom factor so we get the relative offset
 	// of the point from the camera origin in universe coordinates
 	sim_point.y *= -1;

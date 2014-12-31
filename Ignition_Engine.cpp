@@ -74,6 +74,7 @@ bool Ignition_engine::Init_standard_displays()
 	sim_time_meter = new Ignition_text(standard_font, sf::Vector2f(20, 100), "0", standard_display_colour, 15, false);
 	
 	camera_target_name = new Ignition_text(standard_font, sf::Vector2f(875, 40), "0", standard_display_colour, 15, false);
+	return true;
 }
 
 void Ignition_engine::Update_standard_displays()
@@ -82,10 +83,10 @@ void Ignition_engine::Update_standard_displays()
 		std::string framerate = SI::Get_formatted_value("FPS:", (long int)fps, 3, "");
 		fps_meter->Set_element(framerate);
 		// we set the fps meter
-		std::string zoomfactor = SI::Get_formatted_value("Map Scale:", ((long int)pow(10, zoom_exponent)), "x");
+		std::string zoomfactor = SI::Get_formatted_value("Map Scale:", ((long int)pow((long double)10, (int)zoom_exponent)), "x");
 		map_scale_meter->Set_element(zoomfactor);
 		// and then set the map scale meter based on '10^zoom_exponent x'"
-		std::string timewarp = SI::Get_formatted_value( "Time Accel:", ((long int)pow(10, time_acceleration_exponent)), "x");
+		std::string timewarp = SI::Get_formatted_value( "Time Accel:", ((long int)pow((long double)10, (int)time_acceleration_exponent)), "x");
 		time_accel_meter->Set_element(timewarp);
 		// and do the same thing for time acceleration
 		std::string simtime = SI::Get_formatted_value("Simulation Time:", ((long int)simulation_time) , "s");
@@ -361,7 +362,7 @@ void Ignition_engine::Decrease_map_scale()
 
 void Ignition_engine::Set_aperture_scale()
 {	if(map_view == true)
-	{	Main_Window->Set_aperture_dimensions(((Main_Window->Width)*(pow(10, zoom_exponent))),((Main_Window->Height)*(pow(10, zoom_exponent))));
+	{	Main_Window->Set_aperture_dimensions(((Main_Window->Width)*(pow((long double)10, (int)zoom_exponent))),((Main_Window->Height)*(pow((long double)10, (int)zoom_exponent))));
 	}
 	else if(map_view == false)
 	{	Main_Window->Set_aperture_dimensions((( (long double)Main_Window->Width * camera_scale)/10),(( (long double)Main_Window->Height * camera_scale)/10));
