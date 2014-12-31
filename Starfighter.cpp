@@ -2,7 +2,7 @@
 // Going to space today ////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "Ignition_Engine.h"
+#include "Ignition_Engine.hpp"
 #define  Starfighter_version " 0.10"	// see? progress ;)
 // this should be renamed to reflect the move away from Starfighter
 

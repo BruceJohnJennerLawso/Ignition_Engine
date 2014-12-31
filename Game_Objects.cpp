@@ -1,7 +1,7 @@
 #include <string>
 #include <iostream>
 #include <math.h>
-#include "Game_Objects.h"
+#include "Game_Objects.hpp"
 
 // Force handling class ////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
@@ -198,6 +198,12 @@ void Thruster::Throttle_to(double dt, double k_throttle, double Throttle_target)
 	// otherwise we are already there, so dont need to do anything
 }
 
+long double Thruster::Get_maximum_torque(double dt)
+{	Talkback("Bad call to long double Thruster::Get_maximum_torque()");
+	return -1;
+	// this also needs an error warning here
+}
+
 double Thruster::Get_component_mass()
 {	return Thruster_mass;
 }
@@ -277,6 +283,15 @@ Monopropellant_thruster::Monopropellant_thruster(bool is_rcs, double thruster_ma
 	Groups.insert(Groups.end(), group_three);
 	Is_RCS = is_rcs;
 	// all the nice initialization
+}
+
+long double Monopropellant_thruster::Get_maximum_torque(double dt)
+{	VectorVictor::Vector2 thruster_force(Thruster_direction.Get_x(), Thruster_direction.Get_y());
+	thruster_force *=(Maximum_flow_rate*Exhaust_velocity);
+	thruster_force *= -1;
+	Force max_force(Thruster_position, thruster_force);
+	long double max_torque = max_force.Get_force_torque();
+	return max_torque;
 }
 
 void Monopropellant_thruster::Update_component(double dt, std::vector<Force> &parent_force_list)
@@ -411,6 +426,10 @@ double Bipropellant_thruster::Get_exhaust_velocity(double mixture_ratio)
 	}
 	// basically, how is our Ve affected by improper mixture ratios
 	// could potentially be slow, and the reality might be assymetrical
+}
+
+long double Bipropellant_thruster::Get_maximum_torque(double dt)
+{	return -1;
 }
 
 void Bipropellant_thruster::Update_component(double dt, std::vector<Force> &parent_force_list)
@@ -1082,6 +1101,10 @@ bool TVessel::Init_thruster(bool is_rcs, double thruster_mass, double vexhaust, 
 	this->Object_components.insert(this->Object_components.end(), new_thruster->Get_vessel_component_pointer());	
 	Thrusters.insert(Thrusters.end(), new_thruster);	
 	return true;
+}
+
+long double TVessel::Get_max_alpha(rotation_direction direction)
+{
 }
 
 
