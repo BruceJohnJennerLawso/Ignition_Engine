@@ -1,6 +1,6 @@
 #!/bin/bash
 
-g++ -c -std=c++0x Ignition.cpp VectorVictor2.cpp SFML_Tools.cpp Game_physics.cpp Game_Objects.cpp Ignition_Engine.cpp Starfighter.cpp
+g++ -c -std=c++0x Ignition.cpp VectorVictor2.cpp SFML_Tools.cpp Game_physics.cpp Keplerian_objects.cpp Newtonian_objects.cpp Ignition_Engine.cpp Starfighter.cpp
 
 #!g++ -c -std=c++0x Starfighter.cpp Ignition_Engine.cpp Game_Objects.cpp Inertia_moment.cpp SFML_Tools.cpp VectorVictor2.cpp 
 
