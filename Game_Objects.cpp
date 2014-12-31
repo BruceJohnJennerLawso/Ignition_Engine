@@ -1104,7 +1104,23 @@ bool TVessel::Init_thruster(bool is_rcs, double thruster_mass, double vexhaust, 
 }
 
 long double TVessel::Get_max_alpha(rotation_direction direction)
-{
+{	thruster_group rotation_group;
+	if(direction == clockwise)
+	{	rotation_group = rotate_clockwise;
+	}
+	else
+	{	rotation_group = rotate_counterclockwise;
+	}
+	
+	long double max_alpha = 0;
+	for(std::vector<Thruster*>::iterator it = Thrusters.begin(); it != Thrusters.end(); ++it)
+	{	if((*it)->Is_in_group(rotation_group))
+		{	max_alpha -= (*it)->Get_maximum_torque(1);
+			// I need to remove this dt thing, it isnt right
+		}
+	}
+	max_alpha /= Get_PMI();
+	return max_alpha;
 }
 
 
@@ -1702,14 +1718,17 @@ void DeltaGlider::Kill_rotation(double dt)
 {	if(Omega != 0.000000000000)
 	{	
 		double delta_omega = Absolute_value(Omega);
-		double last_alpha = Absolute_value(Alpha);
+		double magnitude_alpha;
+		double max_alpha;
 		if(Omega > 0.000000000000)
-		{	if(Alpha > 0.000000000000)
+		{	max_alpha = this->Get_max_alpha(counterclockwise);
+			magnitude_alpha = Absolute_value(max_alpha);
+			if(Alpha > 0.000000000000)
 			{	Rotate_left(dt);
 			}
 			else
-			{	if(last_alpha > delta_omega)
-				{	double percentage = (delta_omega/last_alpha);
+			{	if(magnitude_alpha > delta_omega)
+				{	double percentage = (delta_omega/magnitude_alpha);
 					Rotate_left(dt, percentage);
 				}
 				else
@@ -1718,12 +1737,14 @@ void DeltaGlider::Kill_rotation(double dt)
 			}
 		}
 		else 	// the negative case
-		{	if(Alpha < 0.000000000000)
+		{	max_alpha = this->Get_max_alpha(clockwise);
+			magnitude_alpha = Absolute_value(max_alpha);
+			if(Alpha < 0.000000000000)
 			{	Rotate_right(dt);
 			}
 			else
-			{	if(last_alpha > delta_omega)
-				{	double percentage = (delta_omega/last_alpha);
+			{	if(magnitude_alpha > delta_omega)
+				{	double percentage = (delta_omega/magnitude_alpha);
 					Rotate_right(dt, percentage);
 				}
 				else
