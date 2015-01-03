@@ -498,7 +498,7 @@ SFML_Window::SFML_Window(std::string title, unsigned int h, unsigned int w)
 	// make sure it has a value
 	window = new sf::RenderWindow(sf::VideoMode(w, h), Title);
 	// set up our RenderWindow
-	window->setSize(sf::Vector2u(h, w));
+	window->setSize(sf::Vector2u(w, h));
 	// and size it, but.. we dont need to here, cause the videomode already
 	// did it.
 	
