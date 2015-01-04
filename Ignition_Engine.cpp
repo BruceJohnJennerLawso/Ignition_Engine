@@ -178,10 +178,10 @@ int Ignition_engine::Ignition()
 			}
 			if(event.type == sf::Event::MouseButtonPressed)
 			{	if(event.mouseButton.button == sf::Mouse::Button::Left)
-				{	cursor_commands->Set_cursor_state(event.mouseButton.x, event.mouseButton.y, true, false, false);
+				{	cursor_commands->Set_cursor_state(event.mouseButton.x, event.mouseButton.y, false, true, false);
 				}
 				if(event.mouseButton.button == sf::Mouse::Button::Right)
-				{	cursor_commands->Set_cursor_state(event.mouseButton.x, event.mouseButton.y, false, true, false);
+				{	cursor_commands->Set_cursor_state(event.mouseButton.x, event.mouseButton.y, true, false, false);
 				}
 				if(event.mouseButton.button == sf::Mouse::Button::Middle)
 				{	cursor_commands->Set_cursor_state(event.mouseButton.x, event.mouseButton.y, false, false, true);
