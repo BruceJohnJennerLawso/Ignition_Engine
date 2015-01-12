@@ -135,6 +135,10 @@ int Ignition_engine::Ignition()
 	// quick testing thing from earlier. required a hack on #! to disable vsync
 	// so probably useless. 
 	Current_vessel = Vessel_list.at(0);
+	// we want to set it to something here, because it cant just be left
+	// without a value, or we will crash needless to say
+	
+	// so we set it to the first vessel in the main vessel list 
 	
 	while (Main_Window->window->isOpen())// love how plain language SFML is <3
 	{	sf::Event event;
@@ -154,30 +158,55 @@ int Ignition_engine::Ignition()
 		// relative to where it was before
 		// actually, hmm... that might be trickier than I first thought
 		while (Main_Window->window->pollEvent(event))//Receive and handle inputs
-		{	if(event.type == sf::Event::KeyPressed)
+		{	// we check the main window for any events received
+			if(event.type == sf::Event::KeyPressed)
 			{	Log_keystroke(event.key.code, commands, true);
 				// let the event know that a particular key was pressed down
+				// on the keyboard
 			}
 			
 			if(event.type == sf::Event::KeyReleased)
 			{	Log_keystroke(event.key.code, commands, false);
-				// let the event know that a particular key was released
+				// let the event know that a particular key on the keyboard
+				// was released in this frame
+				
 			}
 			
 			if(event.type == sf::Event::Closed)
 			{	Main_Window->window->close();
 				// user clicked the little x button on the titlebar, 
 				// we're outa here
+				
+				// the destructor handles any closing up stuff like deleting
+				// pointers within the object, so all we need to do here is make
+				// sure to close the window
 			}
 			if(event.type == sf::Event::MouseWheelMoved)
-			{	Change_camera_scale(- (double)event.mouseWheel.delta);
+			{	if(map_view == false)
+				{	// make sure that we are in the normal camera view, just
+					// because we dont want to screw with the state of one view
+					// or another if we arent in it at the moment
+					
+					// not a big deal, but it works better this way, smoother
+					// interfacing with the user IMO
+					Change_camera_scale(- (double)event.mouseWheel.delta);
+					// if the mouse wheel was moved, used the number of ticks that
+					// it moved by to change the scale of the current camera view
+				}
 			}
 			if(event.type == sf::Event::MouseMoved)
 			{	cursor_commands->Set_cursor_state(((event.mouseMove.x)), ((event.mouseMove.y)), false, false, false);
 				// now that we get the coords from mouseMove, this works just fine
 			}
 			if(event.type == sf::Event::MouseButtonPressed)
-			{	if(event.mouseButton.button == sf::Mouse::Button::Left)
+			{	// if one of the mouse buttons gets pressed, we update the
+				// cursor commands object that contains info about the state
+				// of the cursor to reflect its new state
+				
+				// the cursor commands object stores this, so if the button
+				// is pressed, it is considered pressed (or true) until
+				// MouseButtonReleased sets it back to false
+				if(event.mouseButton.button == sf::Mouse::Button::Left)
 				{	cursor_commands->Set_cursor_state(event.mouseButton.x, event.mouseButton.y, false, true, false);
 				}
 				if(event.mouseButton.button == sf::Mouse::Button::Right)
@@ -188,7 +217,11 @@ int Ignition_engine::Ignition()
 				}
 			}
 			if(event.type == sf::Event::MouseButtonReleased)
-			{	if(event.mouseButton.button == sf::Mouse::Button::Left)
+			{	// if the button on the mouse was released, we need to set the
+				// state of the button stored by cursor commands back to false
+				// so that any objects receiving the cursor commands dont think
+				// the button in question is still pressed
+				if(event.mouseButton.button == sf::Mouse::Button::Left)
 				{	cursor_commands->Set_cursor_state(event.mouseButton.x, event.mouseButton.y, false, false, false);
 				}
 				if(event.mouseButton.button == sf::Mouse::Button::Right)
@@ -198,19 +231,39 @@ int Ignition_engine::Ignition()
 				{	cursor_commands->Set_cursor_state(event.mouseButton.x, event.mouseButton.y, false, false, false);
 				}
 			}
+			
+			// this whole section above could probably be separated into a
+			// function... hmm
 		}	
 		Game_audio->Update_game_audio();		
 		// again, no clue how this works now
+		
+		// I think this is what it feels like to create a monster:
+		// I have no idea how it works, and I should probably deal with it
+		// so that it doesnt hurt anybody in the future
 		Main_Window->window->clear();
 		// Clears the main window so that we can begin redrawing stuff onscreen
 		
 		deltat = clock.restart().asSeconds();
-		// Get the length of the previous frame in seconds, which is next passed to the updates
+		// Get the length of the previous frame in seconds, which is next
+		// used by the sim to step forward in time
+		
+		// also resets the sfml clock to 0 so the next frame is measured
+		// properly 
 		if(time_acceleration_exponent != 0)
 		{	deltat *= (long double)pow((long double)10.00000000000000, (long double)time_acceleration_exponent);
+			// if the time_acceleration exponent is not zero, we need to
+			// multiply deltat by a power of 10 so that the frame is 10^n x
+			// longer in the simulations time than it is in real life. This is
+			// basically because no sane person has a week straight to sit in
+			// front of their computer doing a moon mission
+			// (or god forbid a mars flight)
+			// so we need to make the sim run faster
+			
 			// pretty sure the long double casts can be removed now
-		}	// checks to see if the base length of the frame needs to be
-		// modified by the current time acceleration	
+			// I think they were just a form of desperate debugging of some type
+			// to remove a problem that has since evaporated
+		}		
 
 		simulation_time += deltat;	
 		// increment simtime by the length of the frame in-universe
@@ -233,7 +286,12 @@ int Ignition_engine::Ignition()
 				for(std::vector<TVessel*>::iterator it = Vessel_list.begin(); it != Vessel_list.end(); ++it)
 				{	// Iterating through all vessels in the current instance
 					(*it)->Frame(deltat, simulation_time, Celestial_list);
-					// run the vessels frame update based on frame length
+					// run the vessels frame update based on frame length,
+					// and send along the list of celestial bodies in the sim,
+					// so that it can get gravitational forces from them
+					
+					// should also pass along the Newtonian and Vessel type
+					// lists for convenience too methinks
 				}
 					Main_Window->Set_origin((Current_vessel->Position.x - (Main_Window->Aperture_width/2)),(Current_vessel->Position.y + (Main_Window->Aperture_height/2)));		
 					// Relocate the window to center on current vessel
@@ -261,6 +319,12 @@ int Ignition_engine::Ignition()
 						// but it could bring terrific performance increases
 					
 						(*it)->Receive_cursor_inputs(cursor_commands, deltat);
+						// since cursor commands can apply to anything visible
+						// in the screen we want to send them out to every
+						// vessel in the sim, so that the vessels can transform
+						// the window local vector into a simulation coordinate
+						// and decide what to do with the info they receive at
+						// that point
 					}	
 				}	break;	// Break out of the switch for map view and onwards!																		
 			}

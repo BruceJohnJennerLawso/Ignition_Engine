@@ -244,6 +244,9 @@ class Hull: public Vessel_component
 // Newtonian Class /////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
 
+enum Propagator_type{Euler1, RK4};
+// thats all I can think of just yet...
+
 class CNewtonian_Object
 {	public:
 	// Nature and nature's laws lay hid in night;
@@ -252,16 +255,37 @@ class CNewtonian_Object
 	// rather true
 	// and I certainly wouldnt be doing any of this if it werent for him, so...
 	// yeah...
+	
+	
+	// this whole pos/vel/accel thing can be unionized with some sort of
+	// identifier for a landed/crashed (surface?) state
+	
 	VectorVictor::Vector2 Position;
 	// Where we are
 	VectorVictor::Vector2 Velocity;
 	// Where we are going
 	VectorVictor::Vector2 Acceleration;	
 	// where we are going is going
-	// another shitter to get rid of. Need to look up all references	// maybe
+	// another shitter to get rid of. Need to look up all references
+	// on the other hand this is somewhat useful...
+	
+	// but this is going to become a bit muddy once the RK4 propagator is
+	// online
 	
 	// this isnt strictly necessary as an object variable, although it makes
 	// the code a wee bit simpler just leaving it in each frame
+	
+	Propagator_type Propagator;
+	// okedely doke
+	
+	double Length, PMI;
+	// I think the length is outdated now, since hull handles that.
+	// PMI is another good physical property, the total moment of inertia of the
+	// vessel around whatever our reference axis (center of mass) is
+	
+	long double Theta, Omega, Alpha;
+	// Our orientation in space and how its changing
+	// all stored in degrees
 	bool Crashed;
 	// the current type of collision detection is quite simple, if we hit the
 	// ground at all, we crashed, and our position is locked to the point
@@ -275,17 +299,10 @@ class CNewtonian_Object
 	// if we aint crashed, check if our position implies that we are
 	// auch, this is why the setup above was so ugly, shouldnt need to have
 	// simtime to check this
-	long double Theta, Omega, Alpha;
-	// Our orientation in space and how its changing
-	// both stored in degrees
 	double Get_omega();
 	double Get_theta_in_degrees();		
 	double Get_theta_in_radians();
 	// returns for the data above
-	double Length, PMI;
-	// I think the length is outdated now, since hull handles that.
-	// PMI is another good physical property, the total moment of inertia of the
-	// vessel around whatever our reference axis (center of mass) is
 	double Get_length();
 	// important property for graphics stuff. Handled by hull object nowadays
 	double Get_hull_mass();
@@ -352,6 +369,10 @@ class CNewtonian_Object
 	// by the main loop, but results in a bit of an odd structure, since in a
 	// perfect world this would be done after frame(dt) but before everything
 	// gets drawn onscreen
+	
+	// this maybe... hmm. This could be a bad idea...
+	// I think it should be moved back to the top of the loop so the inputs
+	// are received in this frame
 	
 	// this should be partially moved around so that some actions are standard
 	// like rot/trans inputs should be handled from specific keys and should

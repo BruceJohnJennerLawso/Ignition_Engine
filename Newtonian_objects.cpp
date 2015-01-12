@@ -1426,8 +1426,6 @@ void DeltaGlider::Kill_rotation(double dt)
 		}	
 	}	
 	// awwww yeahhhh, thats what Im talkin about
-	
-	// lets see what happens now
 	else
 	{	No_command(dt);
 	}
