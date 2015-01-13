@@ -19,7 +19,7 @@ Ignition_engine * Starfighter;
 SFML_titlescreen * Title_screen;
 // the splash screen before the program really gets goings 
 sf::Clock * Utility_clock;
-// cant recall what this does. I think its related to the info displays refresh rate
+// dont recall what this does. I think its related to the info displays refresh rate
 sf::Font * displays_font;
 // the font used to draw default displays (the FPS, simtime meters,etc.)
 
@@ -173,18 +173,7 @@ void key_commands::Enter()
 }	// this should be an if/else based on whether its active too
 
 void key_commands::Space()
-{	std::cout << "Window aperture w,h   " << Starfighter->Main_Window->Aperture_width << " , " << Starfighter->Main_Window->Aperture_height << std::endl;
-
-	std::cout << "Frame Rate   " << (1/Starfighter->deltat) <<  "   Zoom factor:   "  << Starfighter->zoom_exponent << "   pow(zoom factor)   " << pow((long double)10, (int)Starfighter->zoom_exponent) << "   \n" << std::endl;
-
-	std::cout << "Mouse data: (" << Starfighter->cursor_commands->position.x << ", " << Starfighter->cursor_commands->position.y << ")" << std::endl;
-
-	std::cout << Starfighter->Current_vessel->Get_vessel_name() << std::endl;
-	std::cout << "Rot   " << Starfighter->Current_vessel->Get_theta_in_degrees() << std::endl;
-	std::cout << "Omega   " << Starfighter->Current_vessel->Get_omega() << std::endl;
-	std::cout << "PMI " << Starfighter->Current_vessel->Get_PMI() << std::endl;
-	std::cout << "x   " << Starfighter->Current_vessel->Position.x << " y   " << Starfighter->Current_vessel->Position.y << std::endl;
-	std::cout << "vx   " << Starfighter->Current_vessel->Velocity.x << " vy   " << Starfighter->Current_vessel->Velocity.y << std::endl;
+{	
 	Starfighter->Current_vessel->Print_data();
 }	// this is a bit outdated now, would probably be better to scrap eventually
 
@@ -404,7 +393,9 @@ void key_commands::Minus()
 
 
 void Init_assets()
-{	Talkback("Initializing assets");
+{	// this is all realllly bad. Everything here is a mess quite frankly
+	
+	Talkback("Initializing assets");
 	spawn_point.x = 0; spawn_point.y = 0;	spawn_flipper = false;	init_theta = 0;
 	displays_font = new sf::Font();
 	displays_font->loadFromFile("./Data/Fonts/orbitron-light.ttf");
@@ -424,8 +415,8 @@ void Init_assets()
 	XWing_panel_tex = new sf::Texture();
 	XWing_panel_tex->loadFromFile("./Data/Images/XWing_display_panel.png");
 	std::cout << "Loaded XWing_tex from file" << std::endl;
-	GL1 = new DeltaGlider(6678000.00000000000000000, 0.0000000000000, 0.000000000000, 18000.00000000000000, 270.0000000000, 0, 40000, 20600, Rebel_flag_sprite, XWing_tex, "GL-01", XWing_status_tex, displays_font, XWing_panel_tex); 
-	GL2 = new DeltaGlider(6678000.000000000000000, -12.00000000000000, 0.00000000000000, 18000.00000000000, 180, 0, 40000, 20600, Rebel_flag_sprite, XWing_tex, "GL-02", XWing_status_tex, displays_font, XWing_panel_tex);
+	GL1 = new DeltaGlider(6678000.00, 0.00, 0.00, 18000.00, 270.00, 0, 40000, 20600, Rebel_flag_sprite, XWing_tex, "GL-01", XWing_status_tex, displays_font, XWing_panel_tex); 
+	GL2 = new DeltaGlider(6678000.00, -12.00, 0.00, 8600.00, 180, 0, 40000, 20600, Rebel_flag_sprite, XWing_tex, "GL-02", XWing_status_tex, displays_font, XWing_panel_tex);
 
 	Starfighter->Vessel_list.insert(Starfighter->Vessel_list.end(), GL2);
 	Starfighter->Vessel_list.insert(Starfighter->Vessel_list.end(), GL1);

@@ -18,6 +18,29 @@
 enum Propagator_type{Euler1, RK4};
 // thats all I can think of just yet...
 
+enum Object_state{Flight, Landed, Crashed};
+// pretty simple, just are we in flight or on the ground,
+// and if we are on the ground, will we be able to take off again or is the ship
+// really just a metal smear across the ground somewhere
+
+struct Flight_state
+{	VectorVictor::Vector2 Position;
+	VectorVictor::Vector2 Velocity;
+};
+
+struct Surface_state
+{	std::string Planet_name;
+	long double longitude;
+};
+
+class ObjectState
+{	public:
+	Flight_state FlightState;
+	Surface_state LandedState;
+	
+	Object_state Current_state;
+};
+
 class CNewtonian_Object
 {	public:
 	// Nature and nature's laws lay hid in night;
@@ -31,10 +54,13 @@ class CNewtonian_Object
 	// this whole pos/vel/accel thing can be unionized with some sort of
 	// identifier for a landed/crashed (surface?) state
 	
-	VectorVictor::Vector2 Position;
+	//VectorVictor::Vector2 Position;
 	// Where we are
-	VectorVictor::Vector2 Velocity;
+	//VectorVictor::Vector2 Velocity;
 	// Where we are going
+	
+	ObjectState NewtonianState;
+	
 	VectorVictor::Vector2 Acceleration;	
 	// where we are going is going
 	// another shitter to get rid of. Need to look up all references
@@ -117,6 +143,14 @@ class CNewtonian_Object
 	// Same as for motion, just using the torques implied by the Force list
 	// in each frame
 	
+	void Propagate_Euler(long double sim_time, long double dt);
+	// brute force it. Dont even know where this would be useful anymore
+	// once the RK4 is implemented, but I guess it cant hurt
+	
+	void Propagate_RK4(long double sim_time, long double dt);
+	// run a step of length dt with an RK4 propagator for much better accuracy
+	// than an implicit Euler one will give
+	
 	bool Update_flag;
 	// this was an older idea
 	bool Update_flag_state();
@@ -181,6 +215,7 @@ class CNewtonian_Object
 	// again, same idea as the one in CKeplerian
 	// this might also be nice as an inherited
 	// "named object" type. I dunno. Probably not worth it
+	
 	
 	CNewtonian_Object* Get_Newtonian_pointer();
 	// Abstract way of referencing the object at the Newtonian level
@@ -286,84 +321,6 @@ class TVessel: public CNewtonian_Object
 	// the access at this abstraction layer
 	// this could always be tossed around by passing *pointer by reference
 	// in functions I guess
-};
-
-
-
-class DeltaGlider: public TVessel
-{	public:
-	// the first class of this type written for testing purposes
-	// a homage to Orbiter, without which this project never would have happened
-	// Hail the Probe!!!
-	DeltaGlider(double initial_x_position, double initial_y_position, double initial_x_velocity, double initial_y_velocity, double initial_theta, double initial_omega, double initial_main_propellant, double initial_rcs_propellant,  sf::Sprite * iFlag_sprite, sf::Texture * XWing_texture, std::string ivessel_name, sf::Texture * status_texture, sf::Font * controls_font, sf::Texture * panel_texture1);
-	// Only constructor at the moment, will eventually need one that works for
-	// reloading sims from a scenario file
-	double k_throttle;
-	// the rate at which the throttle moves around in (throttle units/ second)
-	// throttle only has a range of 1, so values need to be between that and
-	// zero (generally quite small, although it depends on the specific case)
-	sf::Text * main_fuel_level, * rcs_fuel_level, * omega_value, * theta_value, * position_values, * velocity_values, * vessel_id;
-	// All of the text displays for important information about the vessel while
-	// in flight.
-	
-	// This all needs to be abstracted if possible
-	sf::Sprite * vessel_display, * display_panel;
-	// the semi transparent image of the ship, and the background to the
-	// displays panel, respectively. The vessel_display is really just eyecandy
-	// for the moment. Does look nice though
-	bool Throttle_lock;
-	// on/off switch that holds the main throttle open at its current value
-	// when true, instead of sliding back to zero like it normally does
-	// this behaviour is specific to Ignition Engine, Orbiter and KSP hold their
-	// throttles constant if untouched. Might be a decent candidate to make
-	// an optional feature
-	void Receive_inputs(key_commands * current_inputs, double dt);
-	void Receive_cursor_inputs(Cursor_commands * cursor_action, long double dt);
-	// finally, specific implementation of how the class type handles input
-	// from the user
-	double Get_total_mass();
-	double Get_PMI();			
-	// pretty much what it says on the box
-	
-	//void Drain_fuel(double dt);
-	// hmm, odd... no clue why this existed in the first place, not very useful
-	// to spring leaks in your fuel tanks
-	
-	// this should probably be removed
-	void Print_data();
-	// Implementation of the handy debug feature from before
-	void Toggle_throttle_lock();
-	void Draw_controls(SFML_Window * iwindow, bool Map_status);	
-	// pretty much what they sound like
-	// Draw controls should become Draw displays if the change I mentioned
-	// above with the instance specific readouts goes into effect
-	
-	
-	
-	void Rotate_left(double dt);
-	void Rotate_right(double dt);
-	
-	void Rotate_left(double dt, double throttle_target);
-	void Rotate_right(double dt, double throttle_target);
-	
-	void Translate_forward(double dt);
-	void Translate_backward(double dt);
-	void Translate_left(double dt);
-	void Translate_right(double dt);
-	void Throttle_up(double dt);
-	void Throttle_down(double dt);	
-	void No_command(double dt);
-	void Kill_rotation(double dt);
-	// implementations of what gets executed when the commands are called
-	
-	// this is all about to bite the dust
-	
-	Resource_Tank * Main_fuel, * RCS_fuel;
-	// Fuel tanks, with no specific connection to anything above this class
-	sf::Color * text_colour;
-	// doesnt really need to be only one, but if its working, dont touch
-	// abstraction will remove this anyways
-	~DeltaGlider();
 };
 
 #endif

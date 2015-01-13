@@ -293,7 +293,7 @@ int Ignition_engine::Ignition()
 					// should also pass along the Newtonian and Vessel type
 					// lists for convenience too methinks
 				}
-					Main_Window->Set_origin((Current_vessel->Position.x - (Main_Window->Aperture_width/2)),(Current_vessel->Position.y + (Main_Window->Aperture_height/2)));		
+					Main_Window->Set_origin((Current_vessel->NewtonianState.FlightState.Position.x - (Main_Window->Aperture_width/2)),(Current_vessel->NewtonianState.FlightState.Position.y + (Main_Window->Aperture_height/2)));		
 					// Relocate the window to center on current vessel
 					// I always disliked how Orbiter did this, would rather
 					// have some sort of polymorphic "targetable" setup, so
@@ -333,7 +333,7 @@ int Ignition_engine::Ignition()
 				{	(*it)->Frame(deltat, simulation_time);
 					// Iterate through all celestial bodies (planets, stars, moons)
 					// in the current instance, and update them
-					Main_Window->Set_origin((Current_vessel->Position.x - (Main_Window->Aperture_width/2)),(Current_vessel->Position.y + (Main_Window->Aperture_height/2)));
+					Main_Window->Set_origin((Current_vessel->NewtonianState.FlightState.Position.x - (Main_Window->Aperture_width/2)),(Current_vessel->NewtonianState.FlightState.Position.y + (Main_Window->Aperture_height/2)));
 					// same deal as camera view, just based on the size of the
 					// map view instead
 					if((*it)->In_view(Main_Window, zoom_exponent) == true)
@@ -343,7 +343,7 @@ int Ignition_engine::Ignition()
 				}
 				for(std::vector<TVessel*>::iterator it = Vessel_list.begin(); it != Vessel_list.end(); ++it)				// Iterate through all vessels in the current instance
 				{	(*it)->Frame(deltat, simulation_time, Celestial_list);																													// Update vessel with frame dt
-					Main_Window->Set_origin((Current_vessel->Position.x - (Main_Window->Aperture_width/2)),(Current_vessel->Position.y + (Main_Window->Aperture_height/2)));		// Relocate the window to center on current vessels flag sprite
+					Main_Window->Set_origin((Current_vessel->NewtonianState.FlightState.Position.x - (Main_Window->Aperture_width/2)),(Current_vessel->NewtonianState.FlightState.Position.y + (Main_Window->Aperture_height/2)));		// Relocate the window to center on current vessels flag sprite
 					if((*it)->In_view(Main_Window, zoom_exponent) == true)														// Check if the flag is within the current camera coordinates
 					{	(*it)->Draw_flag(Main_Window, zoom_exponent);	
 						// Draw the flag onscreen
