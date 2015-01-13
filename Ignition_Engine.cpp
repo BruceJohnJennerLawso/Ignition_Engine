@@ -444,6 +444,12 @@ void Ignition_engine::Camera_view()
 void Ignition_engine::Increase_camera_scale()
 {	if(camera_scale < Max_cam_scale)
 	{	camera_scale += (deltat*((long double)k_camera));
+		if(camera_scale > Max_cam_scale)
+		{	camera_scale = Max_cam_scale;
+		}
+		else if(camera_scale < Min_cam_scale)
+		{	camera_scale = Min_cam_scale;
+		}
 		Set_aperture_scale();
 		this->Update_standard_displays();
 	}
@@ -462,13 +468,19 @@ void Ignition_engine::Change_camera_scale(double wheel_delta)
 		Set_aperture_scale();
 	}
 	else
-	{
+	{	// we do nuthin, cause
 	}
 }
 
 void Ignition_engine::Decrease_camera_scale()
 {	if(camera_scale > Min_cam_scale)
 	{	camera_scale -= (deltat*((long double)k_camera));
+		if(camera_scale > Max_cam_scale)
+		{	camera_scale = Max_cam_scale;
+		}
+		else if(camera_scale < Min_cam_scale)
+		{	camera_scale = Min_cam_scale;
+		}
 		Set_aperture_scale();
 		this->Update_standard_displays();
 	}
