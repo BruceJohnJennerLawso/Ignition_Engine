@@ -90,12 +90,11 @@ VectorVictor::Vector2 CKeplerian_Object::Get_position(long double sim_time)
 }	// this should be temporary, planets and moons really need to update
 	// their own positions
 
+
 void CKeplerian_Object::Gravitate(long double satellite_mass, long double satellite_rotation,VectorVictor::Vector2 satellite_position, std::vector<Force> &parent_force_list)
-{	// a whole #$%^ year later... finally I got to write this
+{	long double G = 6.673e-11; 
+	long double M = this->Get_mass();	
 	VectorVictor::Vector2 origin(0.0000000000000000,0.000000000000000);
-	long double G = 6.673e-11; 
-	// universal gravitational constant. Dont look to hard at it ;)
-	long double M = this->Get_mass();
 	// get the mass of the gravitating body in question
 	VectorVictor::Vector2 Vf(0,0);	 
 	//this really needs to be fixed to the relative keplerian position
@@ -125,6 +124,66 @@ void CKeplerian_Object::Gravitate(long double satellite_mass, long double satell
 	// call, and to it, a spade is a spade for any Force in the Force vector 
 	Force New_force(origin, Vf.Get_rotated_vector(rotation));
 	parent_force_list.insert(parent_force_list.end(), New_force); 
+	// we construct the Force object, pin it onto the vessel in question
+	// and we are done!
+}
+
+VectorVictor::Vector2 CKeplerian_Object::Gravity_acceleration(VectorVictor::Vector2 satellite_position, long double simtime)
+{	long double G = 6.673e-11; 
+	// universal gravitational constant. Because I said so, thats why!!!
+	long double M = this->Get_mass();	
+	// The mass of the large body doing the pulling here
+	
+	// sigh...
+	
+	//VectorVictor::Vector2 origin(0.00,0.00);
+	
+	
+	VectorVictor::Vector2 gravity(0,0);	 
+	gravity = this->Get_position(simtime);
+	gravity -= satellite_position;
+	
+	long double radius_squared = gravity.Get_vector_magnitude_squared();
+	// get the square of the distance in meters between the two objects
+	
+	gravity.Normalize();
+	// normalize the vector, since we just need the direction of gravity with
+	// a magnitude of 1 here
+	gravity *= G;
+	gravity *= M;
+	gravity *= (1/radius_squared);
+	// I really need to write that /= operator for VV2
+	return gravity;
+	// ignore everything after this line, theyre like the siren song of
+	// commented code
+	
+	//this really needs to be fixed to the relative keplerian position
+	// was a hack to get things to work, but needs to call the Keplerians
+	// position function itself
+	
+	// * VERY IMPORTANT MUST FIX * //
+	//Vf -=  satellite_position;
+	// Get the relative offset vector between the two objects
+	
+	//long double radial_distance_squared = Vf.Get_vector_magnitude_squared();
+	// get the r squared as you would expect
+	
+	//Vf.Normalize();	
+	// reduce our direction vector so we have only direction & magnitude 1
+		
+	//long double Fmag = ((G*M)*satellite_mass);
+	//Fmag /= radial_distance_squared;
+	// calculate the value of Fg
+	//Vf *= Fmag;
+	// and multiply our vector by it
+		
+	//long double rotation = (-satellite_rotation);
+	// the force is originally in the global coordinates, but it needs to be
+	// rotated into the reference frame of the vessels coordinate system
+	// this is because the vessel reorients them all when it has its frame
+	// call, and to it, a spade is a spade for any Force in the Force vector 
+	//Force New_force(origin, Vf.Get_rotated_vector(rotation));
+	//parent_force_list.insert(parent_force_list.end(), New_force); 
 	// we construct the Force object, pin it onto the vessel in question
 	// and we are done!
 }

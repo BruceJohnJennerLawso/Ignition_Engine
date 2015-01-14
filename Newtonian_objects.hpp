@@ -11,6 +11,7 @@
 
 #ifndef NewtonsObjects
 #define NewtonsObjects
+// all of your physics are belong to Newton
 
 // Newtonian Class /////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
@@ -91,7 +92,9 @@ class CNewtonian_Object
 	long double Theta, Omega, Alpha;
 	// Our orientation in space and how its changing
 	// all stored in degrees
-	bool Crashed;
+	
+	
+	//bool Crashed;
 	// the current type of collision detection is quite simple, if we hit the
 	// ground at all, we crashed, and our position is locked to the point
 	// on the surface where we bought the farm
@@ -136,20 +139,24 @@ class CNewtonian_Object
 	void Frame(long double dt, long double simtime, std::vector<CKeplerian_Object*> &ignition_celestials);
 	// The wonderful grand update that handles updating everything in the object
 	// parts, vessel status, etc.
-	void Update_motion(long double dt);
+	void Update_motion(long double simtime, long double dt, std::vector<CKeplerian_Object*> &ignition_celestials);
 	// State propagator of the cartesian coordinates of the vessel
 	// currently single pass linear, (ie bad) but will be updated
-	void Update_rotation(long double dt);
-	// Same as for motion, just using the torques implied by the Force list
-	// in each frame
 	
-	void Propagate_Euler(long double sim_time, long double dt);
+	void Propagate_Euler1(long double sim_time, long double dt, VectorVictor::Vector2 &net_force, std::vector<CKeplerian_Object*> &ignition_celestials);
 	// brute force it. Dont even know where this would be useful anymore
 	// once the RK4 is implemented, but I guess it cant hurt
 	
-	void Propagate_RK4(long double sim_time, long double dt);
+	void Propagate_RK4(long double sim_time, long double dt, VectorVictor::Vector2 &net_force, std::vector<CKeplerian_Object*> &ignition_celestials);
 	// run a step of length dt with an RK4 propagator for much better accuracy
 	// than an implicit Euler one will give
+	
+	Derivative evaluate(const State &initial_state, fpoint t, fpoint dt, const Derivative &derivative)
+	// It doesnt absolutely need to be a member method, but this makes it much easier
+	
+	void Update_rotation(long double simtime, long double dt);
+	// Same as for motion, just using the torques implied by the Force list
+	// in each frame
 	
 	bool Update_flag;
 	// this was an older idea

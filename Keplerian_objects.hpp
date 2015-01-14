@@ -78,7 +78,7 @@ class CKeplerian_Object
 	// in kilograms
 	long double Get_mass();
 	// return for above	
-	VectorVictor::Vector2 Get_position(long double sim_time);
+	virtual VectorVictor::Vector2 Get_position(long double sim_time);
 	// position at a given time. This is wacky in its current form, better if it
 	// were updated every frame and just stored until needed. This was overthink
 	// methinks
@@ -86,6 +86,9 @@ class CKeplerian_Object
 	// new function that tacks its gravity force onto a newtonian object when
 	// requested by that function. May not last long given changes in how the 
 	// state updaters work, but we will see
+	
+	VectorVictor::Vector2 Gravity_acceleration(VectorVictor::Vector2 satellite_position, long double simtime);
+	
 	std::string Object_name;
 	// Welcome to <Object_name>!
 	std::string Get_object_name();

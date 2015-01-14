@@ -112,15 +112,20 @@ void CNewtonian_Object::Frame(long double dt, long double simtime, std::vector<C
 		// like thrusters, wings, parts dragging in atmosphere, add a new force
 		// on to the parent Newtonian Objects force list
 	}
-	for(std::vector<CKeplerian_Object*>::iterator it = ignition_celestials.begin(); it != ignition_celestials.end(); ++it)
-	{	(*it)->Gravitate(Get_total_mass(), Get_theta_in_degrees(), NewtonianState.FlightState.Position ,Force_list);
+	
+	
+	//for(std::vector<CKeplerian_Object*>::iterator it = ignition_celestials.begin(); it != ignition_celestials.end(); ++it)
+	//{	(*it)->Gravitate(Get_total_mass(), Get_theta_in_degrees(), NewtonianState.FlightState.Position ,Force_list);
 		// we cycle through all of the large bodies in the universe
 		// (probably excluding anything asteroid or smaller) and get them to add
 		// a gravitational force to the vessel
-	}
-	this->Update_motion(dt);
+	//}
+	// this cycling is on the way out I think
+	
+	
+	this->Update_motion(simtime, dt, ignition_celestials);
 	// the vessel uses the forces acting upon it to update its motion...
-	this->Update_rotation(dt);
+	this->Update_rotation(simtime, dt);
 	// ...and then does the same for rotation
 	Update_PMI();						
 	// we recalculate the vessels total moment of inertia
@@ -128,9 +133,13 @@ void CNewtonian_Object::Frame(long double dt, long double simtime, std::vector<C
 	// every single frame
 	Force_list.clear();
 	// set the net force on the object back to zero for the next frame
-	if(Crashed == false)
-	{	Crashed = Crash_state(simtime, ignition_celestials);
-		// if we arent crashed at the moment, check if we are crashed
+	if(NewtonianState.Current_state != Crashed)
+	{	// if we arent crashed at the moment, check if we are crashed
+		if(Crash_state(simtime, ignition_celestials) == true)
+		{	// If we are crashed, set our status to that
+			std::cout << "Goodbye cruel world" << std::endl;
+			NewtonianState.Current_state = Crashed;
+		}
 	}
 }
 
@@ -144,43 +153,99 @@ bool CNewtonian_Object::Crash_state(long double sim_time, std::vector<CKeplerian
 		// iterate through all of the large bodies in the sim and see if we seem
 		// to be 'underground'. If we are, we've probably bought the farm, so we
 		// set the Crashed state to true by returning true
+		
+		// this should eventually become something where we sweep out distances
+		// over the course of the frame by using the previous frames position as
+		// the other endpoint of the line
 	}
 	return false;
 	// if not, we continue on our merry way
 	
 }
 	
-void CNewtonian_Object::Update_motion(long double dt)
+void CNewtonian_Object::Update_motion(long double simtime, long double dt, std::vector<CKeplerian_Object*> &ignition_celestials)
 {	
-	if(Crashed == false)
-	{	// If we've made a crater in the planet, dont bother updating
-		VectorVictor::Vector2 Net_force(0,0);
-		// start with a net force of 0
-		for(std::vector<Force>::iterator it = Force_list.begin(); it != Force_list.end(); ++it)
-		{	Net_force += it->Force_vector.Get_rotated_vector(Theta);	// Now this makes more sense
-			// add up all of the forces acting on the vessel in this frame
-		}	
-		Acceleration.x = (Net_force.x/Get_total_mass()); 
-		Acceleration.y = (Net_force.y/Get_total_mass());	
+	switch(NewtonianState.Current_state)
+	{	case Crashed:
+		{	// do some stuffz
+			// If we've made a crater in the planet, run a surface update *TODO*
+			// must write the functions preciousssss
+			break;
+		}
+		case Landed:
+		{	// do some other stuffz
+		
+			// roughly speaking, just run a normal surface update, and check if
+			// our state is sufficient to get off the ground. If it is, we set
+			// the Current state to Flight, and the next frame can take things
+			// from there in the Flight propagation.
+			break;
+		}
+		case Flight:
+		{	// and do some really cool stuffz here
+			
+			VectorVictor::Vector2 Net_force(0,0);
+			// start with a net force of 0
+			for(std::vector<Force>::iterator it = Force_list.begin(); it != Force_list.end(); ++it)
+			{	Net_force += it->Force_vector.Get_rotated_vector(Theta);
+				// add up all of the forces acting on the vessel in this frame
+				// * and very important, we are rotating them back into the
+				// global reference frame instead of the vessel local one that
+				// they were created in *
+				
+				// SUPER TURBO CINTRAFALAGULOUS IMPORTANT
+			}
+			
+			if(Propagator == RK4)
+			{	this->Propagate_RK4(simtime, dt, Net_force, ignition_celestials);
+			}
+			else
+			{	// we go to the forever alone brute force Euler
+				// because nothing else was specified
+				// this way is just so nothing is left uncaught
+				this->Propagate_Euler1(simtime, dt, Net_force, ignition_celestials);
+			}
+			break;
+		}
+	}
+}
+
+void CNewtonian_Object::Propagate_Euler1(long double sim_time, long double dt, VectorVictor::Vector2 &net_force, std::vector<CKeplerian_Object*> &ignition_celestials)
+{		Acceleration.x = (net_force.x/Get_total_mass()); 
+		Acceleration.y = (net_force.y/Get_total_mass());	
+		
 		// Newtons laws, simply
 		
 		// F = ma
 		// a = F/m
+		
+		for(std::vector<CKeplerian_Object*>::iterator it = ignition_celestials.begin(); it != ignition_celestials.end(); ++it)
+		{	
+			Acceleration += (*it)->Gravity_acceleration(NewtonianState.FlightState.Position, sim_time);
+			// we cycle through all of the large bodies in the universe
+			// (probably excluding anything asteroid or smaller) and get them to add
+			// a gravitational force to the vessel
+			
+			// this works nicely now, since the 
+		}
+		// and once we have done that, we get the gravity accelerations from
+		// each of the celestial objects in the sim
+		
 		NewtonianState.FlightState.Velocity.x += ((Acceleration.x)*dt);
 		NewtonianState.FlightState.Velocity.y += ((Acceleration.y)*dt);
-		NewtonianState.FlightState.Position.x += (((NewtonianState.FlightState.Velocity.x)*dt) + (((0.50000000000000000)*Acceleration.x)*dt*dt));
-		NewtonianState.FlightState.Position.y += (((NewtonianState.FlightState.Velocity.y)*dt) + (((0.50000000000000000)*Acceleration.y)*dt*dt));
+		NewtonianState.FlightState.Position.x += (((NewtonianState.FlightState.Velocity.x)*dt) + (((0.500)*Acceleration.x)*dt*dt));
+		NewtonianState.FlightState.Position.y += (((NewtonianState.FlightState.Velocity.y)*dt) + (((0.500)*Acceleration.y)*dt*dt));
 		// Simple constant acceleration equations of motion	
-	}
-	// there should be an else statement here so that we keep pace with the
-	// keplerians movement and rotation
-	
+}
+
+void CNewtonian_Object::Propagate_RK4(long double sim_time, long double dt, VectorVictor::Vector2 &net_force, std::vector<CKeplerian_Object*> &ignition_celestials)
+{	// ah, so yaa
 }
 
 
-void CNewtonian_Object::Update_rotation(long double dt)
+void CNewtonian_Object::Update_rotation(long double simtime, long double dt)
 {	
-	if(Crashed == false)
+	if(NewtonianState.Current_state != Crashed)
 	{	// again if weve crashed, dont bother
 		Alpha = 0;
 		// where alpha is our angular acceleration, the second derivative
@@ -222,14 +287,6 @@ void CNewtonian_Object::Update_rotation(long double dt)
 		// a scn file
 	}
 	
-}
-
-void CNewtonian_Object::Propagate_RK4(long double sim_time, long double dt)
-{
-}
-	
-void CNewtonian_Object::Propagate_Euler(long double sim_time, long double dt)
-{
 }
 
 CNewtonian_Object* CNewtonian_Object::Get_Newtonian_pointer()
