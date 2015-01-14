@@ -64,6 +64,8 @@ namespace VectorVictor
 		// subtraction operators, same behaviour as 						
 		Vector2 operator = (const Vector2 v);	
 		// copy operator						
+		
+		Vector2 operator * (const double c);	
 		Vector2 operator *= (const double c);
 		// multiply each element by some value						
 		bool operator != (const Vector2 v);							

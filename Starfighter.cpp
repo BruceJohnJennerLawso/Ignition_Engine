@@ -249,7 +249,7 @@ void key_commands::N()
 			init_theta += 90;
 			while(init_theta >= 360)
 			{	init_theta -= 360;
-			}	TVessel * new_vessel;	new_vessel = new DeltaGlider(spawn_point.x, spawn_point.y, 0, 0, init_theta, 0, 1000, 1600, Rebel_flag_sprite, XWing_tex, "Vessel", XWing_status_tex, displays_font, XWing_panel_tex);
+			}	TVessel * new_vessel;	new_vessel = new DeltaGlider(spawn_point.x, spawn_point.y, 0, 0, init_theta, 0, 1000, 1600, Rebel_flag_sprite, XWing_tex, "Vessel", XWing_status_tex, displays_font, XWing_panel_tex, Euler1);
 			Starfighter->Vessel_list.insert(Starfighter->Vessel_list.end(), new_vessel);
 			break;
 		}
@@ -259,7 +259,7 @@ void key_commands::N()
 			init_theta += 90;
 			while(init_theta >= 360)
 			{	init_theta -= 360;
-			}	TVessel * new_vessel;	new_vessel = new DeltaGlider(spawn_point.x, spawn_point.y, 0, 0, init_theta, 0, 1000, 1600, Rebel_flag_sprite, XWing_tex, "Vessel", XWing_status_tex, displays_font, XWing_panel_tex);
+			}	TVessel * new_vessel;	new_vessel = new DeltaGlider(spawn_point.x, spawn_point.y, 0, 0, init_theta, 0, 1000, 1600, Rebel_flag_sprite, XWing_tex, "Vessel", XWing_status_tex, displays_font, XWing_panel_tex, Euler1);
 			Starfighter->Vessel_list.insert(Starfighter->Vessel_list.end(), new_vessel);
 			break;
 		}
@@ -415,8 +415,8 @@ void Init_assets()
 	XWing_panel_tex = new sf::Texture();
 	XWing_panel_tex->loadFromFile("./Data/Images/XWing_display_panel.png");
 	std::cout << "Loaded XWing_tex from file" << std::endl;
-	GL1 = new DeltaGlider(6678000.00, 0.00, 0.00, 18000.00, 270.00, 0, 40000, 20600, Rebel_flag_sprite, XWing_tex, "GL-01", XWing_status_tex, displays_font, XWing_panel_tex); 
-	GL2 = new DeltaGlider(6678000.00, -12.00, 0.00, 8600.00, 180, 0, 40000, 20600, Rebel_flag_sprite, XWing_tex, "GL-02", XWing_status_tex, displays_font, XWing_panel_tex);
+	GL1 = new DeltaGlider(6678000.00, 0.00, 0.00, 8600.00, 270.00, 0, 40000, 20600, Rebel_flag_sprite, XWing_tex, "GL-01", XWing_status_tex, displays_font, XWing_panel_tex, RK4); 
+	GL2 = new DeltaGlider(6678000.00, -12.00, 0.00, 8600.00, 180, 0, 40000, 20600, Rebel_flag_sprite, XWing_tex, "GL-02", XWing_status_tex, displays_font, XWing_panel_tex, Euler1);
 
 	Starfighter->Vessel_list.insert(Starfighter->Vessel_list.end(), GL2);
 	Starfighter->Vessel_list.insert(Starfighter->Vessel_list.end(), GL1);

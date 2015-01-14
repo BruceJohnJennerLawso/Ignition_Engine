@@ -22,7 +22,7 @@ class DeltaGlider: public TVessel
 	// the first class of this type written for testing purposes
 	// a homage to Orbiter, without which this project never would have happened
 	// Hail the Probe!!!
-	DeltaGlider(double initial_x_position, double initial_y_position, double initial_x_velocity, double initial_y_velocity, double initial_theta, double initial_omega, double initial_main_propellant, double initial_rcs_propellant,  sf::Sprite * iFlag_sprite, sf::Texture * XWing_texture, std::string ivessel_name, sf::Texture * status_texture, sf::Font * controls_font, sf::Texture * panel_texture1);
+	DeltaGlider(double initial_x_position, double initial_y_position, double initial_x_velocity, double initial_y_velocity, double initial_theta, double initial_omega, double initial_main_propellant, double initial_rcs_propellant,  sf::Sprite * iFlag_sprite, sf::Texture * XWing_texture, std::string ivessel_name, sf::Texture * status_texture, sf::Font * controls_font, sf::Texture * panel_texture1, Propagator_type propagator);
 	// Only constructor at the moment, will eventually need one that works for
 	// reloading sims from a scenario file
 	double k_throttle;

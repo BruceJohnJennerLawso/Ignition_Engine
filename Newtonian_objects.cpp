@@ -240,6 +240,114 @@ void CNewtonian_Object::Propagate_Euler1(long double sim_time, long double dt, V
 
 void CNewtonian_Object::Propagate_RK4(long double sim_time, long double dt, VectorVictor::Vector2 &net_force, std::vector<CKeplerian_Object*> &ignition_celestials)
 {	// ah, so yaa
+
+	Flight_state a, b, c, d;
+	
+	a = evaluate(NewtonianState.FlightState, sim_time, 0.0f, Flight_state(), ignition_celestials, net_force);
+	// close our eyes and hope that works okay...
+	
+	// I guess.... I think the idea here is that we  get our initial derivative
+	// state of a from the initial state that was passed to the function, and
+	// dont step forward at all. We're just getting an initial state here
+	b = evaluate(NewtonianState.FlightState, sim_time, dt*(0.5f), a, ignition_celestials, net_force);
+	// the previous operations insanity notwithstanding, we do the same thing
+	// again using whatever we got back from a
+	
+	// so we are working forward along the 'curvature of the problem', moving
+	// forward and sampling acceleration and velocity based on what the initial
+	// state obtained for a gave us for a half frame in length
+	c = evaluate(NewtonianState.FlightState, sim_time, dt*(0.5f), b, ignition_celestials, net_force);
+	// and again with the results from b to get a.
+	// evaluating with the half frame velocities and accels here?
+	// I guess we equally weight the start and halfway vels and accels here???
+	d = evaluate(NewtonianState.FlightState, sim_time, dt, c, ignition_celestials, net_force);
+	// and... one last time with c
+	
+	//and at last, we get the vels and accels at the end of the frame, now this
+	// makes sense
+	
+	VectorVictor::Vector2 velocity = (b.Position + c.Position);
+	velocity *= 2.0;
+	velocity += (a.Position + d.Position);
+	velocity *= (1.0/6.0);
+	
+	//VectorVictor::Vector2 velocity = ((1.0/6.0)*(a.Position + ((b.Position + c.Position)*2.0) + d.Position));
+	
+	//Acceleration = ((1.0/6.0)*(a.Velocity + 2.0*(b.Velocity + c.Velocity) + d.Velocity));
+	
+	Acceleration = (b.Velocity + c.Velocity);
+	Acceleration *= 2.0;
+	Acceleration += (a.Velocity + d.Velocity);
+	Acceleration *= (1.0/6.0);
+
+	//VectorVictor::Vector2 velocity = ((1.0/6.0)*(a.Position + ((b.Position + c.Position)*2.0) + d.Position));
+	//Acceleration = ((1.0/6.0)*(a.Velocity + 2.0*(b.Velocity + c.Velocity) + d.Velocity));
+	// we do some odd thing here to get a frame-wide accel and velocity?
+	// I think? I do recognize these as the RK4 scheme coefficients
+	
+	// I wanted to do it straight up like this, but my standard operators arent
+	// quite up to the challenge yet :(
+	
+	// looks like we weight them according to some set of coefficients that the
+	// given order of Runge Kutta specifies, and the velocity and accel that
+	// result are applied to the frame with a regular euler integration step,
+	// minus the position term for constant acceleration
+	// (already handled by the weighted velocity changes to the state I guess)   
+	
+	NewtonianState.FlightState.Position += (velocity*dt);
+	NewtonianState.FlightState.Velocity += (Acceleration*dt);
+	// and we lastly step ahead the basic state of the system by the values
+	// we calculated as velocity and accel for the frame? Yeah, that sounds
+	// right
+	
+	// If this works first time, my mind will be blown
+}
+
+Flight_state CNewtonian_Object::evaluate(const Flight_state &initial_state, long double simtime, long double dt, const Flight_state &derivative, std::vector<CKeplerian_Object*> &ignition_celestials, VectorVictor::Vector2 &net_force)
+{	Flight_state state;
+	
+	//state.x = initial_state.x + derivative.dx*dt;
+	
+	//state.Position = initial_state.Position + ((derivative.Position)*dt);
+	
+	state.Position = derivative.Position;
+	state.Position *= dt;	
+	state.Position += initial_state.Position;
+	
+	// I guess the last part is because its actually a*dt^2 or 
+	// (dx/dt)*dt^2 = dx*dt
+	
+	//state.Velocity = initial_state.Velocity + derivative.Velocity)*dt);
+	
+	state.Velocity = derivative.Velocity;
+	state.Position *= dt;	
+	state.Velocity += initial_state.Velocity;	
+	
+	// for some reason we step things forward 1 frame dt seconds using a Euler
+	// integrator
+	
+	//Derivative output;
+	Flight_state output;
+	
+	output.Position = state.Velocity;
+	// we set the output derivatives dx equal to the velocity of the state that
+	// we stepped forward earlier using the euler step
+	
+	Acceleration.x = (net_force.x/Get_total_mass()); 
+	Acceleration.y = (net_force.y/Get_total_mass());	
+	
+	for(std::vector<CKeplerian_Object*>::iterator it = ignition_celestials.begin(); it != ignition_celestials.end(); ++it)
+	{	
+		Acceleration += (*it)->Gravity_acceleration(state.Position, simtime);
+		// we cycle through all of the large bodies in the universe
+		// (probably excluding anything asteroid or smaller) and get them to add
+		// a gravitational force to the vessel
+	}
+	
+	output.Velocity = Acceleration;
+	// and lastly we set dv equal to whatever the current acceleration is should
+	// really be 
+	return output;
 }
 
 

@@ -249,6 +249,12 @@ VectorVictor::Vector2 VectorVictor::Vector2::operator= (const VectorVictor::Vect
 	return (*this);		
 }
 
+VectorVictor::Vector2 VectorVictor::Vector2::operator * (const double c)
+{	x *= c;
+	y *= c;
+	return (*this);
+}
+
 VectorVictor::Vector2 VectorVictor::Vector2::operator *= (const double c)
 {	// multiply every element in the vector by some value c
 	x *= c;

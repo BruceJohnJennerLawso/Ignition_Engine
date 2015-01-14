@@ -17,11 +17,11 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 
-DeltaGlider::DeltaGlider(double initial_x_position, double initial_y_position, double initial_x_velocity, double initial_y_velocity, double initial_theta, double initial_omega, double initial_main_propellant, double initial_rcs_propellant,  sf::Sprite * iFlag_sprite, sf::Texture * XWing_texture, std::string ivessel_name, sf::Texture * status_texture, sf::Font * controls_font, sf::Texture * panel_texture1)
+DeltaGlider::DeltaGlider(double initial_x_position, double initial_y_position, double initial_x_velocity, double initial_y_velocity, double initial_theta, double initial_omega, double initial_main_propellant, double initial_rcs_propellant,  sf::Sprite * iFlag_sprite, sf::Texture * XWing_texture, std::string ivessel_name, sf::Texture * status_texture, sf::Font * controls_font, sf::Texture * panel_texture1, Propagator_type propagator)
 {	Talkback("Constructing Delta Glider");
 	// we write to the console for feedback while debugging
 	NewtonianState.Current_state = Flight;
-	Propagator = Euler1;
+	Propagator = propagator;
 	
 	Init_vessel_type();
 	// run the setup function

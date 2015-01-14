@@ -151,7 +151,7 @@ class CNewtonian_Object
 	// run a step of length dt with an RK4 propagator for much better accuracy
 	// than an implicit Euler one will give
 	
-	Derivative evaluate(const State &initial_state, fpoint t, fpoint dt, const Derivative &derivative)
+	Flight_state evaluate(const Flight_state &initial_state, long double simtime, long double dt, const Flight_state &derivative, std::vector<CKeplerian_Object*> &ignition_celestials, VectorVictor::Vector2 &net_force);
 	// It doesnt absolutely need to be a member method, but this makes it much easier
 	
 	void Update_rotation(long double simtime, long double dt);
