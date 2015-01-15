@@ -19,7 +19,7 @@
 #elif _WIN32
 	#define WINDOWS
 #elif __APPLE__
-	// this is unsupported for the moment
+// this is unsupported for the moment
 #elif __linux
 	#define LINUX
 #endif
