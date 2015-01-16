@@ -63,6 +63,8 @@ key_commands::key_commands()
 	d = false;
 	c = false;
 	l = false;
+	i = false;
+	comma = false;
 	equal = false;
 	dash = false;
 	plus = false;
@@ -620,7 +622,19 @@ void Ignition_drawable::Center_element()
 {	Talkback("Ignition_drawable::Center_element()");
 }
 
+// Ignition text type //////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+
 Ignition_text::Ignition_text(sf::Font &text_font, sf::Vector2f initial_position, std::string initial_text, sf::Color initial_colour, unsigned int character_size, bool center_origin)
+{	this->Init_object(text_font, initial_position, initial_text, initial_colour, character_size, center_origin);
+}
+
+Ignition_text::Ignition_text()
+{	// uhhh.
+	// just try not to call this very often
+}
+
+bool Ignition_text::Init_object(sf::Font &text_font, sf::Vector2f initial_position, std::string initial_text, sf::Color initial_colour, unsigned int character_size, bool center_origin)
 {	text.setFont(text_font);
 	text.setPosition(initial_position);
 	text.setString(initial_text);
@@ -629,6 +643,8 @@ Ignition_text::Ignition_text(sf::Font &text_font, sf::Vector2f initial_position,
 	if(center_origin == true)
 	{	this->Center_element();
 	}
+	return true;
+	// just to let everybody know that nothing went wrong
 }
 
 
@@ -694,12 +710,21 @@ Ignition_text::~Ignition_text()
 
 
 Ignition_circle::Ignition_circle(sf::Vector2f initial_position, sf::Color initial_colour, float initial_radius, bool center_origin)
+{	this->Init_object(initial_position, initial_colour, initial_radius, center_origin);
+}
+
+Ignition_circle::Ignition_circle()
+{
+}
+
+bool Ignition_circle::Init_object(sf::Vector2f initial_position, sf::Color initial_colour, float initial_radius, bool center_origin)
 {	circle_shape.setPosition(initial_position);
 	circle_shape.setFillColor(initial_colour);
 	circle_shape.setRadius(initial_radius);
 	if(center_origin == true)
 	{	this->Center_element();
 	}
+	return true;
 }
 
 void Ignition_circle::Set_element(float new_radius)
@@ -752,7 +777,18 @@ Ignition_circle::~Ignition_circle()
 }
 
 
+// Ignition rectangle //////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+
 Ignition_rectangle::Ignition_rectangle(sf::Vector2f initial_position, sf::Color initial_colour, float width, float height, bool center_origin)
+{	this->Init_object(initial_position, initial_colour, width, height, center_origin);
+}
+
+Ignition_rectangle::Ignition_rectangle()
+{
+}
+
+bool Ignition_rectangle::Init_object(sf::Vector2f initial_position, sf::Color initial_colour, float width, float height, bool center_origin)
 {	rect_shape.setPosition(initial_position);
 	rect_shape.setFillColor(initial_colour);
 	rect_shape.setSize(sf::Vector2f(width, height));

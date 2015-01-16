@@ -67,13 +67,15 @@ Ignition_engine::Ignition_engine(std::string title, unsigned int initial_window_
 
 bool Ignition_engine::Init_standard_displays()
 {	
-	// this needs to be a member in ignition later on
-	fps_meter = new Ignition_text(standard_font, sf::Vector2f(20, 40), "0", standard_display_colour, 15, false);
-	map_scale_meter =  new Ignition_text(standard_font, sf::Vector2f(20, 60), "0", standard_display_colour, 15, false);
-	time_accel_meter = new Ignition_text(standard_font, sf::Vector2f(20, 80), "0", standard_display_colour, 15, false);
-	sim_time_meter = new Ignition_text(standard_font, sf::Vector2f(20, 100), "0", standard_display_colour, 15, false);
 	
-	camera_target_name = new Ignition_text(standard_font, sf::Vector2f(875, 40), "0", standard_display_colour, 15, false);
+	fps_meter.Init_object(standard_font, sf::Vector2f(20, 40), "0", standard_display_colour, 15, false);
+	map_scale_meter.Init_object(standard_font, sf::Vector2f(20, 60), "0", standard_display_colour, 15, false);
+	time_accel_meter.Init_object(standard_font, sf::Vector2f(20, 80), "0", standard_display_colour, 15, false);
+	sim_time_meter.Init_object(standard_font, sf::Vector2f(20, 100), "0", standard_display_colour, 15, false);
+	
+	camera_target_name.Init_object(standard_font, sf::Vector2f(875, 40), "0", standard_display_colour, 15, false);
+	
+	
 	return true;
 }
 
@@ -81,19 +83,19 @@ void Ignition_engine::Update_standard_displays()
 {	if(Displays_active == true)
 	{	unsigned int fps = (1/deltat);
 		std::string framerate = SI::Get_formatted_value("FPS:", (long int)fps, 3, "");
-		fps_meter->Set_element(framerate);
+		fps_meter.Set_element(framerate);
 		// we set the fps meter
 		std::string zoomfactor = SI::Get_formatted_value("Map Scale:", ((long int)pow((long double)10, (int)zoom_exponent)), "x");
-		map_scale_meter->Set_element(zoomfactor);
+		map_scale_meter.Set_element(zoomfactor);
 		// and then set the map scale meter based on '10^zoom_exponent x'"
 		std::string timewarp = SI::Get_formatted_value( "Time Accel:", ((long int)pow((long double)10, (int)time_acceleration_exponent)), "x");
-		time_accel_meter->Set_element(timewarp);
+		time_accel_meter.Set_element(timewarp);
 		// and do the same thing for time acceleration
 		std::string simtime = SI::Get_formatted_value("Simulation Time:", ((long int)simulation_time) , "s");
-		sim_time_meter->Set_element(simtime);
+		sim_time_meter.Set_element(simtime);
 		// set the simulation time, with sim time cast as an int cause we like
 		// it that way
-		camera_target_name->Set_element(Current_vessel->Get_vessel_name());
+		camera_target_name.Set_element(Current_vessel->Get_vessel_name());
 		// and do things directly with setting the current vessel name
 		
 		// *** This WILL be changed later ***
@@ -102,11 +104,11 @@ void Ignition_engine::Update_standard_displays()
 }
 
 void Ignition_engine::Draw_standard_displays()
-{	this->fps_meter->Draw_element(Main_Window);
-	this->map_scale_meter->Draw_element(Main_Window);
-	this->time_accel_meter->Draw_element(Main_Window);
-	this->sim_time_meter->Draw_element(Main_Window);
-	this->camera_target_name->Draw_element(Main_Window);
+{	this->fps_meter.Draw_element(Main_Window);
+	this->map_scale_meter.Draw_element(Main_Window);
+	this->time_accel_meter.Draw_element(Main_Window);
+	this->sim_time_meter.Draw_element(Main_Window);
+	this->camera_target_name.Draw_element(Main_Window);
 }
 
 
@@ -163,6 +165,7 @@ int Ignition_engine::Ignition()
 			{	Log_keystroke(event.key.code, commands, true);
 				// let the event know that a particular key was pressed down
 				// on the keyboard
+				this->Handle_inputs();
 			}
 			
 			if(event.type == sf::Event::KeyReleased)
@@ -362,6 +365,68 @@ int Ignition_engine::Ignition()
     return 0;	// I just love happy endings, dont you?
 }
 
+void Ignition_engine::Handle_inputs()
+{	if(this->commands->comma == true)
+	{	this->Previous_vessel();
+	}
+	else if(this->commands->period == true)
+	{	this->Next_vessel();
+	}	
+	
+	if(this->commands->space == true)
+	{	this->Current_vessel->Print_data();
+	}
+	
+	if(this->commands->dash == true)
+	{	if(map_view == true)
+		{	this->Increase_map_scale();
+		}
+		else
+		{	this->Increase_camera_scale();
+			// the change of the scale of the camera view once, that part is 
+			//implemented
+		}
+	}
+	else if(this->commands->equal == true)
+	{	if(map_view == true)
+		{	this->Decrease_map_scale();
+		}
+		else
+		{	this->Decrease_camera_scale();
+			// the change of the scale of the camera view once, that part is 
+			//implemented
+		}
+	}
+	
+	if(this->commands->v == true)
+	{	if(map_view == false)
+		{	this->Map_view();
+		}
+		else if(map_view == true)
+		{	this->Camera_view();
+		}
+	}
+	
+	if(this->commands->r == true)
+	{	this->Decrease_time_acceleration();
+	}
+	else if(this->commands->t == true)
+	{	this->Increase_time_acceleration();
+	}
+	
+	if(this->commands->i == true)
+	{	if(Displays_active == true)
+		{	Displays_active = false;
+			this->Update_standard_displays();
+		}
+		else
+		{	Displays_active = true;
+			this->Update_standard_displays();
+		}
+	}
+		
+}
+
 void Ignition_engine::Next_vessel()
 {	unsigned int cy = 0;
 	for(std::vector<TVessel*>::iterator it = Vessel_list.begin(); it != Vessel_list.end(); ++it)
@@ -502,12 +567,7 @@ void Ignition_engine::Increase_time_acceleration()
 
 
 Ignition_engine::~Ignition_engine()
-{	delete fps_meter;
-	delete map_scale_meter;
-	delete time_accel_meter;
-	delete sim_time_meter;
-	delete camera_target_name;
-	
+{	
 	delete commands;
 	delete cursor_commands;
 	delete Main_Window;

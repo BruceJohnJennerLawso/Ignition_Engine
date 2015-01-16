@@ -49,9 +49,9 @@ class Ignition_engine
 	sf::Font standard_font;
 	sf::Color standard_display_colour;
 	
-	Ignition_text * fps_meter, * map_scale_meter, * time_accel_meter, * sim_time_meter;
+	Ignition_text fps_meter, map_scale_meter, time_accel_meter, sim_time_meter;
 	
-	Ignition_text * camera_target_name;
+	Ignition_text camera_target_name;
 	// right now it is always a vessel, but eventually it can be to anything
 	// so ya
 	
@@ -125,6 +125,8 @@ class Ignition_engine
 	std::vector<CKeplerian_Object*> Celestial_list;
 	std::vector<CNewtonian_Object*> Newtonian_list;
 	std::vector<TVessel*> Vessel_list;
+	
+	void Handle_inputs();
 	
 	void Next_vessel();
 	void Previous_vessel();

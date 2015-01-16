@@ -15,7 +15,10 @@
 
 #ifndef DeeeGEEEE
 #define DeeeGEEEE
+// I dont know who you are, but if you try to use this as a variable name,
+// I will find you and I will kill you
 
+// the world already has enough poorly named variables as it is
 
 class DeltaGlider: public TVessel
 {	public:
@@ -94,6 +97,8 @@ class DeltaGlider: public TVessel
 	// ughh this is just awful
 	~DeltaGlider();
 };
+
+
 
 #endif
 

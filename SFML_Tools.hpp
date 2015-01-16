@@ -185,6 +185,9 @@ class Ignition_drawable
 class Ignition_text: public Ignition_drawable
 {	public:
 	Ignition_text(sf::Font &text_font, sf::Vector2f initial_position, std::string initial_text, sf::Color initial_colour, unsigned int character_size, bool center_origin);
+	Ignition_text();
+	bool Init_object(sf::Font &text_font, sf::Vector2f initial_position, std::string initial_text, sf::Color initial_colour, unsigned int character_size, bool center_origin);
+	
 	// should receive a sf::Font by reference
 	void Set_element(std::string text_string);
 	void Set_element(sf::Vector2f new_position);
@@ -209,8 +212,11 @@ class Ignition_text: public Ignition_drawable
 class Ignition_circle: public Ignition_drawable
 {	public:
 	Ignition_circle(sf::Vector2f initial_position, sf::Color initial_colour, float initial_radius, bool center_origin);
+	Ignition_circle();
 	// later this will have a second constructor to texture it with a passed
 	// sf::Texture reference
+	bool Init_object(sf::Vector2f initial_position, sf::Color initial_colour, float initial_radius, bool center_origin);
+	// the init call in case we dont have a direct call to the constructor
 	void Set_element(float new_radius);
 	void Set_element(sf::Vector2f new_position);	
 	void Set_element(sf::Color new_colour);	
@@ -232,8 +238,10 @@ class Ignition_circle: public Ignition_drawable
 class Ignition_rectangle: public Ignition_drawable
 {	public:
 	Ignition_rectangle(sf::Vector2f initial_position, sf::Color initial_colour, float width, float height, bool center_origin);
+	Ignition_rectangle();
 	// later this will have a second constructor to texture it with a passed
 	// sf::Texture reference
+	bool Init_object(sf::Vector2f initial_position, sf::Color initial_colour, float width, float height, bool center_origin);
 	void Set_element(float new_width, float new_height);
 	void Set_element(sf::Vector2f new_position);	
 	void Set_element(sf::Color new_colour);	
@@ -264,6 +272,7 @@ class Ignition_rectangle: public Ignition_drawable
 //	// a nice sf primitive vertex here
 //};
 
+// here there be dragons, big ones with sharp pointy teeth //
 
 
 class SFML_loadscreen
