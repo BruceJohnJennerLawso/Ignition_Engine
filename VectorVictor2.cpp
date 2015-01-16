@@ -14,11 +14,13 @@
 VectorVictor::Vector2::Vector2 ()
 {	// if nothing is passed, we assume the user wanted (0,0)
 	Set_values(0,0);	
+	Nan_state = Is_nan();
 }	
 
 VectorVictor::Vector2::Vector2(long double ix, long double iy)
 {	// otherwise we set the values of the vector as requested
 	Set_values(ix, iy);
+	Nan_state = Is_nan();	
 }
 
 // Set/Get Operators ///////////////////////////////////////////////////////////
@@ -237,21 +239,27 @@ VectorVictor::Vector2  VectorVictor::Vector2::operator- (VectorVictor::Vector2 p
 }
 
 VectorVictor::Vector2  VectorVictor::Vector2::operator-= (VectorVictor::Vector2 pminus)
-{	x -= pminus.x;
+{	//bool nanState = Is_nan();
+	x -= pminus.x;
 	y -= pminus.y;
+	//this->Flag_nan("Nan created at VectorVictor::Vector2::operator-=", nanState);
 	return (*this);		
 }
 
 VectorVictor::Vector2 VectorVictor::Vector2::operator= (const VectorVictor::Vector2 v)
 {	// copy operator, copies each element to the current Vector2
+	//bool nanState = Is_nan();
 	x = v.x;
 	y = v.y;
+	//this->Flag_nan("Nan created at VectorVictor::Vector2::operator=", nanState);
 	return (*this);		
 }
 
 VectorVictor::Vector2 VectorVictor::Vector2::operator * (const double c)
-{	x *= c;
+{	//bool nanState = Is_nan();
+	x *= c;
 	y *= c;
+	//this->Flag_nan("Nan created at VectorVictor::Vector2::operator *", nanState);
 	return (*this);
 }
 
@@ -299,6 +307,38 @@ bool VectorVictor::Vector2::operator == (const VectorVictor::Vector2 v)
 	else
 	{	return false;
 	}	
+}
+
+bool VectorVictor::Vector2::Is_nan()
+{	if(this->x != this->x)
+	{	return true;
+	}
+	else
+	{	if(this->y != this->y)
+		{	return true;
+		}
+		else
+		{	return false;
+		}
+	}
+}
+
+bool VectorVictor::Vector2::Flag_nan(std::string message, bool &initial_state)
+{	if(initial_state == false)
+	{	if(this->Is_nan())
+		{	
+			#ifdef DEBUG
+			std::cout << message << std::endl;
+			#endif
+			return true;
+		}
+		else
+		{	return false;
+		}
+	}
+	else
+	{	return false;
+	}
 }
 
 // Extended Vector Operators ///////////////////////////////////////////////////

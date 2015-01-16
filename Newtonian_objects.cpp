@@ -308,25 +308,34 @@ void CNewtonian_Object::Propagate_RK4(long double sim_time, long double dt, Vect
 }
 
 Flight_state CNewtonian_Object::evaluate(const Flight_state &initial_state, long double simtime, long double dt, const Flight_state &derivative, std::vector<CKeplerian_Object*> &ignition_celestials, VectorVictor::Vector2 &net_force)
-{	
+{	bool nanState;
+		
 	Flight_state state;
 	
 	//state.x = initial_state.x + derivative.dx*dt;
 	
 	//state.Position = initial_state.Position + ((derivative.Position)*dt);
 	
+	nanState = state.Position.Is_nan();
+	
 	state.Position = derivative.Position;
 	state.Position *= dt;	
 	state.Position += initial_state.Position;
+	
+	state.Position.Flag_nan("Nan caused by part A of evaluate", nanState);
 	
 	// I guess the last part is because its actually a*dt^2 or 
 	// (dx/dt)*dt^2 = dx*dt
 	
 	//state.Velocity = initial_state.Velocity + derivative.Velocity)*dt);
 	
+	nanState = state.Position.Is_nan();
+	
 	state.Velocity = derivative.Velocity;
-	state.Position *= dt;	
+	state.Velocity *= dt;	
 	state.Velocity += initial_state.Velocity;	
+
+	state.Position.Flag_nan("Nan caused by part B of evaluate", nanState);
 	
 	// for some reason we step things forward 1 frame dt seconds using a Euler
 	// integrator

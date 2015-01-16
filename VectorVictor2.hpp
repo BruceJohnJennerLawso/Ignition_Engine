@@ -9,6 +9,8 @@
 #ifndef VectorVictor2
 #define VectorVictor2
 
+#define DEBUG
+
 #define Pi 	3.14159265358979323846
 #define Tau 6.283185308								
 // Hopefully this doesnt anger the anti-tau-ans. ooh wait, the antautans! Or
@@ -71,7 +73,14 @@ namespace VectorVictor
 		bool operator != (const Vector2 v);							
 		bool operator == (const Vector2 v);	
 		// comparison operators, == assumes all elements are the same, and
-		// != that one or more are required						
+		// != that one or more are required				
+		bool Is_nan();
+		bool Nan_state;
+		// try to compare each element of the vector against itself, and return
+		// true if comparing it against itself fails to indicate that shit
+		// went out the window (apparently this is a fundamental thing about
+		// nan in C)
+		bool Flag_nan(std::string message, bool & initial_state);	
 		~Vector2(void);						
 	};
 
