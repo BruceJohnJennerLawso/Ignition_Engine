@@ -25,19 +25,22 @@ class DeltaGlider: public TVessel
 	// the first class of this type written for testing purposes
 	// a homage to Orbiter, without which this project never would have happened
 	// Hail the Probe!!!
-	DeltaGlider(double initial_x_position, double initial_y_position, double initial_x_velocity, double initial_y_velocity, double initial_theta, double initial_omega, double initial_main_propellant, double initial_rcs_propellant,  sf::Sprite * iFlag_sprite, sf::Texture * XWing_texture, std::string ivessel_name, sf::Texture * status_texture, sf::Font * controls_font, sf::Texture * panel_texture1, Propagator_type propagator);
+	DeltaGlider(double initial_x_position, double initial_y_position, double initial_x_velocity, double initial_y_velocity, double initial_theta, double initial_omega, double initial_main_propellant, double initial_rcs_propellant,  sf::Sprite * iFlag_sprite, sf::Texture * XWing_texture, std::string ivessel_name, std::string panel_path, sf::Font * controls_font, Propagator_type propagator);
 	// Only constructor at the moment, will eventually need one that works for
 	// reloading sims from a scenario file
 	double k_throttle;
 	// the rate at which the throttle moves around in (throttle units/ second)
 	// throttle only has a range of 1, so values need to be between that and
 	// zero (generally quite small, although it depends on the specific case)
-	sf::Text * main_fuel_level, * rcs_fuel_level, * omega_value, * theta_value, * position_values, * velocity_values, * vessel_id;
+	Ignition_text main_fuel_level, rcs_fuel_level, omega_value, theta_value, position_values, velocity_values, vessel_id;
 	// All of the text displays for important information about the vessel while
 	// in flight.
 	
 	// This all needs to be abstracted if possible
-	sf::Sprite * vessel_display, * display_panel;
+	Ignition_sprite vessel_display, display_panel;
+	
+	//sf::Sprite * vessel_display, * display_panel;
+	
 	// the semi transparent image of the ship, and the background to the
 	// displays panel, respectively. The vessel_display is really just eyecandy
 	// for the moment. Does look nice though

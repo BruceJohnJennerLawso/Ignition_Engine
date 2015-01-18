@@ -294,6 +294,10 @@ class TVessel: public CNewtonian_Object
 	// so we dont need to make a copy of the same texture every time a
 	// vessel of the same texture gets created (which might happen a lot)
 	
+	// wait wat
+	// noooooooooooooooooooooooooooooooooooooooooooooooooooooooo
+	// not want
+	
 	bool In_view(SFML_Window * window, int zoom_factor);
 	// This is implemented at this level
 	// (I think because we finally have access to the hull & its length)

@@ -255,6 +255,26 @@ class Ignition_rectangle: public Ignition_drawable
 	~Ignition_rectangle();
 };
 
+class Ignition_sprite: public Ignition_drawable
+{	public:
+	Ignition_sprite(sf::Vector2f initial_position, sf::Color initial_colour, bool center_origin, std::string texture_path);
+	Ignition_sprite(sf::Vector2f initial_position, sf::Color initial_colour, bool center_origin, sf::Texture texture, bool copy_texture);
+	Ignition_sprite();
+	
+	bool Init_object(sf::Vector2f initial_position, sf::Color initial_colour, bool center_origin, std::string texture_path);
+	bool Init_object(sf::Vector2f initial_position, sf::Color initial_colour, bool center_origin, sf::Texture &texture, bool copy_texture);
+	
+	void Set_element(sf::Vector2f new_position);
+	void Set_element(sf::Vector2f new_position, sf::Color new_colour);
+	void Set_element(sf::Color new_colour);
+	void Center_element();
+	void Draw_element(SFML_Window * iwindow);
+	
+	sf::Texture Tex;
+	sf::Sprite sprite;
+	~Ignition_sprite();
+};
+
 
 //class Ignition_line: public Ignition_drawable
 //{	public:
@@ -272,7 +292,7 @@ class Ignition_rectangle: public Ignition_drawable
 //	// a nice sf primitive vertex here
 //};
 
-// here there be dragons, big ones with sharp pointy teeth //
+// here there be dragons, big ones with sharp pointy teeth
 
 
 class SFML_loadscreen

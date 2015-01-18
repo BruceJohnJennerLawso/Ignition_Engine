@@ -17,7 +17,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 
-DeltaGlider::DeltaGlider(double initial_x_position, double initial_y_position, double initial_x_velocity, double initial_y_velocity, double initial_theta, double initial_omega, double initial_main_propellant, double initial_rcs_propellant,  sf::Sprite * iFlag_sprite, sf::Texture * XWing_texture, std::string ivessel_name, sf::Texture * status_texture, sf::Font * controls_font, sf::Texture * panel_texture1, Propagator_type propagator)
+DeltaGlider::DeltaGlider(double initial_x_position, double initial_y_position, double initial_x_velocity, double initial_y_velocity, double initial_theta, double initial_omega, double initial_main_propellant, double initial_rcs_propellant,  sf::Sprite * iFlag_sprite, sf::Texture * XWing_texture, std::string ivessel_name, std::string panel_path, sf::Font * controls_font, Propagator_type propagator)
 {	Talkback("Constructing Delta Glider");
 	// we write to the console for feedback while debugging
 	NewtonianState.Current_state = Flight;
@@ -117,70 +117,34 @@ DeltaGlider::DeltaGlider(double initial_x_position, double initial_y_position, d
 	text_colour = new sf::Color(194, 38, 15);
 	// nice red colour for all of the vessel displays
 	
-	vessel_id = new sf::Text();
-	vessel_id->setFont(*controls_font);
-	vessel_id->setCharacterSize(16);
-	vessel_id->setColor(*text_colour);
-	vessel_id->setPosition(20, 380);
+	vessel_id.Init_object(*controls_font, sf::Vector2f(20, 380), "-", *text_colour, 16, false);
+
+	main_fuel_level.Init_object(*controls_font, sf::Vector2f(20, 420), "-", *text_colour, 14, false);
 	
-	main_fuel_level = new sf::Text();
-	main_fuel_level->setFont(*controls_font);
-	main_fuel_level->setCharacterSize(14);
-	main_fuel_level->setColor(*text_colour);
-	main_fuel_level->setString(std::to_string((long double)Main_fuel->Resource_mass));
-	// $%@#$% MICROSOFT
-	main_fuel_level->setPosition(20, 420);
+	rcs_fuel_level.Init_object(*controls_font, sf::Vector2f(20, 440), "-", *text_colour, 14, false);	
 	
-	rcs_fuel_level = new sf::Text();
-	rcs_fuel_level->setFont(*controls_font);	
-	rcs_fuel_level->setCharacterSize(14);
-	rcs_fuel_level->setColor(*text_colour);
-	rcs_fuel_level->setString(std::to_string((long double)RCS_fuel->Resource_mass));	
-	rcs_fuel_level->setPosition(20, 440);
+	omega_value.Init_object(*controls_font, sf::Vector2f(20, 460), "-", *text_colour, 14, false);		
 	
-	omega_value = new sf::Text();
-	omega_value->setFont(*controls_font);	
-	omega_value->setCharacterSize(14);
-	omega_value->setColor(*text_colour);
-	omega_value->setString(std::to_string((long double)Omega));	
-	omega_value->setPosition(20, 460);
+	theta_value.Init_object(*controls_font, sf::Vector2f(20, 480), "-", *text_colour, 14, false);	
+
+	position_values.Init_object(*controls_font, sf::Vector2f(20, 500), "-", *text_colour, 14, false);	
 	
-	theta_value = new sf::Text();
-	theta_value->setFont(*controls_font);	
-	theta_value->setCharacterSize(14);
-	theta_value->setColor(*text_colour);
-	theta_value->setString(std::to_string((long double)Theta));	
-	theta_value->setPosition(20, 480);
+	velocity_values.Init_object(*controls_font, sf::Vector2f(20, 520), "-", *text_colour, 14, false);		
 	
-	position_values = new sf::Text();
-	position_values->setFont(*controls_font);	
-	position_values->setCharacterSize(14);
-	position_values->setColor(*text_colour);
-	position_values->setString("(-,-)");	
-	position_values->setPosition(20, 500);	
+	vessel_display.Init_object(sf::Vector2f(820, 460), sf::Color(255, 255, 255, 168), false, *Vessel_tex, true);
+	vessel_display.sprite.setScale(sf::Vector2f(0.5f, 0.5f));
+	// Ill get around to it later
 	
-	velocity_values = new sf::Text();
-	velocity_values->setFont(*controls_font);	
-	velocity_values->setCharacterSize(14);
-	velocity_values->setColor(*text_colour);
-	velocity_values->setString("(-,-)");	
-	velocity_values->setPosition(20, 520);		
-	// hideously long set of operations to set up the text feedback displays
-	// onscreen. This is a big part of why it needs to be generalized as an
-	// object	
-	
-	vessel_display = new sf::Sprite();
-	vessel_display->setTexture(*status_texture);
-	vessel_display->setPosition(sf::Vector2f(820, 460));	
-	vessel_display->setColor(sf::Color(255, 255, 255, 168));
-	vessel_display->setScale(sf::Vector2f(0.5f, 0.5f));
 	// the pretty semi-transparent image of the ship that appears at bottom
 	// right in the screen. Really just eye candy for now, but I have plans for
-	// it later on. Its vessel implementation-specific anyways
+	// it later on. Its vessel implementation-specific anywayss
 	
-	display_panel = new sf::Sprite();
-	display_panel->setTexture(*panel_texture1);
-	display_panel->setPosition(sf::Vector2f(5, 360));	
+	display_panel.Init_object(sf::Vector2f(5, 360), sf::Color(255, 255, 255), false, panel_path);
+	// Ill get around to it later
+	
+	// display_panel = new sf::Sprite();
+	// display_panel->setTexture(*panel_texture1);
+	// display_panel->setPosition(sf::Vector2f(5, 360));	
 	// the metal looking thing at bottom right. Only there because the onscreen
 	// displays proved hard to read against the background
 	
@@ -294,52 +258,44 @@ void DeltaGlider::Toggle_throttle_lock()
 void DeltaGlider::Draw_controls(SFML_Window * iwindow, bool Map_status)
 {	std::string mainfuel = std::to_string((long long int)Main_fuel->Resource_mass);
 	mainfuel.append(" kg");
-	main_fuel_level->setString(mainfuel);
+	main_fuel_level.Set_element(mainfuel);
+	
 	std::string rcsfuel = std::to_string((long long int)RCS_fuel->Resource_mass);
 	rcsfuel.append(" kg");
-	rcs_fuel_level->setString(rcsfuel);	
-	omega_value->setString(std::to_string((long long int)Omega));	
-	theta_value->setString(std::to_string((long long int)Theta));
+	rcs_fuel_level.Set_element(rcsfuel);	
+	
+	omega_value.Set_element(std::to_string((long long int)Omega));	
+	
+	theta_value.Set_element(std::to_string((long long int)Theta));
+	
 	std::string pos = "Position ";
 	pos.append(NewtonianState.FlightState.Position.Get_vector("m"));	
-	position_values->setString(pos);	
+	position_values.Set_element(pos);	
+	
 	std::string vel = "Velocity ";
 	vel.append(NewtonianState.FlightState.Velocity.Get_vector("m/s"));
-	velocity_values->setString(vel);	
+	velocity_values.Set_element(vel);	
+	
 	std::string id = Get_vessel_class();
 	id.append(" Class\n");
 	id.append(Get_vessel_name());
-	vessel_id->setString(id);
+	vessel_id.Set_element(id);
 	// do a hideous transfer of formatted data to the sf texts
-	switch(Map_status)
-	{	case true:
-		{	iwindow->window->draw(*display_panel);
-			iwindow->window->draw(*vessel_id);
-			iwindow->window->draw(*main_fuel_level);
-			iwindow->window->draw(*rcs_fuel_level);
-			iwindow->window->draw(*omega_value);
-			iwindow->window->draw(*theta_value);
-			iwindow->window->draw(*position_values);
-			iwindow->window->draw(*velocity_values);	
-			iwindow->window->draw(*vessel_display);	
-			break;
-		}
-		case false:
-		{	iwindow->window->draw(*display_panel);
-			iwindow->window->draw(*vessel_id);
-			iwindow->window->draw(*main_fuel_level);
-			iwindow->window->draw(*rcs_fuel_level);
-			iwindow->window->draw(*omega_value);
-			iwindow->window->draw(*theta_value);
-			iwindow->window->draw(*position_values);
-			iwindow->window->draw(*velocity_values);	
-			iwindow->window->draw(*vessel_display);	
-			break;
-		}
-		//and then draw em up onscreen.
-		// this happens after most in universe stuff gets drawn I think, since
-		// displays should *usually* be on top
-	}		
+	
+	vessel_display.Draw_element(iwindow);
+	display_panel.Draw_element(iwindow);
+	
+	main_fuel_level.Draw_element(iwindow);
+	rcs_fuel_level.Draw_element(iwindow);	
+	
+	omega_value.Draw_element(iwindow);
+	theta_value.Draw_element(iwindow);
+	
+	position_values.Draw_element(iwindow);
+	velocity_values.Draw_element(iwindow);
+	
+	vessel_id.Draw_element(iwindow);
+	
 }
 
 void DeltaGlider::Receive_cursor_inputs(Cursor_commands * cursor_action, long double dt)
@@ -531,15 +487,6 @@ DeltaGlider::~DeltaGlider()
 {	Thrusters.clear();
 	Fuel_tanks.clear();
 	delete Object_sprite;
-	delete main_fuel_level;
-	delete rcs_fuel_level;
-	delete omega_value;
-	delete theta_value;
-	delete position_values;
-	delete velocity_values;	
-	delete vessel_display;
-	delete vessel_id;
-	delete display_panel;
 	delete Hull_component;
 	delete text_colour;
 	delete Hull_component;

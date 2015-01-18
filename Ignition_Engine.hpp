@@ -6,7 +6,7 @@
 #ifndef IgnitionEngine
 #define IgnitionEngine
 
-
+class DeltaGlider;
 
 class Ignition_engine
 {	public:

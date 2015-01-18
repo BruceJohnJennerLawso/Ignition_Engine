@@ -795,6 +795,7 @@ bool Ignition_rectangle::Init_object(sf::Vector2f initial_position, sf::Color in
 	if(center_origin == true)
 	{	Center_element();
 	}
+	return true;
 }
 
 void Ignition_rectangle::Set_element(float new_width, float new_height)
@@ -843,6 +844,90 @@ void Ignition_rectangle::Center_element()
 }
 
 Ignition_rectangle::~Ignition_rectangle()
+{
+}
+
+// Ignition sprite class ///////////////////////////////////////////////////////
+// just easier to wrap it and force it into the shape I want it in /////////////
+////////////////////////////////////////////////////////////////////////////////
+
+Ignition_sprite::Ignition_sprite(sf::Vector2f initial_position, sf::Color initial_colour, bool center_origin, std::string texture_path)
+{	this->Init_object(initial_position, initial_colour, center_origin, texture_path);
+}
+
+Ignition_sprite::Ignition_sprite(sf::Vector2f initial_position, sf::Color initial_colour, bool center_origin, sf::Texture texture, bool copy_texture)
+{	this->Init_object(initial_position, initial_colour, center_origin, texture, copy_texture);
+}
+
+Ignition_sprite::Ignition_sprite()
+{
+}
+
+	
+bool Ignition_sprite::Init_object(sf::Vector2f initial_position, sf::Color initial_colour, bool center_origin, std::string texture_path)
+{	
+	if(!Tex.loadFromFile(texture_path))
+	{	return false;
+	}
+	sprite.setTexture(Tex);
+	sprite.setPosition(initial_position);
+	// set the position of the sprite in the window
+	
+	// ehh, just dont worry about the image thing just yet
+	if(center_origin == true)
+	{	this->Center_element();
+	}
+	return true;
+}
+
+bool Ignition_sprite::Init_object(sf::Vector2f initial_position, sf::Color initial_colour, bool center_origin, sf::Texture &texture, bool copy_texture)
+{	if(copy_texture == true)
+	{	Tex = texture;
+		// just make the internally stored texture into a clone of the one we
+		// received.
+		sprite.setTexture(Tex);
+	}
+	else
+	{	sprite.setTexture(texture);
+		// set the sprite directly off of the texture that we were passed.
+		// If you do it this way, the sf::Texture had better survive for the
+		// lifetime of the Ignition_sprite or you will have problems
+	}
+	sprite.setPosition(initial_position);
+	// set the position of the sprite in the window
+	
+	// ehh, just dont worry about the image thing just yet
+	if(center_origin == true)
+	{	this->Center_element();
+	}
+	return true;	
+}
+	
+void Ignition_sprite::Set_element(sf::Vector2f new_position)
+{	sprite.setPosition(new_position);
+}
+
+void Ignition_sprite::Set_element(sf::Vector2f new_position, sf::Color new_colour)
+{	sprite.setPosition(new_position);
+}
+
+void Ignition_sprite::Set_element(sf::Color new_colour)
+{	// uhhh, I dont wanna deal with this right now
+}
+
+void Ignition_sprite::Center_element()
+{	if(Centered == false)
+	{	sprite.setOrigin(sf::Vector2f(((sprite.getTexture()->getSize().x)/2), ((sprite.getTexture()->getSize().y)/2)));
+		// looks good
+		Centered = true;
+	}
+}
+
+void Ignition_sprite::Draw_element(SFML_Window * iwindow)
+{	iwindow->window->draw(sprite);
+}
+
+Ignition_sprite::~Ignition_sprite()
 {
 }
 
