@@ -1,3 +1,4 @@
+#include <math.h>
 #include "Game_physics.hpp"
 
 // Inertia moment parent class /////////////////////////////////////////////////
