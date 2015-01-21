@@ -233,8 +233,15 @@ void CNewtonian_Object::Propagate_Euler1(long double sim_time, long double dt, V
 		
 		NewtonianState.FlightState.Velocity.x += ((Acceleration.x)*dt);
 		NewtonianState.FlightState.Velocity.y += ((Acceleration.y)*dt);
-		NewtonianState.FlightState.Position.x += (((NewtonianState.FlightState.Velocity.x)*dt) + (((0.500)*Acceleration.x)*dt*dt));
-		NewtonianState.FlightState.Position.y += (((NewtonianState.FlightState.Velocity.y)*dt) + (((0.500)*Acceleration.y)*dt*dt));
+		
+		//NewtonianState.FlightState.Position.x += (((NewtonianState.FlightState.Velocity.x)*dt) + (((0.500)*Acceleration.x)*dt*dt));
+		//NewtonianState.FlightState.Position.y += (((NewtonianState.FlightState.Velocity.y)*dt) + (((0.500)*Acceleration.y)*dt*dt));
+		
+		NewtonianState.FlightState.Position.x += (((NewtonianState.FlightState.Velocity.x)*dt));
+		NewtonianState.FlightState.Position.y += (((NewtonianState.FlightState.Velocity.y)*dt));
+		
+		// Well then...
+		
 		// Simple constant acceleration equations of motion	
 }
 
