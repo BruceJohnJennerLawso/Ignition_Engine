@@ -14,13 +14,14 @@
 VectorVictor::Vector2::Vector2 ()
 {	// if nothing is passed, we assume the user wanted (0,0)
 	Set_values(0,0);	
-	Nan_state = Is_nan();
 }	
 
 VectorVictor::Vector2::Vector2(long double ix, long double iy)
 {	// otherwise we set the values of the vector as requested
 	Set_values(ix, iy);
+	#ifdef VECTORVICTOR_DEBUG
 	Nan_state = Is_nan();	
+	#endif
 }
 
 // Set/Get Operators ///////////////////////////////////////////////////////////
@@ -248,18 +249,27 @@ VectorVictor::Vector2  VectorVictor::Vector2::operator-= (VectorVictor::Vector2 
 
 VectorVictor::Vector2 VectorVictor::Vector2::operator= (const VectorVictor::Vector2 v)
 {	// copy operator, copies each element to the current Vector2
-	//bool nanState = Is_nan();
+	#ifdef VECTORVICTOR_DEBUG
+	bool nanState = Is_nan();
+	#endif
 	x = v.x;
 	y = v.y;
-	//this->Flag_nan("Nan created at VectorVictor::Vector2::operator=", nanState);
+	#ifdef VECTORVICTOR_DEBUG
+	this->Flag_nan("Nan created at VectorVictor::Vector2::operator=", nanState);
+	#endif
 	return (*this);		
 }
 
 VectorVictor::Vector2 VectorVictor::Vector2::operator * (const double c)
-{	//bool nanState = Is_nan();
+{	
+	#ifdef VECTORVICTOR_DEBUG
+	bool nanState = Is_nan();
+	#endif
 	x *= c;
 	y *= c;
-	//this->Flag_nan("Nan created at VectorVictor::Vector2::operator *", nanState);
+	#ifdef VECTORVICTOR_DEBUG
+	this->Flag_nan("Nan created at VectorVictor::Vector2::operator *", nanState);
+	#endif
 	return (*this);
 }
 
@@ -327,7 +337,7 @@ bool VectorVictor::Vector2::Flag_nan(std::string message, bool &initial_state)
 {	if(initial_state == false)
 	{	if(this->Is_nan())
 		{	
-			#ifdef DEBUG
+			#ifdef VECTORVICTOR_DEBUG
 			std::cout << message << std::endl;
 			#endif
 			return true;
@@ -400,7 +410,7 @@ VectorVictor::Vector2 VectorVictor::Vector2::Get_rotated_vector(long double rota
 	// [-sin(theta		cos(theta)]
 	
 	return V_rotated;															 	
-	// and send the resulting object on its way
+	// and send the resulting VV2 vector on its way
 }	
 
 long double VectorVictor::Vector2::Get_vector_magnitude()

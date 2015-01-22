@@ -9,7 +9,7 @@
 #ifndef VectorVictor2
 #define VectorVictor2
 
-#define DEBUG
+//#define VECTORVICTOR_DEBUG
 
 #define Pi 	3.14159265358979323846
 #define Tau 6.283185308								
@@ -75,11 +75,18 @@ namespace VectorVictor
 		// comparison operators, == assumes all elements are the same, and
 		// != that one or more are required				
 		bool Is_nan();
-		bool Nan_state;
 		// try to compare each element of the vector against itself, and return
 		// true if comparing it against itself fails to indicate that shit
 		// went out the window (apparently this is a fundamental thing about
-		// nan in C)
+		// nan in C)	
+		#ifdef VECTORVICTOR_DEBUG
+		bool Nan_state;
+		// if we arent debugging actively, we dont particularly care much about
+		// flagging stuff like this, so Nan_state and any calls that try to
+		// flag where stuff is going nan are only defined if VECTORVICTOR_DEBUG
+		// is defined as well. Performances are obviously quite important here
+		// in vector maths, so we dont wanna be wasteful if we can avoid it
+		#endif
 		bool Flag_nan(std::string message, bool & initial_state);	
 		~Vector2(void);						
 	};
