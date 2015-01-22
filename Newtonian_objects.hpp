@@ -24,9 +24,14 @@ enum Object_state{Flight, Landed, Crashed};
 // and if we are on the ground, will we be able to take off again or is the ship
 // really just a metal smear across the ground somewhere
 
-struct Flight_state
-{	VectorVictor::Vector2 Position;
+class Flight_state
+{	public:
+	Flight_state();
+	Flight_state(VectorVictor::Vector2 initial_position, VectorVictor::Vector2 initial_velocity);
+	bool Init_flight_state(VectorVictor::Vector2 initial_position, VectorVictor::Vector2 initial_velocity);
+	VectorVictor::Vector2 Position;
 	VectorVictor::Vector2 Velocity;
+	~Flight_state();
 };
 
 struct Surface_state

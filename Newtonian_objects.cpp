@@ -5,15 +5,32 @@
 
 
 
+// Flight state ////////////////////////////////////////////////////////////////
+// the properties of the object when we are in that wild blue yonder... ////////
+// just vector values for position and velocity ////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+
+Flight_state::Flight_state()
+{	this->Init_flight_state(VectorVictor::Vector2(), VectorVictor::Vector2());
+}
+
+Flight_state::Flight_state(VectorVictor::Vector2 initial_position, VectorVictor::Vector2 initial_velocity)
+{	this->Init_flight_state(initial_position, initial_velocity);
+}
+
+bool Flight_state::Init_flight_state(VectorVictor::Vector2 initial_position, VectorVictor::Vector2 initial_velocity)
+{	Position = initial_position;
+	Velocity = initial_velocity;
+}
+
+Flight_state::~Flight_state()
+{
+}
+
+
 // Newtonian Class /////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
 
-
-
-// umm, so next step is to actually write the state propagator functions for
-// each propagator type, ie PropagateRK4() and so on
-
-// no constructor here, thats done by the child classes
 
 double CNewtonian_Object::Get_omega()
 {	return Omega;
