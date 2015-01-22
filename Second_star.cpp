@@ -346,10 +346,10 @@ void Init_assets()
 	spawn_point.x = 0; spawn_point.y = 0;	spawn_flipper = false;	init_theta = 0;
 	displays_font = new sf::Font();
 	displays_font->loadFromFile("./Data/Fonts/orbitron-light.ttf");
-	Title_screen = new SFML_titlescreen("./Data/on_a_wing_and_a_prayer_by_unusualsuspex-d4wh7et.png", true, 0.700, 0.900, " ", "./Data/Fonts/Stjldbl1.ttf", 252, 223, 43, 72, sf::Vector2f(280, 50));
+	Title_screen = new SFML_titlescreen("./Data/intro.png", true, 0.700, 0.900, " ", "./Data/Fonts/Stjldbl1.ttf", 252, 223, 43, 72, sf::Vector2f(280, 50));
 	Utility_clock = new sf::Clock();
 	GCW_Flags_tex = new sf::Texture();
-	GCW_Flags_tex->loadFromFile("./Data/Images/Galactic_civil_war.png");
+	GCW_Flags_tex->loadFromFile("./Data/Images/logos.png");
 	Rebel_flag_sprite = new sf::Sprite(*GCW_Flags_tex);
 	Rebel_flag_sprite->setTextureRect(sf::IntRect(0,200,200,200));
 	Imperial_flag_sprite = new sf::Sprite(*GCW_Flags_tex);
