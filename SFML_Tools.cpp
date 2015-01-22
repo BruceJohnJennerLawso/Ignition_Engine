@@ -1119,75 +1119,8 @@ SFML_titlescreen::~SFML_titlescreen()
 	delete Fade_clock;
 }
 
-// SFML Audio Class ////////////////////////////////////////////////////////////
-
-SFML_gameaudio::SFML_gameaudio(std::string Intro_audiopath, std::string Game_musicpath)
-{	Intro_audio = new sf::SoundBuffer();
-	Intro_finished = false;
-	Game_music = new sf::Music();
-	if((!Intro_audio->loadFromFile(Intro_audiopath))||(!Game_music->openFromFile(Game_musicpath)))
-	{	std::cout << "Unable to load game audio" << std::endl;
-		this->~SFML_gameaudio();
-	}	
-	else
-	{	Music_paths.emplace_back(Game_musicpath);
-		it_music = (Music_paths.begin()+1);
-		Audio = new sf::Sound(*Intro_audio);
-	}	
-	Play_intro();
-}
-
-void SFML_gameaudio::Update_game_audio()
-{	if((Intro_finished == false)&&(Audio->getStatus() == sf::Sound::Status::Stopped))
-	{	Intro_finished = true;
-		Play_music(false);				// Start playing the game music & loop
-	}
-	else if((Game_music->getStatus() == sf::Sound::Status::Stopped)&&(Intro_finished == true))
-	{	Increment_game_music();
-		Play_music(false);
-	}
-}
-
-void SFML_gameaudio::Increment_game_music()
-{	if(Music_paths.size() > 1)
-	{	unsigned int cy = 0;
-		for(std::vector<std::string>::iterator it = Music_paths.begin(); it != Music_paths.end(); ++it)
-		{	if((*it) == (*it_music))
-			{	if(it == Music_paths.begin())
-				{	(*it_music) = Music_paths.at(Music_paths.size() - 1);
-				}
-				else if (it > Music_paths.begin())
-				{	(*it_music) = Music_paths.at(cy - 1);
-				}
-				break;
-			}
-			cy++;
-		}
-		Game_music->openFromFile(*it_music);
-	}
-	else
-	{	Play_music(false);
-	}
-}
-
-void SFML_gameaudio::Play_intro()
-{	Audio->play();
-}
-
-void SFML_gameaudio::Play_music(bool loop)
-{	Game_music->play();
-	Game_music->setLoop(loop);
-}
-
-void SFML_gameaudio::Stop_music()	// Please dont call the Stop_music(), Stop_music()
-{	Game_music->stop();
-}
-
-SFML_gameaudio::~SFML_gameaudio()
-{	delete Audio;
-	delete Intro_audio;
-	delete Game_music;
-}
+// Utility function ////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 
 std::string Input_string(std::string prompt)		// this should go, not
 {	std::string data = "";	// a great idea in a project primarily focused

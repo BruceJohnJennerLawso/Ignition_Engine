@@ -332,27 +332,4 @@ class SFML_titlescreen
 	~SFML_titlescreen();
 };
 
-class SFML_gameaudio
-{	public:
-	SFML_gameaudio(std::string Intro_audiopath, std::string Game_musicpath);
-	std::vector<std::string> Music_paths;
-	void Music_mode(bool menu_mode);
-	
-	bool Intro_finished;
-	sf::SoundBuffer * Intro_audio;
-	sf::Sound * Audio;
-	
-	void Update_game_audio();			// this call is ahh...
-	void Increment_game_music();		// move us on to the next file in the list... a lot of this is kinda bad... I dont know...
-	
-	void Play_intro();
-	
-	std::vector<std::string>::iterator it_music;
-	sf::Music * Game_music;
-		
-	void Play_music(bool loop);
-	void Stop_music();
-	~SFML_gameaudio();
-};
-
 #endif

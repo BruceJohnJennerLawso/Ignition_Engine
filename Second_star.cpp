@@ -109,7 +109,7 @@ int main()
 	Window_title.append(Starfighter_version);
 	// stick the version numbah on the end
 	std::cout << "Constructing Ignition Engine" << std::endl;
-	Starfighter = new Ignition_engine(Window_title, 609, 1024, Starfighter_version, 0.2, "./Data/Fonts/orbitron-light.ttf",  "./Data/Audio/Menu_Fade_In.ogg",  "./Data/Audio/Game_music_Yavin.ogg");	
+	Starfighter = new Ignition_engine(Window_title, 609, 1024, Starfighter_version, 0.2, "./Data/Fonts/orbitron-light.ttf");	
 	// give birth to our beautiful new engine object. Isnt it cute?
 	std::cout << "Right before Init_assets()" << std::endl;
 	Init_assets();	

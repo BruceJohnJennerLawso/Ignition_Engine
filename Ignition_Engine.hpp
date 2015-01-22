@@ -10,7 +10,7 @@ class DeltaGlider;
 
 class Ignition_engine
 {	public:
-	Ignition_engine(std::string title, unsigned int initial_window_width, unsigned int initial_window_height, std::string program_version, double redraw_displays_interval, std::string standard_display_font, std::string Intro_audio_path, std::string Game_audio_path);
+	Ignition_engine(std::string title, unsigned int initial_window_width, unsigned int initial_window_height, std::string program_version, double redraw_displays_interval, std::string standard_display_font);
 	// base constructor
 	// future versions should eventually have more overloads for things like
 	// start on construction, loading from a scn file or somesuch...
@@ -41,10 +41,7 @@ class Ignition_engine
 	sf::Texture * Background_tex;
 	sf::Sprite * Background_sprite;
 	// texture and sprite for our background starfield
-	
-	SFML_gameaudio * Game_audio;
-	// Hideous thing that handles our music. Needs a lot of work eventually
-	// but its working for now, so dont touch
+
 	
 	sf::Font standard_font;
 	sf::Color standard_display_colour;

@@ -362,14 +362,23 @@ void VectorVictor::Vector2::Normalize()
 		Set_x(x/(vector_magnitude));
 		Set_y(y/(vector_magnitude));
 	}
+	// otherwise do nothing, cause I dont have a clue what we do if it is the
+	// zero vector
 }
 
 VectorVictor::Vector2 VectorVictor::Vector2::Vector_normal()
 {	VectorVictor::Vector2 Output;
 	long double vector_magnitude = this->Get_vector_magnitude();
 	// we find our current vector magnitude	
-	Output.Set_x(x/(vector_magnitude));	
-	Output.Set_y(y/(vector_magnitude));
+	if(vector_magnitude > 0)
+	{	
+		Output.Set_x(x/(vector_magnitude));	
+		Output.Set_y(y/(vector_magnitude));
+	}
+	else
+	{	Output.Set_x(0);	
+		Output.Set_y(0);
+	}
 	// set the output vector to the normalized value
 	return Output;
 	// and send the result on its merry way

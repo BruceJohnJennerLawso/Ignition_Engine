@@ -4,7 +4,7 @@
 
 
 
-Ignition_engine::Ignition_engine(std::string title, unsigned int initial_window_width, unsigned int initial_window_height, std::string program_version, double redraw_displays_interval, std::string standard_display_font, std::string Intro_audio_path, std::string Game_audio_path)
+Ignition_engine::Ignition_engine(std::string title, unsigned int initial_window_width, unsigned int initial_window_height, std::string program_version, double redraw_displays_interval, std::string standard_display_font)
 {	Main_Window = new SFML_Window(title, initial_window_width, initial_window_height);
 	// construct a new SFML window with title & size
 	commands = new key_commands();
@@ -36,12 +36,6 @@ Ignition_engine::Ignition_engine(std::string title, unsigned int initial_window_
 	// load up the background stars and slot them into their sprite for drawing
 	Displays_active = true;
 	// just a default behaviour, but again, still toggleable
-	Game_audio = new SFML_gameaudio(Intro_audio_path, Game_audio_path);	
-	// that butt ugly class for the audio receiving its intro and main musics
-	// needs rewriting, but not a critical area at the present time
-	//Current_vessel = Vessel_list.at(0);
-	// gotta have something for the current vessel, otherwise inputs go to
-	// nowhere and that would be bad. later to be loaded from a scn file
 	
 	camera_scale = 1.00;
 	k_camera = 9.5;
@@ -238,8 +232,6 @@ int Ignition_engine::Ignition()
 			// this whole section above could probably be separated into a
 			// function... hmm
 		}	
-		Game_audio->Update_game_audio();		
-		// again, no clue how this works now
 		
 		// I think this is what it feels like to create a monster:
 		// I have no idea how it works, and I should probably deal with it
@@ -573,6 +565,5 @@ Ignition_engine::~Ignition_engine()
 	delete Main_Window;
 	delete Background_sprite;
 	delete Background_tex;
-	delete Game_audio;
 }	// so, yeah...
 
