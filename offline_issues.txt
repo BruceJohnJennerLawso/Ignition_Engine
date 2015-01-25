@@ -1,0 +1,79 @@
+ MFD Structure 1.0 enhancement Ignition Engine Keplerian Newtonian
+#27 opened 3 hours ago by BruceJohnJennerLawso
+John Lawson
+
+The project is quickly reaching a level of complexity that will require more sophisticated tools to test the project. The most important step here will be to create a MFD class that can receive very general information about the state of the simulation and synthesize it up onscreen as a readout for the user to view. The best idea for this would appear to be to have the MFD object draw to an sf::Texture on demand, ie
+
+http://www.sfml-dev.org/tutorials/2.2/graphics-draw.php
+
+then passing on the texture to the main loop to get drawn.
+
+
+Map view image flickers back and forth depending on time acceleration 1.0 bug Graphics Ignition Engine Newtonian Physics
+#26 opened 3 days ago by BruceJohnJennerLawso Ignition Engine: January 2015 Goals
+John Lawson
+
+When going back and forth between time accelerations while controlling the GL-01 in map view, 
+the image of the GL-02 jitters back and forth like it did with the old issues seen in map view, 
+and its position seems to be related to the current time acceleration. 
+Damn, thought this particular problem was dead, but no such luck I guess.
+
+
+Proper Map view rendering system for Vessels 1.0 enhancement Graphics Newtonian
+#24 opened 7 days ago by BruceJohnJennerLawso
+John Lawson
+
+
+OpenGL Keplerian bodies 1.0 Graphics Keplerian
+#23 opened 7 days ago by BruceJohnJennerLawso
+John Lawson
+
+
+Last Object Standing 1.0 enhancement Ignition Engine
+#22 opened 7 days ago by BruceJohnJennerLawso
+John Lawson
+
+
+Build guide in the wiki 1.0 Documentation enhancement
+#21 opened 12 days ago by BruceJohnJennerLawso Ignition Engine: 1.0 Release Goals
+John Lawson
+
+
+Make a good readme!!! 1.0 Documentation enhancement
+#20 opened 12 days ago by BruceJohnJennerLawso Ignition Engine: 1.0 Release Goals
+John Lawson
+
+
+Overloaded function for generic state loading 1.0 enhancement Newtonian
+#17 opened 13 days ago by BruceJohnJennerLawso Ignition Engine: January 2015 Goals
+John Lawson
+
+Instead of doing everything by hand in a vessel types constructor, we want 
+to make loading of states generic in Newtonian objects, 
+ie something like a init_newtonian() function which handles the setup of newtonian specific stuff.
+
+
+Multiple Camera orientations 1.0 enhancement Graphics Ignition Engine
+#11 opened on Dec 15, 2014 by BruceJohnJennerLawso Ignition Engine: January 2015 Goals
+John Lawson
+
+Right now the camera stays oriented vertically with the in-universe coordinate system, 
+and orients itself relative to the current vessel. 
+This is somewhat dangerous with using the pointer to track the current vessel, and not flexible enough,
+the camera should be its own entity that looks at the current target. 
+Also needs to be able to rotate around relative to the current vessel orientation, 
+which will need a different sorting function for determining whether an object is in camera view.
+
+
+Moons & Stars 1.0 Keplerian Physics
+#8 opened on Dec 10, 2014 by BruceJohnJennerLawso Ignition Engine: 1.0 Release Goals
+John Lawson
+
+
+Basic surface implementation 1.0 enhancement Newtonian Physics
+#7 opened on Dec 7, 2014 by BruceJohnJennerLawso Ignition Engine: 1.0 Release Goals
+John Lawson
+
+
+Smooth scale transforms enhancement Graphics Long Range
+#4 opened on Dec 2, 2014 by BruceJohnJennerLawso
