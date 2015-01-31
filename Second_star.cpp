@@ -46,7 +46,7 @@ sf::Sprite * Imperial_flag_sprite;
 // should be renamed eventually
 
 
-TVessel * GL1, * GL2;
+TVessel * GL1, * GL2, *GL3;
 
 
 CKeplerian_Object * Earth;
@@ -364,12 +364,15 @@ void Init_assets()
 	std::cout << "Loaded XWing_tex from file" << std::endl;
 	GL1 = new DeltaGlider(6678000.00, 0.00, 0.00, 8600.00, 270.00, 0, 40000, 20600, Rebel_flag_sprite, XWing_tex, "GL-01", "./Data/Images/display_panel.png", displays_font, RK4); 
 	GL2 = new DeltaGlider(6678000.00, -12.00, 0.00, 8600.00, 180, 0, 40000, 20600, Rebel_flag_sprite, XWing_tex, "GL-02", "./Data/Images/display_panel.png", displays_font, Euler1);
+	GL3 = new DeltaGlider(6678000.00, -42.00, 0.00, 8600.00, 180, 0, 40000, 20600, Rebel_flag_sprite, XWing_tex, "GL-03", "./Data/Images/display_panel.png", displays_font, RK4);	
 
+	Starfighter->Vessel_list.insert(Starfighter->Vessel_list.end(), GL3);
 	Starfighter->Vessel_list.insert(Starfighter->Vessel_list.end(), GL2);
 	Starfighter->Vessel_list.insert(Starfighter->Vessel_list.end(), GL1);
 	
-	Starfighter->Newtonian_list.insert(Starfighter->Newtonian_list.end(), GL1->Get_Newtonian_pointer());
+	Starfighter->Newtonian_list.insert(Starfighter->Newtonian_list.end(), GL3->Get_Newtonian_pointer());	
 	Starfighter->Newtonian_list.insert(Starfighter->Newtonian_list.end(), GL2->Get_Newtonian_pointer());
+	Starfighter->Newtonian_list.insert(Starfighter->Newtonian_list.end(), GL1->Get_Newtonian_pointer());	
 	
 	Earth = new TPlanet(0.000, 0.0000727, 6378100, 245000, 5.9736e24, "./Data/Images/Planets/earth.png");
 	Starfighter->Celestial_list.insert(Starfighter->Celestial_list.end(), Earth);

@@ -271,80 +271,85 @@ int Ignition_engine::Ignition()
 		// draw the background. Wish there was some way to keep this drawn to
 		// avoid the painful redraw, but no dice. Maybe an OpenGL implementation
 		// could...
-		switch(map_view)	// kinda hate switches here, if statements might be a better idea																																	
-		{	// switch the flow based on whether or not map view is active
-			case false:		// map view is inactive, camera view here
-			{	for(std::vector<CKeplerian_Object*>::iterator it = Celestial_list.begin(); it != Celestial_list.end(); ++it)
-				{	(*it)->Frame(deltat, simulation_time);
-				}  // Iterate through all celestial bodies (planets, stars, moons)
-					// in the current instance, and update them
-				for(std::vector<TVessel*>::iterator it = Vessel_list.begin(); it != Vessel_list.end(); ++it)
-				{	// Iterating through all vessels in the current instance
-					(*it)->Frame(deltat, simulation_time, Celestial_list);
-					// run the vessels frame update based on frame length,
-					// and send along the list of celestial bodies in the sim,
-					// so that it can get gravitational forces from them
+		if(map_view == false)
+		{	// map view is inactive, camera view here
+			for(std::vector<CKeplerian_Object*>::iterator it = Celestial_list.begin(); it != Celestial_list.end(); ++it)
+			{	(*it)->Frame(deltat, simulation_time);
+			}  // Iterate through all celestial bodies (planets, stars, moons)
+				// in the current instance, and update them
+			for(std::vector<TVessel*>::iterator it = Vessel_list.begin(); it != Vessel_list.end(); ++it)
+			{	// Iterating through all vessels in the current instance
+				(*it)->Frame(deltat, simulation_time, Celestial_list);
+				// run the vessels frame update based on frame length,
+				// and send along the list of celestial bodies in the sim,
+				// so that it can get gravitational forces from them
 					
-					// should also pass along the Newtonian and Vessel type
-					// lists for convenience too methinks
-				}
-					Main_Window->Set_origin((Current_vessel->NewtonianState.FlightState.Position.x - (Main_Window->Aperture_width/2)),(Current_vessel->NewtonianState.FlightState.Position.y + (Main_Window->Aperture_height/2)));		
-					// Relocate the window to center on current vessel
-					// I always disliked how Orbiter did this, would rather
-					// have some sort of polymorphic "targetable" setup, so
-					// we dont even need to have vessels in the sim for it to
-					// work. Allowing it to focus on a planet, or point, or
-					// whatever would be much better
-				for(std::vector<TVessel*>::iterator it = Vessel_list.begin(); it != Vessel_list.end(); ++it)
-				{	// multiple loops is important here! doing it all in one
-					// caused the relative vessel issue (not the jitter though)
-					
-					// at least one thing verified here:
-					// premature optimization really is the root of all evil ;)
-					if((*it)->In_view(Main_Window, 0) == true)	// check if the vessel is in view
-					{	(*it)->Draw_vessel(Main_Window, camera_scale);																						
-						// and draw it if it is. Saves draw calls if the 
-						// vessel isnt currently onscreen
-						// this in particular seems to be the only major
-						// performance bottleneck, around 3000 vessels in sim
-						// grinds to about 5-6 FPS. Maybe a solution would be to
-						// have a layered box about twice the extent of the
-						// current in-game viewport that checks for drawables
-						// on a refresh rate like the displays do. A bit clumsy,
-						// but it could bring terrific performance increases
-					
-						(*it)->Receive_cursor_inputs(cursor_commands, deltat);
-						// since cursor commands can apply to anything visible
-						// in the screen we want to send them out to every
-						// vessel in the sim, so that the vessels can transform
-						// the window local vector into a simulation coordinate
-						// and decide what to do with the info they receive at
-						// that point
-					}	
-				}	break;	// Break out of the switch for map view and onwards!																		
+				// should also pass along the Newtonian and Vessel type
+				// lists for convenience too methinks
 			}
-			case true:	// map view is active	// I guess the order here might work better as state updates, then camera, then draws?
-			{	for(std::vector<CKeplerian_Object*>::iterator it = Celestial_list.begin(); it != Celestial_list.end(); ++it)
-				{	(*it)->Frame(deltat, simulation_time);
-					// Iterate through all celestial bodies (planets, stars, moons)
-					// in the current instance, and update them
-					Main_Window->Set_origin((Current_vessel->NewtonianState.FlightState.Position.x - (Main_Window->Aperture_width/2)),(Current_vessel->NewtonianState.FlightState.Position.y + (Main_Window->Aperture_height/2)));
-					// same deal as camera view, just based on the size of the
-					// map view instead
-					if((*it)->In_view(Main_Window, zoom_exponent) == true)
-					{	(*it)->Draw_flag(Main_Window, zoom_exponent);	
-					}	// same problem as before, needs to be optimized where
+			Main_Window->Set_origin((Current_vessel->NewtonianState.FlightState.Position.x - (Main_Window->Aperture_width/2)),(Current_vessel->NewtonianState.FlightState.Position.y + (Main_Window->Aperture_height/2)));		
+			// Relocate the window to center on current vessel
+			// I always disliked how Orbiter did this, would rather
+			// have some sort of polymorphic "targetable" setup, so
+			// we dont even need to have vessels in the sim for it to
+			// work. Allowing it to focus on a planet, or point, or
+			// whatever would be much better
+			for(std::vector<TVessel*>::iterator it = Vessel_list.begin(); it != Vessel_list.end(); ++it)
+			{	// multiple loops is important here! doing it all in one
+				// caused the relative vessel issue (not the jitter though)
+				
+				// at least one thing verified here:
+				// premature optimization really is the root of all evil ;)
+				if((*it)->In_view(Main_Window, 0) == true)	// check if the vessel is in view
+				{	(*it)->Draw_vessel(Main_Window, camera_scale);																						
+					// and draw it if it is. Saves draw calls if the 
+					// vessel isnt currently onscreen
+					// this in particular seems to be the only major
+					// performance bottleneck, around 3000 vessels in sim
+					// grinds to about 5-6 FPS. Maybe a solution would be to
+					// have a layered box about twice the extent of the
+					// current in-game viewport that checks for drawables
+					// on a refresh rate like the displays do. A bit clumsy,
+					// but it could bring terrific performance increases
+					
+					(*it)->Receive_cursor_inputs(cursor_commands, deltat);
+					// since cursor commands can apply to anything visible
+					// in the screen we want to send them out to every
+					// vessel in the sim, so that the vessels can transform
+					// the window local vector into a simulation coordinate
+					// and decide what to do with the info they receive at
+					// that point
+				}	
+			}
+		}	
+		else if(map_view == true)	// map view is active	// I guess the order here might work better as state updates, then camera, then draws?
+		{	for(std::vector<CKeplerian_Object*>::iterator it = Celestial_list.begin(); it != Celestial_list.end(); ++it)
+			{	(*it)->Frame(deltat, simulation_time);
+				// Iterate through all celestial bodies (planets, stars, moons)
+				// in the current instance, and update them
+
+				// same deal as camera view, just based on the size of the
+				// map view instead
+			}
+			for(std::vector<TVessel*>::iterator it = Vessel_list.begin(); it != Vessel_list.end(); ++it)				// Iterate through all vessels in the current instance
+			{	(*it)->Frame(deltat, simulation_time, Celestial_list);	
+			}	
+			Main_Window->Set_origin((Current_vessel->NewtonianState.FlightState.Position.x - (Main_Window->Aperture_width/2)),(Current_vessel->NewtonianState.FlightState.Position.y + (Main_Window->Aperture_height/2)));
+			// dammit, premature optimization...
+			for(std::vector<CKeplerian_Object*>::iterator it = Celestial_list.begin(); it != Celestial_list.end(); ++it)
+			{	// same deal as camera view, just based on the size of the
+				// map view instead
+				if((*it)->In_view(Main_Window, zoom_exponent) == true)
+				{	(*it)->Draw_flag(Main_Window, zoom_exponent);	
+				}	// same problem as before, needs to be optimized where
 						// vessels are concerned
-				}
-				for(std::vector<TVessel*>::iterator it = Vessel_list.begin(); it != Vessel_list.end(); ++it)				// Iterate through all vessels in the current instance
-				{	(*it)->Frame(deltat, simulation_time, Celestial_list);																													// Update vessel with frame dt
-					Main_Window->Set_origin((Current_vessel->NewtonianState.FlightState.Position.x - (Main_Window->Aperture_width/2)),(Current_vessel->NewtonianState.FlightState.Position.y + (Main_Window->Aperture_height/2)));		// Relocate the window to center on current vessels flag sprite
-					if((*it)->In_view(Main_Window, zoom_exponent) == true)														// Check if the flag is within the current camera coordinates
-					{	(*it)->Draw_flag(Main_Window, zoom_exponent);	
-						// Draw the flag onscreen
-						(*it)->Receive_cursor_inputs(cursor_commands, deltat);
-					}	
-				}	break;	// Break out of the switch
+			}
+			for(std::vector<TVessel*>::iterator it = Vessel_list.begin(); it != Vessel_list.end(); ++it)				// Iterate through all vessels in the current instance
+			{	if((*it)->In_view(Main_Window, zoom_exponent) == true)														// Check if the flag is within the current camera coordinates
+				{	(*it)->Draw_flag(Main_Window, zoom_exponent);	
+					// Draw the flag onscreen
+					(*it)->Receive_cursor_inputs(cursor_commands, deltat);
+				}	
 			}	
 		}	
 		if(Displays_active == true)	// check if displays are in fact on
