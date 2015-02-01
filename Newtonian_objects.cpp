@@ -5,6 +5,37 @@
 
 
 
+// Rotation State //////////////////////////////////////////////////////////////
+// Properties of the object pertaining to rotation that we dont want to slave //
+// to position & velocity if we dont have to ///////////////////////////////////
+// Although the question of why does come to mind //////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+
+Rotation_state::Rotation_state()
+{	Theta = 0;
+	Omega = 0;
+	Alpha = 0;
+}
+
+Rotation_state::Rotation_state(long double theta, long double omega, long double alpha)
+{	Theta = theta;
+	Omega = omega;
+	Alpha = alpha;
+}
+
+Rotation_state Rotation_state::operator= (const Rotation_state r)
+{
+	Theta = r.Theta;
+	Omega = r.Omega;
+	Alpha = r.Alpha;	
+	return (*this);		
+	// looks good enough
+}
+
+Rotation_state::~Rotation_state()
+{
+}
+
 // Flight state ////////////////////////////////////////////////////////////////
 // the properties of the object when we are in that wild blue yonder... ////////
 // just vector values for position and velocity ////////////////////////////////
@@ -21,24 +52,122 @@ Flight_state::Flight_state(VectorVictor::Vector2 initial_position, VectorVictor:
 bool Flight_state::Init_flight_state(VectorVictor::Vector2 initial_position, VectorVictor::Vector2 initial_velocity)
 {	Position = initial_position;
 	Velocity = initial_velocity;
+	return true;
+}
+
+Flight_state Flight_state::operator= (const Flight_state s)
+{	Position = s.Position;
+	Velocity = s.Velocity;
+	return (*this);		
 }
 
 Flight_state::~Flight_state()
 {
 }
 
+// Surface state ///////////////////////////////////////////////////////////////
+// Really basic info about a ship when it is on the ground, either landed //////
+// or crashed, including what planet and the longitude that the object is at ///
+// on said planet //////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+
+Surface_state::Surface_state()
+{	Planet_name = "NOWHERE";
+	Longitude = 0;
+}
+
+Surface_state::Surface_state(std::string planet_name, long double longitude)
+{	Planet_name = planet_name;
+	Longitude = longitude;
+}
+
+Surface_state Surface_state::operator= (const Surface_state s)
+{	Planet_name = s.Planet_name;
+	Longitude = s.Longitude;
+	return (*this);		
+}
+
+Surface_state::~Surface_state()
+{	
+}
+
+
+// ObjectState /////////////////////////////////////////////////////////////////
+// All of the physical info that a Newtonian object needs to keep ticking //////
+////////////////////////////////////////////////////////////////////////////////
+
+ObjectState::ObjectState()
+{	Rotation = Rotation_state();
+
+	FlightState.Position = VectorVictor::Vector2();
+	// umm, I think this works
+	FlightState.Velocity = VectorVictor::Vector2();
+
+	LandedState.Longitude = 0;
+	LandedState.Planet_name = "NOWHERE";
+
+	Current_state = Flight;
+	// for lack of better information we say that our current state is in flight
+	// at the origin with zero velocity
+}
+
+ObjectState::ObjectState(Flight_state initial_flight_state, Rotation_state rotation)
+{	FlightState = initial_flight_state;
+	Rotation = rotation;
+	Current_state = Flight;
+	// implicitly based on the data we provided the state is in flight
+	LandedState.Longitude = 0;
+	LandedState.Planet_name = "NOWHERE";
+	// and we give the Landed state some default parameters so it uhh, has
+	// something
+}
+
+ObjectState::ObjectState(Surface_state initial_landed_state, Rotation_state rotation)
+{	LandedState = initial_landed_state;
+	Rotation = rotation;
+	Current_state = Landed;
+	// set it to landed, and if we truly must have a starting crash state,
+	// we can just call Set_status with Crashed after constructing the object
+	FlightState.Position = VectorVictor::Vector2();
+	// umm, I think this works
+	FlightState.Velocity = VectorVictor::Vector2();
+}
+
+ObjectState ObjectState::operator = (const ObjectState o)
+{	Current_state = o.Current_state;
+	LandedState = o.LandedState;
+	FlightState = o.FlightState;
+	Rotation = o.Rotation;
+	return (*this);
+}
+
+void ObjectState::Set_status(Object_status new_status)
+{	Current_state = new_status;
+}
+
+ObjectState::~ObjectState()
+{
+}
 
 // Newtonian Class /////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
 
+CNewtonian_Object::CNewtonian_Object()
+{	NewtonianState = ObjectState();
+	// just stuff the default definition into it
+}
+
+CNewtonian_Object::CNewtonian_Object(ObjectState initial_newtonian_state)
+{	NewtonianState = initial_newtonian_state;
+}
 
 double CNewtonian_Object::Get_omega()
-{	return Omega;
+{	return this->NewtonianState.Rotation.Omega;
 	// value in degrees/s
 }
 
 double CNewtonian_Object::Get_theta_in_radians()
-{	double rad_theta = Theta;
+{	double rad_theta = this->NewtonianState.Rotation.Theta;
 	rad_theta *= 6.283185308;		// 4/3 pau actually ;)
 	rad_theta /= 360;
 	return rad_theta;
@@ -46,7 +175,7 @@ double CNewtonian_Object::Get_theta_in_radians()
 }
 
 double CNewtonian_Object::Get_theta_in_degrees()
-{	return Theta;
+{	return this->NewtonianState.Rotation.Theta;
 	// in degrees
 }
 
@@ -204,7 +333,7 @@ void CNewtonian_Object::Update_motion(long double simtime, long double dt, std::
 			VectorVictor::Vector2 Net_force(0,0);
 			// start with a net force of 0
 			for(std::vector<Force>::iterator it = Force_list.begin(); it != Force_list.end(); ++it)
-			{	Net_force += it->Force_vector.Get_rotated_vector(Theta);
+			{	Net_force += it->Force_vector.Get_rotated_vector(this->NewtonianState.Rotation.Theta);
 				// add up all of the forces acting on the vessel in this frame
 				// * and very important, we are rotating them back into the
 				// global reference frame instead of the vessel local one that
@@ -393,36 +522,37 @@ void CNewtonian_Object::Update_rotation(long double simtime, long double dt)
 {	
 	if(NewtonianState.Current_state != Crashed)
 	{	// again if weve crashed, dont bother
-		Alpha = 0;
+		this->NewtonianState.Rotation.Alpha = 0;
 		// where alpha is our angular acceleration, the second derivative
 		// of theta with respect to time
 		for(std::vector<Force>::iterator it = Force_list.begin(); it != Force_list.end(); ++it)
-		{	Alpha -= it->Get_force_torque();
+		{	this->NewtonianState.Rotation.Alpha -= it->Get_force_torque();
 			// work through all of the forces acting on the object, and sum up
 			// the torques they cause
 			
 			// odd that this is subtraction, might be worth another look... 
 		}
-		Alpha /= PMI;
+		this->NewtonianState.Rotation.Alpha /= PMI;
 		// again, from simple 121 physics,
 		
 		// T = I*Alpha
 		// Alpha = T/I
-		Theta += ((Omega*dt)+(0.5*((Alpha*dt)*dt)));
-		Omega += (Alpha*dt);
+		//this->NewtonianState.Rotation.Theta += ((this->NewtonianState.Rotation.Omega*dt)+(0.5*((this->Rotation.Alpha*dt)*dt)));	
+		this->NewtonianState.Rotation.Omega += (this->NewtonianState.Rotation.Alpha*dt);
+		this->NewtonianState.Rotation.Theta += ((this->NewtonianState.Rotation.Omega*dt));			
 		// again, just the equations of rotational motion applied here
-		Object_sprite->setRotation(Theta);
+		Object_sprite->setRotation(this->NewtonianState.Rotation.Theta);
 		// make sure that the image drawn onscreen is synchronized with what 
 		// happened here
 		
-		if(Theta >= 360)
-		{	while(Theta >= 360)
-			{	Theta -= 360;
+		if(this->NewtonianState.Rotation.Theta >= 360)
+		{	while(this->NewtonianState.Rotation.Theta >= 360)
+			{	this->NewtonianState.Rotation.Theta -= 360;
 			}	
 		}
-		else if(Theta < 0)
-		{	while(Theta < 0)
-			{	Theta += 360;
+		else if(this->NewtonianState.Rotation.Theta < 0)
+		{	while(this->NewtonianState.Rotation.Theta < 0)
+			{	this->NewtonianState.Rotation.Theta += 360;
 			}
 		}
 		// if we run over the bounds of zero or 360, nothing is technically

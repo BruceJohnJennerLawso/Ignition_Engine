@@ -28,9 +28,7 @@ class DeltaGlider: public TVessel
 	DeltaGlider(double initial_x_position, double initial_y_position, double initial_x_velocity, double initial_y_velocity, double initial_theta, double initial_omega, double initial_main_propellant, double initial_rcs_propellant,  sf::Sprite * iFlag_sprite, sf::Texture * XWing_texture, std::string ivessel_name, std::string panel_path, sf::Font * controls_font, Propagator_type propagator);
 	// Only constructor at the moment, will eventually need one that works for
 	// reloading sims from a scenario file
-	
-	DeltaGlider(Flight_state initial_state, double initial_theta, double initial_omega, double initial_main_propellant, double initial_rcs_propellant,  sf::Sprite * iFlag_sprite, sf::Texture * XWing_texture, std::string ivessel_name, std::string panel_path, sf::Font * controls_font, Propagator_type propagator);
-	
+	DeltaGlider(ObjectState initial_object_state, double initial_main_propellant, double initial_rcs_propellant,  sf::Sprite * iFlag_sprite, sf::Texture * XWing_texture, std::string ivessel_name, std::string panel_path, sf::Font * controls_font, Propagator_type propagator);	
 	
 	double k_throttle;
 	// the rate at which the throttle moves around in (throttle units/ second)

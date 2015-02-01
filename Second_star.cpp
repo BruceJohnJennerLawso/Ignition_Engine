@@ -364,7 +364,7 @@ void Init_assets()
 	std::cout << "Loaded XWing_tex from file" << std::endl;
 	GL1 = new DeltaGlider(6678000.00, 0.00, 0.00, 8600.00, 270.00, 0, 40000, 20600, Rebel_flag_sprite, XWing_tex, "GL-01", "./Data/Images/display_panel.png", displays_font, RK4); 
 	GL2 = new DeltaGlider(6678000.00, -12.00, 0.00, 8600.00, 180, 0, 40000, 20600, Rebel_flag_sprite, XWing_tex, "GL-02", "./Data/Images/display_panel.png", displays_font, Euler1);
-	GL3 = new DeltaGlider(6678000.00, -42.00, 0.00, 8600.00, 180, 0, 40000, 20600, Rebel_flag_sprite, XWing_tex, "GL-03", "./Data/Images/display_panel.png", displays_font, RK4);	
+	GL3 = new DeltaGlider(ObjectState(Flight_state(VectorVictor::Vector2(6678000.00, -42.00), VectorVictor::Vector2(0.00, 8600.00)), Rotation_state(180, 0, 0)), 40000, 20600, Rebel_flag_sprite, XWing_tex, "GL-03", "./Data/Images/display_panel.png", displays_font, RK4);	
 
 	Starfighter->Vessel_list.insert(Starfighter->Vessel_list.end(), GL3);
 	Starfighter->Vessel_list.insert(Starfighter->Vessel_list.end(), GL2);

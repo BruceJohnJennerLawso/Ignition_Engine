@@ -19,32 +19,63 @@
 enum Propagator_type{Euler1, RK4};
 // thats all I can think of just yet...
 
-enum Object_state{Flight, Landed, Crashed};
+enum Object_status{Flight, Landed, Crashed};
 // pretty simple, just are we in flight or on the ground,
 // and if we are on the ground, will we be able to take off again or is the ship
 // really just a metal smear across the ground somewhere
+
+class Rotation_state
+{	public:
+	Rotation_state();
+	Rotation_state(long double theta, long double omega, long double alpha);
+	Rotation_state operator = (const Rotation_state r);	
+	long double Theta, Omega, Alpha;
+	~Rotation_state();
+};
 
 class Flight_state
 {	public:
 	Flight_state();
 	Flight_state(VectorVictor::Vector2 initial_position, VectorVictor::Vector2 initial_velocity);
 	bool Init_flight_state(VectorVictor::Vector2 initial_position, VectorVictor::Vector2 initial_velocity);
+	Flight_state operator = (const Flight_state s);
 	VectorVictor::Vector2 Position;
 	VectorVictor::Vector2 Velocity;
 	~Flight_state();
 };
 
-struct Surface_state
-{	std::string Planet_name;
-	long double longitude;
+class Surface_state
+{	public:
+	Surface_state();
+	Surface_state(std::string planet_name, long double longitude);
+	Surface_state operator = (const Surface_state s);
+	std::string Planet_name;
+	// ehh.. I forget wat the plan was here
+	long double Longitude;
+	~Surface_state();
 };
 
 class ObjectState
 {	public:
+	ObjectState();
+	ObjectState(Flight_state initial_flight_state, Rotation_state rotation);
+	// implicitly in flight
+	ObjectState(Surface_state initial_landed_state, Rotation_state rotation);
+	// implicitly uhh landed, and if we need to start off crashed, we can call
+	// a set call to the Object_status
+	ObjectState operator = (const ObjectState o);
+	
 	Flight_state FlightState;
 	Surface_state LandedState;
 	
-	Object_state Current_state;
+	Object_status Current_state;
+	void Set_status(Object_status new_status);
+	// the indication of what our current state is, are we crashed, landed or
+	// in flight. This in turn is used to decide which of the states is used
+	// from above, either the flightstate or the landedstate, since each state
+	// stores different information
+	Rotation_state Rotation;
+	~ObjectState();
 };
 
 class CNewtonian_Object
@@ -55,15 +86,10 @@ class CNewtonian_Object
 	// rather true
 	// and I certainly wouldnt be doing any of this if it werent for him, so...
 	// yeah...
+	CNewtonian_Object();
+	// cmon, cmon
+	CNewtonian_Object(ObjectState initial_newtonian_state);
 	
-	
-	// this whole pos/vel/accel thing can be unionized with some sort of
-	// identifier for a landed/crashed (surface?) state
-	
-	//VectorVictor::Vector2 Position;
-	// Where we are
-	//VectorVictor::Vector2 Velocity;
-	// Where we are going
 	
 	ObjectState NewtonianState;
 	
@@ -79,8 +105,6 @@ class CNewtonian_Object
 	// the code a wee bit simpler just leaving it in each frame
 	
 	Propagator_type Propagator;
-	// okedely doke
-	
 	// so this is just a nice little enum type that we can use here to indicate
 	// what kind of propagator the newtonian object is using in its quest to
 	// obey Newtons laws
@@ -94,7 +118,6 @@ class CNewtonian_Object
 	// PMI is another good physical property, the total moment of inertia of the
 	// vessel around whatever our reference axis (center of mass) is
 	
-	long double Theta, Omega, Alpha;
 	// Our orientation in space and how its changing
 	// all stored in degrees
 	
@@ -233,14 +256,11 @@ class CNewtonian_Object
 	// Abstract way of referencing the object at the Newtonian level
 };
 
-//std::vector<CNewtonian_Object*> Newtonian_list;
-// not even sure how I am getting away with this as it is
-// really should be local to the Ignition Engine object
 
 // TVessel Class ///////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
 
-class TVessel: public CNewtonian_Object
+class TVessel: virtual public CNewtonian_Object
 {	public:
 	// More specific type than Newtonian, deals with things that a vessel really
 	// must have, like a hull & standard ways of dealing with vesselly objects
