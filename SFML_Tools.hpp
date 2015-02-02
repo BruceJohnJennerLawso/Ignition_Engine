@@ -117,7 +117,8 @@ void Null_queue();
 class SFML_Window
 {	public:
 	SFML_Window(std::string title, unsigned int h, unsigned int w);
-	// constructor, quite simple really
+	// implicit rotation of 0 in this case
+	SFML_Window(std::string title, unsigned int h, unsigned int w, long double initial_rotation);
 	std::string Title;
 	// the string that gets printed on the menubar at the top of the window
 	
@@ -137,6 +138,10 @@ class SFML_Window
 	long double Aperture_width, Aperture_height;
 	// the dimensions of what the window is currently spanning in the game
 	// universe, in meters
+	long double Aperture_rotation;
+	// clockwise about the origin, in degrees
+	void Set_aperture_rotation(long double new_rotation);
+	// set the rotation to its new value
 	void Set_aperture_dimensions(long long unsigned int ap_w, long long unsigned int ap_h);
 	// set those dimensions in meters
 	~SFML_Window();

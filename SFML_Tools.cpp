@@ -510,6 +510,32 @@ SFML_Window::SFML_Window(std::string title, unsigned int h, unsigned int w)
 	// concerning really
 }
 
+SFML_Window::SFML_Window(std::string title, unsigned int h, unsigned int w, long double initial_rotation)
+{	Title = title;
+	Height = h;
+	Width = w;
+	Aperture_height = h;
+	Aperture_width = w;
+	// no real rhyme or reason behind how big the aperture should be at start
+	// so we just give it the same as the window itself
+	
+	
+	// this was the reason why everything appeared 10x too big
+	Set_origin();
+	// make sure it has a value
+	window = new sf::RenderWindow(sf::VideoMode(w, h), Title);
+	// set up our RenderWindow
+	window->setSize(sf::Vector2u(w, h));
+	// and size it, but.. we dont need to here, cause the videomode already
+	// did it.
+	
+	// I think this can be removed
+	window->setTitle(Title);
+	// again think its redundant, but its a rarely used constructor, so not too
+	// concerning really
+	this->Set_aperture_rotation(initial_rotation);
+}
+
 void SFML_Window::Set_origin()
 {	origin.x = 0;
 	origin.y = 0;
@@ -592,6 +618,9 @@ VectorVictor::Vector2 Get_simulation_coordinates(sf::Vector2f window_point, SFML
 	sim_point.y *= -1;
 	// again, flip the y axis because SFML has down as positive y, for reasons
 	// that are its own
+	sim_point.Rotate_vector(-iwindow->Aperture_rotation);
+	// rotate the vector back into the correct orientation of the window
+	
 	sim_point += iwindow->origin;
 	// we add the main windows origin point to transform the point to the sim
 	// sessions global origin point (0,0)

@@ -261,7 +261,9 @@ class CNewtonian_Object
 ////////////////////////////////////////////////////////////////////////////////
 
 class TVessel: virtual public CNewtonian_Object
-{	public:
+{	// made virtual so that implementation classes can use CNewtonians
+	// constuctor for nice clean code
+	public:
 	// More specific type than Newtonian, deals with things that a vessel really
 	// must have, like a hull & standard ways of dealing with vesselly objects
 	Hull * Hull_component;
