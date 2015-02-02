@@ -567,17 +567,34 @@ SFML_Window::~SFML_Window()
 sf::Vector2f Get_window_coordinates(VectorVictor::Vector2 sim_point, SFML_Window * iwindow, int map_scale)
 {	VectorVictor::Vector2 camera_origin(iwindow->origin.Get_x(), iwindow->origin.Get_y());
 	sim_point -= camera_origin;
+	// get the relative offset from the camera origin to
+	// the point in simulation as a VV2
+	sim_point.Rotate_vector(iwindow->Aperture_rotation);
+	// rotate the vector around into the reference frame of
+	// the window box, now straight up and down relative to
+	// the global coordinate frame axes
 	sim_point.y *= -1;
+	// flip the y axis because SFML does things that way
 	sim_point.y *= pow(0.1, (map_scale));
 	sim_point.x *= pow(0.1, (map_scale));
+	// scale back the length of the vector by 10^map_scale
+	// so that its dimensions are in pixels instead of
+	// meters
 	sf::Vector2f camera_offset(sim_point.x, sim_point.y);
+	// put the vector into an sfml 2f type so we can return
+	// it properly
 	return camera_offset;
 }
 
 sf::Vector2f Get_window_coordinates(VectorVictor::Vector2 sim_point, SFML_Window * iwindow, double cam_scale)
 {	VectorVictor::Vector2 camera_origin(iwindow->origin.Get_x(), iwindow->origin.Get_y());
 	sim_point -= camera_origin;
+	// get the relative offset of the point from the window
+	// origin
+	sim_point.Rotate_vector(iwindow->Aperture_rotation);
+	// rotate the vector so that the window is straight up and down
 	sim_point.y *= -1;
+	// flip the y axis so that SFML is happy
 	sim_point.x *= (10.00000000/(long double)cam_scale);
 	sim_point.y *= (10.00000000/(long double)cam_scale);
 	// of course! Because at cam_scale = 1 (or default), the window has
@@ -586,6 +603,7 @@ sf::Vector2f Get_window_coordinates(VectorVictor::Vector2 sim_point, SFML_Window
 	// size of 1024 x 609. So thats why we have to scale it up by 10x
 	
 	sf::Vector2f camera_offset(sim_point.x, sim_point.y);
+	// convert into an sf 2f for return
 	return camera_offset;
 }
 
@@ -600,6 +618,9 @@ VectorVictor::Vector2 Get_simulation_coordinates(sf::Vector2f window_point, SFML
 	sim_point.y *= -1;
 	// we flip the y axis, since the SFML coordinates will be mirrored
 	// vertically compared to  
+	
+	sim_point.Rotate_vector(-iwindow->Aperture_rotation);
+	
 	sim_point += iwindow->origin;
 	// we add the main windows origin point to transform the point to the sim
 	// sessions global origin point (0,0)
