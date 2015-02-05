@@ -57,7 +57,7 @@ class DeltaGlider: public TVessel
 	// finally, specific implementation of how the class type handles input
 	// from the user
 	double Get_total_mass();
-	double Get_PMI();			
+	long double Get_PMI();			
 	// pretty much what it says on the box
 	
 	//void Drain_fuel(double dt);

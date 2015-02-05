@@ -113,7 +113,7 @@ class CNewtonian_Object
 	// it feels like doing with the newtonian object at that particular point
 	// in time (orbit stabilization and the like?)
 		
-	double Length, PMI;
+	long double Length, PMI;
 	// I think the length is outdated now, since hull handles that.
 	// PMI is another good physical property, the total moment of inertia of the
 	// vessel around whatever our reference axis (center of mass) is
@@ -139,13 +139,13 @@ class CNewtonian_Object
 	double Get_theta_in_degrees();		
 	double Get_theta_in_radians();
 	// returns for the data above
-	double Get_length();
+	long double Get_length();
 	// important property for graphics stuff. Handled by hull object nowadays
 	double Get_hull_mass();
 	// no trick questions here, exactly what it sounds like
 	virtual double Get_total_mass();
 	// and again...
-	virtual double Get_PMI();
+	virtual long double Get_PMI();
 	// and again.......		
 	std::vector<Resource_Tank*> Fuel_tanks;
 	// any components that have a resource with mass
@@ -354,6 +354,7 @@ class TVessel: virtual public CNewtonian_Object
 	std::string Get_vessel_name();
 	// returns for the above string, as well as the object name defined in 
 	// Newtonian
+	
 	
 	TVessel* Get_Vessel_pointer();
 	// the access at this abstraction layer

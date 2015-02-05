@@ -179,7 +179,7 @@ double CNewtonian_Object::Get_theta_in_degrees()
 	// in degrees
 }
 
-double CNewtonian_Object::Get_length()
+long double CNewtonian_Object::Get_length()
 {	return Length;
 	// in meters
 }
@@ -226,7 +226,7 @@ void CNewtonian_Object::Print_data()
 
 // above 3 should not be called, just error messages
 
-double CNewtonian_Object::Get_PMI()
+long double CNewtonian_Object::Get_PMI()
 {	return PMI;
 }
 
@@ -669,67 +669,50 @@ long double TVessel::Get_max_alpha(rotation_direction direction)
 
 
 bool TVessel::In_view(SFML_Window * window, int zoom_factor)
-{	if((NewtonianState.FlightState.Position.Get_x() >= (window->origin.x-(Hull_component->Get_hull_length_squared())))&&(NewtonianState.FlightState.Position.Get_x() <= ((window->origin.x + (window->Aperture_width+(Hull_component->Get_hull_length_squared()))))))
-	{	if((NewtonianState.FlightState.Position.Get_y() <= (window->origin.y+(Hull_component->Get_hull_length_squared())))&&(NewtonianState.FlightState.Position.Get_y() >= (window->origin.y - ((window->Aperture_height+(Hull_component->Get_hull_length_squared()))))))
-		{	return true;
-		}
-		else
-		{	return false;
-		}
-	}	
-	else
-	{	return false;
+{	long double radius = this->Get_length();
+	radius /= 2;
+	if(window->Intersection(this->NewtonianState.FlightState.Position, radius) == true)
+	{	std::cout << "Intersection for vessel " << this->Get_vessel_name() << std::endl;
+		return true;
 	}
+	else
+	{	//std::cout << "No intersection for vessel " << this->Get_vessel_name() << std::endl;
+		return false;
+	}
+	//return window->Intersection(this->NewtonianState.FlightState.Position, radius);
+	// muuuch better
+	
+	
+	//if((NewtonianState.FlightState.Position.Get_x() >= (window->origin.x-(Hull_component->Get_hull_length_squared())))&&(NewtonianState.FlightState.Position.Get_x() <= ((window->origin.x + (window->Aperture_width+(Hull_component->Get_hull_length_squared()))))))
+	//{	if((NewtonianState.FlightState.Position.Get_y() <= (window->origin.y+(Hull_component->Get_hull_length_squared())))&&(NewtonianState.FlightState.Position.Get_y() >= (window->origin.y - ((window->Aperture_height+(Hull_component->Get_hull_length_squared()))))))
+	//	{	return true;
+	//	}
+	//	else
+	//	{	return false;
+	//	}
+	//}	
+	//else
+	//{	return false;
+	//}
+	
+	
 	// just another simple function for determining if the ship should be drawn
 	// there was some logic behind squaring the distance, but I dont recall
 }
 
 void TVessel::Draw_vessel(SFML_Window * iwindow, double cam_scale)
-{	// very simple to the draw flag for TPlanets, save a few minor details
-	//sf::Vector2f offset(Position.Get_x(), Position.Get_y());
-	// create a sf vector representing the in-universe coords of the vessel
-	//sf::Vector2f camera_origin(iwindow->origin.x, iwindow->origin.y);
-	// and another sf vector representing the camera origin
-	// (in this case the top left corner of the camera)
-	//offset -= camera_origin;
-	// we find the relative offset from the camera to the object
-	//offset.y = -offset.y;
-	//offset.x *= 10;
-	//offset.y *= 10;
-	// flip the y axis for SFML specific reasons
-	//Object_sprite->setPosition(offset);
-	// we locate the sprite in the right part of the window
-	
-	//VectorVictor::Vector2 offset(Position.Get_x(), Position.Get_y());
-	//VectorVictor::Vector2 camera_origin(iwindow->origin.Get_x(), iwindow->origin.Get_y());
-	//offset -= camera_origin;
-	//offset.y *= -1;
-	//offset.x *= (10.00000000/(long double)cam_scale);
-	//offset.y *= (10.00000000/(long double)cam_scale);
-	
-	Object_sprite->setScale((pix_length/((Vessel_tex->getSize().y)*cam_scale)),(pix_length/((Vessel_tex->getSize().y)*cam_scale)));
+{	Object_sprite->setScale((pix_length/((Vessel_tex->getSize().y)*cam_scale)),(pix_length/((Vessel_tex->getSize().y)*cam_scale)));
 	// rescale the axes of the texture to match pix_length in the y and the
 	// appropriate scale for the x dimension
 		
 	// not sure why they both use y, but I think this was distorted when
 	// it used x & y.
 	// This area needs to be looked over again
-		
-	
 	sf::Vector2f camera_offset = Get_window_coordinates(NewtonianState.FlightState.Position, iwindow, cam_scale);
 	Object_sprite->setPosition(camera_offset);
-	//k lets see what that did
-	
-	// exactly what I thought, caused by the use of sf::Vector2f instead of
-	// the higher precision long doubles in VV2
-	
-	// okay so here we replace the old order of operations in drawing the vessel
-	// in order to kill the jitterbug
-	
-	//offset += sf::Vector2f(40, -40);		// never did figure this part out...
-	// this, hmmm... I dont reallly know what this is
-	// this might have been a really early workaround in the code, should just
-	// scrap it
+	Object_sprite->setRotation((NewtonianState.Rotation.Theta + iwindow->Aperture_rotation)-180);
+	// that should work just fine and dandy
+
 	Flag_sprite->setPosition(camera_offset + sf::Vector2f((10*Hull_component->Length), -(10*Hull_component->Length)));
 	// draws the flag near the vessel for some reason.
 	// really just window-dressing here, not necessary

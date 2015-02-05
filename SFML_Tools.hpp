@@ -144,6 +144,9 @@ class SFML_Window
 	// set the rotation to its new value
 	void Set_aperture_dimensions(long long unsigned int ap_w, long long unsigned int ap_h);
 	// set those dimensions in meters
+	bool Intersection(VectorVictor::Vector2 center, long double radius);
+	// check if a sphere with center and radius intersects the aperture box of
+	// the window, so that we know if it should be drawn
 	~SFML_Window();
 	// close up shop (and delete our RenderWindow)
 };

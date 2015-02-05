@@ -192,7 +192,7 @@ std::string CKeplerian_Object::Get_object_name()
 {	return Object_name;
 }	
 
-bool CKeplerian_Object::In_view(SFML_Window * window, int zoom_factor)
+bool CKeplerian_Object::In_view(SFML_Window * window, int zoom_factor, long double simtime)
 {	std::cout << "Bad call to CKeplerian_Object::In_view(SFML_Window * window, int zoom_factor, VectorVictor::Rectangle * view_frame)" << std::endl;
 	return false;
 }
@@ -320,18 +320,28 @@ VectorVictor::Vector2 TPlanet::Get_position(long double sim_time)
 }
 
 
-bool TPlanet::In_view(SFML_Window * window, int zoom_factor)
-{	if((Get_position(Simulation_time).Get_x() >= (window->origin.x-(Get_radius(0))))&&(Get_position(Simulation_time).Get_x() <= ((window->origin.x + (window->Aperture_width+(Get_radius(0)))))))
-	{	if((Get_position(Simulation_time).Get_y() <= (window->origin.y+(Get_radius(0))))&&(Get_position(Simulation_time).Get_y() >= (window->origin.y - ((window->Aperture_height+(Get_radius(0)))))))
-		{	return true;
-		}
-		else
-		{	return false;
-		}
-	}	
-	else
-	{	return false;
-	}
+bool TPlanet::In_view(SFML_Window * window, int zoom_factor, long double simtime)
+{	
+	long double radius = this->Get_radius(0);
+	return window->Intersection(this->Get_position(simtime), radius);
+	// dont know if this will work okay with the call to Get position, this was
+	// behaving badly before
+	
+	
+	
+	
+	
+//	if((Get_position(Simulation_time).Get_x() >= (window->origin.x-(Get_radius(0))))&&(Get_position(Simulation_time).Get_x() <= ((window->origin.x + (window->Aperture_width+(Get_radius(0)))))))
+//	{	if((Get_position(Simulation_time).Get_y() <= (window->origin.y+(Get_radius(0))))&&(Get_position(Simulation_time).Get_y() >= (window->origin.y - ((window->Aperture_height+(Get_radius(0)))))))
+//		{	return true;
+//		}
+//		else
+//		{	return false;
+//		}
+//	}	
+//	else
+//	{	return false;
+//	}
 	// simple algorithm checks if the coordinates of the planet are within the
 	// box represented by our camera. Completely useless right now, since
 	// the planet isnt even drawn outside of map view, but surface elements
@@ -375,7 +385,11 @@ void TPlanet::Draw_flag(SFML_Window * iwindow, int zoom_factor)
 	
 	for(std::vector<sf::Sprite*>::iterator it = Planet_sprites.begin(); it != Planet_sprites.end(); ++it)
 	{	(*it)->setPosition(camera_offset);
-	}	// eh, just easier to do it this way. I should probably change it
+	}
+	for(std::vector<sf::Sprite*>::iterator it = Planet_sprites.begin(); it != Planet_sprites.end(); ++it)
+	{	(*it)->setRotation(Theta + iwindow->Aperture_rotation);
+	}
+	// eh, just easier to do it this way. I should probably change it
 	// eventually so that it only positions the one that we need
 	iwindow->window->draw(*(Planet_sprites.at(zoom_factor-1)));
 	// pretty simple. Note the zoom - 1 offset to get the right location

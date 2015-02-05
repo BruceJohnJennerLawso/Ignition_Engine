@@ -548,10 +548,120 @@ void SFML_Window::Set_origin(long double x, long double y)
 	// set our VectorVictor2 to the right value
 }
 
+void SFML_Window::Set_aperture_rotation(long double new_rotation)
+{	Aperture_rotation = new_rotation;
+}
+
 void SFML_Window::Set_aperture_dimensions(long long unsigned int ap_w, long long unsigned int ap_h)
 {	Aperture_width = ap_w;
 	Aperture_height = ap_h;
 	// same deal, now just for the aperture dimensions
+}
+
+bool SFML_Window::Intersection(VectorVictor::Vector2 center, long double radius)
+{	center -= this->origin;
+	// get the relative offset of the center of the circle from the window
+	// origin 
+	center.Rotate_vector(-(this->Aperture_rotation));
+	// rotate things around so that the window is straight up and down relative
+	// to our coordinate system
+	center.y *= -1;
+	std::cout << center.Get_vector("m") << std::endl;
+	// now case statements, depending on the dimensions of the center vector
+	// at this point
+	if(center.x < 0)
+	{	if(center.x < -radius)
+		{	return false;
+		}
+		else
+		{	if((center.y >= 0)&&(center.y <= Aperture_height))
+			{	std::cout << "Window Intersection!" << std::endl;
+				return true;
+			}
+			else
+			{	// the long method for checking if we intersect the edge anyways
+				
+				// ehh screw it, why not do it right
+				
+				if(center.y > this->Aperture_height)
+				{	center.y -= this->Aperture_height;
+				}
+				long double r_squared = (center.y*center.y) + (center.x*center.x);
+				if(r_squared <= (radius*radius))
+				{	// compare the squares so that we dont have to invoke
+					// pythagoras
+					std::cout << "Window Intersection!" << std::endl;
+					return true;
+				}
+				else
+				{	return false;
+				}
+			}
+		}
+	}
+	else if((center.x >= 0)&&(center.x <= this->Aperture_width))
+	{	// the middle case, maybe easier
+		if(center.y > 0)
+		{	long double v_offset = center.y - this->Aperture_height;
+			if(v_offset > radius)
+			{	return false;
+			}
+			else
+			{	std::cout << "Window Intersection!" << std::endl;
+				return true;
+			}
+		}
+		else
+		{	// center.y is negative, so the center of the circle is above the
+			// box
+			if(center.y > radius)
+			{	return false;
+			}
+			else
+			{	std::cout << "Window Intersection!" << std::endl;
+				return true;
+			}
+		}
+	}
+	else
+	{	// positive and beyond the edge of the aperture
+		if(center.x > (radius + this->Aperture_width))
+		{	return false;
+			// too far away by definition, so false
+		}
+		else
+		{	// we already know from the above middle section check that this
+			// case must have an origin that is less than radius from the
+			// aperture width along the x axis
+			if((center.y >= 0)&&(center.y <= this->Aperture_height))
+			{	// identical check to the negative side of the box
+				std::cout << "Window Intersection!" << std::endl;
+				return true;
+			}
+			else
+			{	// the long method for checking if we intersect the edge anyways
+				
+				// ehh screw it, why not do it right
+				long double dx = center.x - this->Aperture_width;
+				if(center.y > this->Aperture_height)
+				{	center.y -= this->Aperture_height;
+				}				
+				long double r_squared = (center.y*center.y) + (dx*dx);
+				if(r_squared <= (radius*radius))
+				{	// compare the squares so that we dont have to invoke
+					// pythagoras
+					std::cout << "Window Intersection!" << std::endl;
+					return true;
+				}
+				else
+				{	return false;
+				}
+			}
+		}
+	}
+	// that was a beast
+	
+	// heres hoping its more efficient than it looks...
 }
 
 SFML_Window::~SFML_Window()

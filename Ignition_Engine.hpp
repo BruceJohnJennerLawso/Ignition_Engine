@@ -7,6 +7,8 @@
 #define IgnitionEngine
 
 class DeltaGlider;
+// I dont think this forward declare is necessary anymore
+// dont even recall why it was there in the first place
 
 class Ignition_engine
 {	public:
@@ -144,6 +146,16 @@ class Ignition_engine
 	
 	void Increase_time_acceleration();
 	void Decrease_time_acceleration();
+	
+	VectorVictor::Vector2 Camera_target;
+	long double Camera_rotation;
+	// the target for the camera and its rotation around the target point,
+	// clockwise in degrees
+	
+	void Position_window(TVessel * target_vessel);
+	// locate the window wherever we request
+	// this can eventually be overloaded as we please to set focus on other
+	// types of ingame objects
 	
 	~Ignition_engine();
 };

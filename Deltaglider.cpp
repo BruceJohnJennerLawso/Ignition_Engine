@@ -373,7 +373,7 @@ double DeltaGlider::Get_total_mass()
 	return net_mass;
 }
 
-double DeltaGlider::Get_PMI()
+long double DeltaGlider::Get_PMI()
 {	return PMI;
 }
 

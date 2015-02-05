@@ -34,6 +34,9 @@ Ignition_engine::Ignition_engine(std::string title, unsigned int initial_window_
 	Background_tex->loadFromFile("./Data/Images/starfield.png");
 	Background_sprite = new sf::Sprite(*Background_tex);
 	// load up the background stars and slot them into their sprite for drawing
+	
+	// the background sprite is being naughty here, gotta figure out some sort
+	// of workaround to make this work better
 	Displays_active = true;
 	// just a default behaviour, but again, still toggleable
 	
@@ -108,6 +111,7 @@ void Ignition_engine::Draw_standard_displays()
 
 int Ignition_engine::Ignition()	
 {	// All I can think of with this is the Freedom 7 scene from The Right Stuff
+	std::cout << "Value of cam rotation: " << Camera_rotation << std::endl;
 	std::string Window_title = "Ignition Engine";
 	// or later something program specific
 	Window_title.append(Program_version);
@@ -131,6 +135,7 @@ int Ignition_engine::Ignition()
 	// quick testing thing from earlier. required a hack on #! to disable vsync
 	// so probably useless. 
 	Current_vessel = Vessel_list.at(0);
+	this->Position_window(Current_vessel);	
 	// we want to set it to something here, because it cant just be left
 	// without a value, or we will crash needless to say
 	
@@ -267,6 +272,11 @@ int Ignition_engine::Ignition()
 		// Send any commands that we sent to our key commands object
 		// out to the current vessel/input receiver
 		
+		//Background_sprite->setRotation(Main_Window->Aperture_rotation);
+		
+		// this was screwy because I didnt think it through fully enough
+		// the problem is actually much more complex than I thought
+		
 		Main_Window->window->draw(*Background_sprite);																			
 		// draw the background. Wish there was some way to keep this drawn to
 		// avoid the painful redraw, but no dice. Maybe an OpenGL implementation
@@ -287,7 +297,13 @@ int Ignition_engine::Ignition()
 				// should also pass along the Newtonian and Vessel type
 				// lists for convenience too methinks
 			}
-			Main_Window->Set_origin((Current_vessel->NewtonianState.FlightState.Position.x - (Main_Window->Aperture_width/2)),(Current_vessel->NewtonianState.FlightState.Position.y + (Main_Window->Aperture_height/2)));		
+			
+			//Main_Window->Set_origin((Current_vessel->NewtonianState.FlightState.Position.x - (Main_Window->Aperture_width/2)),(Current_vessel->NewtonianState.FlightState.Position.y + (Main_Window->Aperture_height/2)));		
+			
+			this->Position_window(Current_vessel);
+			// easy mode ladies & germs
+			
+			
 			// Relocate the window to center on current vessel
 			// I always disliked how Orbiter did this, would rather
 			// have some sort of polymorphic "targetable" setup, so
@@ -300,7 +316,7 @@ int Ignition_engine::Ignition()
 				
 				// at least one thing verified here:
 				// premature optimization really is the root of all evil ;)
-				if((*it)->In_view(Main_Window, 0) == true)	// check if the vessel is in view
+				if((*it)->In_view(Main_Window, zoom_exponent) == true)	// check if the vessel is in view
 				{	(*it)->Draw_vessel(Main_Window, camera_scale);																						
 					// and draw it if it is. Saves draw calls if the 
 					// vessel isnt currently onscreen
@@ -334,12 +350,12 @@ int Ignition_engine::Ignition()
 			for(std::vector<TVessel*>::iterator it = Vessel_list.begin(); it != Vessel_list.end(); ++it)				// Iterate through all vessels in the current instance
 			{	(*it)->Frame(deltat, simulation_time, Celestial_list);	
 			}	
-			Main_Window->Set_origin((Current_vessel->NewtonianState.FlightState.Position.x - (Main_Window->Aperture_width/2)),(Current_vessel->NewtonianState.FlightState.Position.y + (Main_Window->Aperture_height/2)));
-			// dammit, premature optimization...
+			//Main_Window->Set_origin((Current_vessel->NewtonianState.FlightState.Position.x - (Main_Window->Aperture_width/2)),(Current_vessel->NewtonianState.FlightState.Position.y + (Main_Window->Aperture_height/2)));
+			this->Position_window(Current_vessel);
 			for(std::vector<CKeplerian_Object*>::iterator it = Celestial_list.begin(); it != Celestial_list.end(); ++it)
 			{	// same deal as camera view, just based on the size of the
 				// map view instead
-				if((*it)->In_view(Main_Window, zoom_exponent) == true)
+				if((*it)->In_view(Main_Window, zoom_exponent, simulation_time) == true)
 				{	(*it)->Draw_flag(Main_Window, zoom_exponent);	
 				}	// same problem as before, needs to be optimized where
 						// vessels are concerned
@@ -562,6 +578,16 @@ void Ignition_engine::Increase_time_acceleration()
 	}
 }	// speed up time acceleration by 10 times
 
+
+void Ignition_engine::Position_window(TVessel * target_vessel)
+{	Camera_rotation = target_vessel->NewtonianState.Rotation.Theta;
+	Camera_target.Set_values(-(Main_Window->Aperture_width/2), (Main_Window->Aperture_height/2));
+	Camera_target.Rotate_vector(Camera_rotation);
+	// rotate it around so we get the correct direction
+	Main_Window->Set_origin(Camera_target.x, Camera_target.y);
+	Main_Window->Set_aperture_rotation(Camera_rotation);
+	// set our window to the correct location and we are good to go
+}
 
 Ignition_engine::~Ignition_engine()
 {	

@@ -98,7 +98,7 @@ class CKeplerian_Object
 	// I think this was related to multiple sprites being generated for
 	// different zoom factors, but I dont see a specific reason why they couldnt
 	// be stored here instead
-	virtual bool In_view(SFML_Window * window, int zoom_factor);	
+	virtual bool In_view(SFML_Window * window, int zoom_factor, long double simtime);	
 	// how we check if the planet should be drawn
 	virtual void Draw_flag(SFML_Window * iwindow, int zoom_factor);
 	// and how we do it if it should
@@ -123,7 +123,7 @@ class TPlanet: public CKeplerian_Object
 	// need to remember what the order was for scales
 	// after a certain point of zooming out, we just assumed that the image
 	// looks the same no matter how much farther we go
-	bool In_view(SFML_Window * window, int zoom_factor);
+	bool In_view(SFML_Window * window, int zoom_factor, long double simtime);
 	void Draw_flag(SFML_Window * iwindow, int zoom_factor);	
 	// Similar deal as before. Should double check that the inview check uses
 	// the correct radius for that map scale
