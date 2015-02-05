@@ -387,7 +387,7 @@ void TPlanet::Draw_flag(SFML_Window * iwindow, int zoom_factor)
 	{	(*it)->setPosition(camera_offset);
 	}
 	for(std::vector<sf::Sprite*>::iterator it = Planet_sprites.begin(); it != Planet_sprites.end(); ++it)
-	{	(*it)->setRotation(Theta + iwindow->Aperture_rotation);
+	{	(*it)->setRotation(Theta - iwindow->Aperture_rotation);
 	}
 	// eh, just easier to do it this way. I should probably change it
 	// eventually so that it only positions the one that we need

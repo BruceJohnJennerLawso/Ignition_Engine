@@ -141,7 +141,7 @@ int Ignition_engine::Ignition()
 	
 	// so we set it to the first vessel in the main vessel list 
 	
-	while (Main_Window->window->isOpen())// love how plain language SFML is <3
+	while (Main_Window->window->isOpen())
 	{	sf::Event event;
 		// some internal thing with SFML inputs
 		redraw_timer += redraw_clock.restart().asSeconds();
@@ -237,10 +237,6 @@ int Ignition_engine::Ignition()
 			// this whole section above could probably be separated into a
 			// function... hmm
 		}	
-		
-		// I think this is what it feels like to create a monster:
-		// I have no idea how it works, and I should probably deal with it
-		// so that it doesnt hurt anybody in the future
 		Main_Window->window->clear();
 		// Clears the main window so that we can begin redrawing stuff onscreen
 		
@@ -316,7 +312,7 @@ int Ignition_engine::Ignition()
 				
 				// at least one thing verified here:
 				// premature optimization really is the root of all evil ;)
-				if((*it)->In_view(Main_Window, zoom_exponent) == true)	// check if the vessel is in view
+				if((*it)->In_view(Main_Window, 0) == true)	// check if the vessel is in view
 				{	(*it)->Draw_vessel(Main_Window, camera_scale);																						
 					// and draw it if it is. Saves draw calls if the 
 					// vessel isnt currently onscreen
@@ -583,7 +579,9 @@ void Ignition_engine::Position_window(TVessel * target_vessel)
 {	Camera_rotation = target_vessel->NewtonianState.Rotation.Theta;
 	Camera_target.Set_values(-(Main_Window->Aperture_width/2), (Main_Window->Aperture_height/2));
 	Camera_target.Rotate_vector(Camera_rotation);
-	// rotate it around so we get the correct direction
+	// rotate it around so we get the correct direction	
+	Camera_target += target_vessel->NewtonianState.FlightState.Position;	
+	// wow, I am just not with it today...
 	Main_Window->Set_origin(Camera_target.x, Camera_target.y);
 	Main_Window->Set_aperture_rotation(Camera_rotation);
 	// set our window to the correct location and we are good to go
