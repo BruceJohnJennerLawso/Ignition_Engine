@@ -709,8 +709,11 @@ void TVessel::Draw_vessel(SFML_Window * iwindow, double cam_scale)
 	// it used x & y.
 	// This area needs to be looked over again
 	sf::Vector2f camera_offset = Get_window_coordinates(NewtonianState.FlightState.Position, iwindow, cam_scale);
+	// I just dont get it, this should work just fine
+	// translation looks okay, but the thing goes nuts rotating twice over the
+	// full 360 degrees 
 	Object_sprite->setPosition(camera_offset);
-	Object_sprite->setRotation(NewtonianState.Rotation.Theta + iwindow->Aperture_rotation);
+	Object_sprite->setRotation(NewtonianState.Rotation.Theta - iwindow->Aperture_rotation);
 	// that should work just fine and dandy
 
 	Flag_sprite->setPosition(camera_offset + sf::Vector2f((10*Hull_component->Length), -(10*Hull_component->Length)));

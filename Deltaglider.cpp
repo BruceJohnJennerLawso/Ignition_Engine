@@ -171,6 +171,7 @@ DeltaGlider::DeltaGlider(double initial_x_position, double initial_y_position, d
 		// This area needs to be looked over again
 	}	
 	Object_sprite->setOrigin((Vessel_tex->getSize().x/2), (Vessel_tex->getSize().y/2));
+	// ok the sprite definitely gets centered there...
 	Object_sprite->setRotation(this->NewtonianState.Rotation.Theta);
 	// and we center the origin and rotate it appropriately
 	Talkback("...Constructed Delta Glider");

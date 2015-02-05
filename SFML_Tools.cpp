@@ -679,7 +679,7 @@ sf::Vector2f Get_window_coordinates(VectorVictor::Vector2 sim_point, SFML_Window
 	sim_point -= camera_origin;
 	// get the relative offset from the camera origin to
 	// the point in simulation as a VV2
-	sim_point.Rotate_vector(iwindow->Aperture_rotation);
+	sim_point.Rotate_vector(-iwindow->Aperture_rotation);
 	// rotate the vector around into the reference frame of
 	// the window box, now straight up and down relative to
 	// the global coordinate frame axes
@@ -697,11 +697,14 @@ sf::Vector2f Get_window_coordinates(VectorVictor::Vector2 sim_point, SFML_Window
 }
 
 sf::Vector2f Get_window_coordinates(VectorVictor::Vector2 sim_point, SFML_Window * iwindow, double cam_scale)
-{	VectorVictor::Vector2 camera_origin(iwindow->origin.Get_x(), iwindow->origin.Get_y());
+{	
+	
+	
+	VectorVictor::Vector2 camera_origin(iwindow->origin.Get_x(), iwindow->origin.Get_y());
 	sim_point -= camera_origin;
 	// get the relative offset of the point from the window
 	// origin
-	sim_point.Rotate_vector(iwindow->Aperture_rotation);
+	sim_point.Rotate_vector(-iwindow->Aperture_rotation);
 	// rotate the vector so that the window is straight up and down
 	sim_point.y *= -1;
 	// flip the y axis so that SFML is happy
@@ -727,9 +730,10 @@ VectorVictor::Vector2 Get_simulation_coordinates(sf::Vector2f window_point, SFML
 	// of the point from the camera origin in universe coordinates
 	sim_point.y *= -1;
 	// we flip the y axis, since the SFML coordinates will be mirrored
-	// vertically compared to  
+	// vertically compared to the VV2 coordinate system that the engine
+	// uses 
 	
-	sim_point.Rotate_vector(-iwindow->Aperture_rotation);
+	sim_point.Rotate_vector(iwindow->Aperture_rotation);
 	
 	sim_point += iwindow->origin;
 	// we add the main windows origin point to transform the point to the sim
@@ -749,7 +753,7 @@ VectorVictor::Vector2 Get_simulation_coordinates(sf::Vector2f window_point, SFML
 	sim_point.y *= -1;
 	// again, flip the y axis because SFML has down as positive y, for reasons
 	// that are its own
-	sim_point.Rotate_vector(-iwindow->Aperture_rotation);
+	sim_point.Rotate_vector(iwindow->Aperture_rotation);
 	// rotate the vector back into the correct orientation of the window
 	
 	sim_point += iwindow->origin;

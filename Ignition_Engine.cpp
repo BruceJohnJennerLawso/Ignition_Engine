@@ -576,9 +576,20 @@ void Ignition_engine::Increase_time_acceleration()
 
 
 void Ignition_engine::Position_window(TVessel * target_vessel)
-{	Camera_rotation = target_vessel->NewtonianState.Rotation.Theta;
+{	this->Set_aperture_scale();
+	// just checking for funny business here...
+	// seemed to help a little bit anyways
+	
+	Camera_rotation = target_vessel->NewtonianState.Rotation.Theta;
 	Camera_target.Set_values(-(Main_Window->Aperture_width/2), (Main_Window->Aperture_height/2));
+	std::cout << "Camera offset before rotation: " << Camera_target.Get_vector("m") << std::endl;
+	std::cout << "camera offset from target vessel before target rotation: " << Camera_target.Get_vector_magnitude() << std::endl;	
+	std::cout << Camera_target.Get_rotated_vector(Camera_rotation).Get_vector_magnitude() << std::endl;
 	Camera_target.Rotate_vector(Camera_rotation);
+	std::cout << "camera offset from target vessel: " << Camera_target.Get_vector_magnitude() << std::endl;
+	// okay there is something definitely wrong here if the length of the vector
+	// is deciding to be variable
+	
 	// rotate it around so we get the correct direction	
 	Camera_target += target_vessel->NewtonianState.FlightState.Position;	
 	// wow, I am just not with it today...
