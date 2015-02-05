@@ -3,7 +3,7 @@
 
 g++ -c -std=c++0x Ignition.cpp VectorVictor2.cpp bobby.cpp
 g++ bobby.o VectorVictor2.o Ignition.o -lsfml-graphics -lsfml-window -lsfml-system -lsfml-audio -o vv2
-./vv2
+./vv2 &
 #!g++ -c -std=c++0x Starfighter.cpp Ignition_Engine.cpp Game_Objects.cpp Inertia_moment.cpp SFML_Tools.cpp VectorVictor2.cpp 
 
 exit 0
