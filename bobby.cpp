@@ -48,7 +48,9 @@ int main()
 					fuubar.y = -input_click.y;	
 				}
 				if(event.mouseButton.button == sf::Mouse::Button::Right)
-				{	fuubar.Rotate_vector(30);
+				{	fuubar.Rotate_vector(-15);
+					//fuubar = fuubar.Get_rotated_vector(-15);
+					// okay, that is weird
 				}
 			}
 		}

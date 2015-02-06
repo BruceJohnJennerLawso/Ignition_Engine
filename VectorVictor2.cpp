@@ -390,11 +390,16 @@ void VectorVictor::Vector2::Rotate_vector(long double rotation)
 {	rotation = ((rotation/360)*2*Pi);	
 	// we convert our rotation from degrees to radians, since standard library
 	// math calls want radians to do their calculations			
-	x = ( (x*(cos(rotation)))+(y*(sin(rotation))) );	
+	long double new_x = ( (x*(cos(rotation)))+(y*(sin(rotation))) );	
+	// AHAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+	// AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+	
+	// the variables are changing with respect to themselves!!!!
+	// AM WINNER PROGRAMMER, SUCH OF FULL oF WIN
 	y = ( (x*((-1)*sin(rotation)))+(y*(cos(rotation))) );
 	// multiply the vector by the 2d rotational matrix, rotating clockwise
 	// around the origin. 
-	
+	x = new_x;
 	// [cos(theta)		sin(theta)]
 	// [-sin(theta		cos(theta)]
 	
