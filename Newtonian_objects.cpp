@@ -672,8 +672,7 @@ bool TVessel::In_view(SFML_Window * window, int zoom_factor)
 {	long double radius = this->Get_length();
 	radius /= 2;
 	if(window->Intersection(this->NewtonianState.FlightState.Position, radius) == true)
-	{	std::cout << "Intersection for vessel " << this->Get_vessel_name() << std::endl;
-		return true;
+	{	return true;
 	}
 	else
 	{	//std::cout << "No intersection for vessel " << this->Get_vessel_name() << std::endl;

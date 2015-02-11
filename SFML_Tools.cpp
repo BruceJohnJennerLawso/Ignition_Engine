@@ -566,7 +566,6 @@ bool SFML_Window::Intersection(VectorVictor::Vector2 center, long double radius)
 	// rotate things around so that the window is straight up and down relative
 	// to our coordinate system
 	center.y *= -1;
-	std::cout << center.Get_vector("m") << std::endl;
 	// now case statements, depending on the dimensions of the center vector
 	// at this point
 	if(center.x < 0)
@@ -575,8 +574,7 @@ bool SFML_Window::Intersection(VectorVictor::Vector2 center, long double radius)
 		}
 		else
 		{	if((center.y >= 0)&&(center.y <= Aperture_height))
-			{	std::cout << "Window Intersection!" << std::endl;
-				return true;
+			{	return true;
 			}
 			else
 			{	// the long method for checking if we intersect the edge anyways
@@ -590,7 +588,6 @@ bool SFML_Window::Intersection(VectorVictor::Vector2 center, long double radius)
 				if(r_squared <= (radius*radius))
 				{	// compare the squares so that we dont have to invoke
 					// pythagoras
-					std::cout << "Window Intersection!" << std::endl;
 					return true;
 				}
 				else
@@ -607,8 +604,7 @@ bool SFML_Window::Intersection(VectorVictor::Vector2 center, long double radius)
 			{	return false;
 			}
 			else
-			{	std::cout << "Window Intersection!" << std::endl;
-				return true;
+			{	return true;
 			}
 		}
 		else
@@ -618,8 +614,7 @@ bool SFML_Window::Intersection(VectorVictor::Vector2 center, long double radius)
 			{	return false;
 			}
 			else
-			{	std::cout << "Window Intersection!" << std::endl;
-				return true;
+			{	return true;
 			}
 		}
 	}
@@ -635,7 +630,6 @@ bool SFML_Window::Intersection(VectorVictor::Vector2 center, long double radius)
 			// aperture width along the x axis
 			if((center.y >= 0)&&(center.y <= this->Aperture_height))
 			{	// identical check to the negative side of the box
-				std::cout << "Window Intersection!" << std::endl;
 				return true;
 			}
 			else
@@ -650,7 +644,6 @@ bool SFML_Window::Intersection(VectorVictor::Vector2 center, long double radius)
 				if(r_squared <= (radius*radius))
 				{	// compare the squares so that we dont have to invoke
 					// pythagoras
-					std::cout << "Window Intersection!" << std::endl;
 					return true;
 				}
 				else

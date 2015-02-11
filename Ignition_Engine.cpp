@@ -582,11 +582,7 @@ void Ignition_engine::Position_window(TVessel * target_vessel)
 	
 	Camera_rotation = target_vessel->NewtonianState.Rotation.Theta;
 	Camera_target.Set_values(-(Main_Window->Aperture_width/2), (Main_Window->Aperture_height/2));
-	std::cout << "Camera offset before rotation: " << Camera_target.Get_vector("m") << std::endl;
-	std::cout << "camera offset from target vessel before target rotation: " << Camera_target.Get_vector_magnitude() << std::endl;	
-	std::cout << Camera_target.Get_rotated_vector(Camera_rotation).Get_vector_magnitude() << std::endl;
 	Camera_target.Rotate_vector(Camera_rotation);
-	std::cout << "camera offset from target vessel: " << Camera_target.Get_vector_magnitude() << std::endl;
 	// okay there is something definitely wrong here if the length of the vector
 	// is deciding to be variable
 	
