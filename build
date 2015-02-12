@@ -4,6 +4,6 @@ printf "Beginning compilation..."
 ./compile
 printf "Finished compilation\nBeginning linking..."
 ./link
-printf "Finished linking"
+printf "Finished linking\n"
 
 exit 0
