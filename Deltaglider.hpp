@@ -25,12 +25,11 @@ class DeltaGlider: public TVessel
 	// the first class of this type written for testing purposes
 	// a homage to Orbiter, without which this project never would have happened
 	// Hail the Probe!!!
-	DeltaGlider(double initial_x_position, double initial_y_position, double initial_x_velocity, double initial_y_velocity, double initial_theta, double initial_omega, double initial_main_propellant, double initial_rcs_propellant,  sf::Sprite * iFlag_sprite, sf::Texture * XWing_texture, std::string ivessel_name, std::string panel_path, sf::Font * controls_font, Propagator_type propagator);
+	DeltaGlider(double initial_x_position, double initial_y_position, double initial_x_velocity, double initial_y_velocity, double initial_theta, double initial_omega, double initial_main_propellant, double initial_rcs_propellant,  sf::Texture vessel_textures, sf::Sprite flag_sprite, std::string ivessel_name, std::string panel_path, std::string controls_font, Propagator_type propagator);
 	// Only constructor at the moment, will eventually need one that works for
 	// reloading sims from a scenario file
-	DeltaGlider(ObjectState initial_object_state, double initial_main_propellant, double initial_rcs_propellant,  sf::Sprite * iFlag_sprite, sf::Texture * XWing_texture, std::string ivessel_name, std::string panel_path, sf::Font * controls_font, Propagator_type propagator);	
+	DeltaGlider(ObjectState initial_object_state, double initial_main_propellant, double initial_rcs_propellant, sf::Texture vessel_textures, sf::Sprite flag_sprite, std::string ivessel_name, std::string panel_path, std::string controls_font, Propagator_type propagator);	
 	
-	double k_throttle;
 	// the rate at which the throttle moves around in (throttle units/ second)
 	// throttle only has a range of 1, so values need to be between that and
 	// zero (generally quite small, although it depends on the specific case)
@@ -73,26 +72,6 @@ class DeltaGlider: public TVessel
 	// Draw controls should become Draw displays if the change I mentioned
 	// above with the instance specific readouts goes into effect
 	
-	
-	
-	void Rotate_left(double dt);
-	void Rotate_right(double dt);
-	
-	void Rotate_left(double dt, double throttle_target);
-	void Rotate_right(double dt, double throttle_target);
-	
-	void Translate_forward(double dt);
-	void Translate_backward(double dt);
-	void Translate_left(double dt);
-	void Translate_right(double dt);
-	void Throttle_up(double dt);
-	void Throttle_down(double dt);	
-	void No_command(double dt);
-	void Kill_rotation(double dt);
-	// implementations of what gets executed when the commands are called
-	
-	// this is all about to bite the dust
-	
 	Resource_Tank * Main_fuel, * RCS_fuel;
 	// Fuel tanks, with no specific connection to anything above this class
 	sf::Color * text_colour;
@@ -103,7 +82,14 @@ class DeltaGlider: public TVessel
 	~DeltaGlider();
 };
 
+TVessel * Construct_deltaglider(ObjectState initial_object_state, double initial_main_propellant, double initial_rcs_propellant,  sf::Texture vessel_textures, sf::Sprite flag_sprite, std::string ivessel_name, std::string panel_path, std::string controls_font, Propagator_type propagator);
+// this should be stripped back parameter wise until it fits some kind of
+// format thats agnostic to the exact type of the vessel being created, and then
+// the specific variables like tank fullness can be grabbed by whatever function
+// is loading from the scenario file
 
-
+// this is so that we can just figure out what kind of vessel we need to make
+// from the scenario file and then just make it using the right function pointer
+// which has equivalent arguments to the above function
 #endif
 

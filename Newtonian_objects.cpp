@@ -573,54 +573,191 @@ CNewtonian_Object* CNewtonian_Object::Get_Newtonian_pointer()
 ////////////////////////////////////////////////////////////////////////////////
 
 
-void TVessel::Init_vessel_type()
-{	
-}
 
 // getting a little more specific at this point, dealing with specific
 // functionality that a spacecraft really needs to have
 
-void TVessel::Rotate_left(double dt)
-{	std::cout << "Bad call to TVessel::Rotate_left(double dt) " << std::endl;
+
+void TVessel::Translate_left(double dt)
+{	for(std::vector<Thruster*>::iterator it = Thrusters.begin(); it != Thrusters.end(); ++it)
+	{	if((*it)->Is_in_group(translate_left))
+		{	(*it)->Throttle_up(dt, RCS_Throttle_constant);
+		}
+		else
+		{	if((*it)->Is_RCS == true)
+			{	(*it)->Throttle_down(dt, RCS_Throttle_constant);
+			}
+		}
+	}
 }
 
-void TVessel::Rotate_right(double dt)
-{	std::cout << "Bad call to TVessel::Rotate_right(double dt) " << std::endl;
-}
+// obvious as it gets, just adjust throttles based on dt and the k_throttle
+// for the given thruster. This should accept a parameter to modify k_throttle
+// so we can modify it on the spot instead of passing through stuff with dt
+// I smell disaster there, so its better not to tempt fate
 
-void TVessel::Kill_rotation(double dt)	
-{	std::cout << "Bad call to TVessel::Kill_rotation(double dt) " << std::endl;
-}
-
-void TVessel::Translate_forward(double dt)
-{	std::cout << "Bad call to TVessel::Translate_forward(double dt) " << std::endl;
+void TVessel::Translate_right(double dt)
+{	for(std::vector<Thruster*>::iterator it = Thrusters.begin(); it != Thrusters.end(); ++it)
+	{	if((*it)->Is_in_group(translate_right))
+		{	(*it)->Throttle_up(dt, RCS_Throttle_constant);
+		}
+		else
+		{	if((*it)->Is_RCS == true)
+			{	(*it)->Throttle_down(dt, RCS_Throttle_constant);
+			}
+		}
+	}
 }
 
 void TVessel::Translate_backward(double dt)
-{	std::cout << "Bad call to TVessel::Translate_backward(double dt) " << std::endl;
+{	for(std::vector<Thruster*>::iterator it = Thrusters.begin(); it != Thrusters.end(); ++it)
+	{	if((*it)->Is_in_group(translate_back))
+		{	(*it)->Throttle_up(dt, RCS_Throttle_constant);
+		}
+		else
+		{	if((*it)->Is_RCS == true)
+			{	(*it)->Throttle_down(dt, RCS_Throttle_constant);
+			}
+		}
+	}
 }
 
-void TVessel::Translate_left(double dt)
-{	std::cout << "Bad call to TVessel::Translate_left(double dt) " << std::endl;
-}
+void TVessel::Translate_forward(double dt)
+{	for(std::vector<Thruster*>::iterator it = Thrusters.begin(); it != Thrusters.end(); ++it)
+	{	if((*it)->Is_in_group(translate_forward))
+		{	(*it)->Throttle_up(dt, RCS_Throttle_constant);
+		}
+		else
+		{	if((*it)->Is_RCS == true)
+			{	(*it)->Throttle_down(dt, RCS_Throttle_constant);
+			}
+		}
+	}
+}	
 
-void TVessel::Translate_right(double dt)
-{	std::cout << "Bad call to TVessel::Translate_right(double dt) " << std::endl;
-}
+void TVessel::Rotate_right(double dt)
+{	for(std::vector<Thruster*>::iterator it = Thrusters.begin(); it != Thrusters.end(); ++it)
+	{	if((*it)->Is_in_group(rotate_clockwise))
+		{	(*it)->Throttle_up(dt, RCS_Throttle_constant);
+		}
+		else
+		{	if((*it)->Is_RCS == true)
+			{	(*it)->Throttle_down(dt, RCS_Throttle_constant);
+			}
+		}
+	}
+}	
+
+void TVessel::Rotate_right(double dt, double throttle_target)
+{	for(std::vector<Thruster*>::iterator it = Thrusters.begin(); it != Thrusters.end(); ++it)
+	{	if((*it)->Is_in_group(rotate_clockwise))
+		{	(*it)->Throttle_to(dt, RCS_Throttle_constant, throttle_target);
+		}
+		else
+		{	if((*it)->Is_RCS == true)
+			{	(*it)->Throttle_down(dt, RCS_Throttle_constant);
+			}
+		}
+	}
+}	
+
+void TVessel::Rotate_left(double dt)
+{	for(std::vector<Thruster*>::iterator it = Thrusters.begin(); it != Thrusters.end(); ++it)
+	{	if((*it)->Is_in_group(rotate_counterclockwise))
+		{	(*it)->Throttle_up(dt, RCS_Throttle_constant);
+		}
+		else
+		{	if((*it)->Is_RCS == true)
+			{	(*it)->Throttle_down(dt, RCS_Throttle_constant);
+			}
+		}
+	}
+}	
+
+void TVessel::Rotate_left(double dt, double throttle_target)
+{	for(std::vector<Thruster*>::iterator it = Thrusters.begin(); it != Thrusters.end(); ++it)
+	{	if((*it)->Is_in_group(rotate_counterclockwise))
+		{	(*it)->Throttle_to(dt, RCS_Throttle_constant, throttle_target);
+		}
+		else
+		{	if((*it)->Is_RCS == true)
+			{	(*it)->Throttle_down(dt, RCS_Throttle_constant);
+			}
+		}
+	}
+}	
+
+void TVessel::No_command(double dt)
+{	for(std::vector<Thruster*>::iterator it = Thrusters.begin(); it != Thrusters.end(); ++it)
+	{	if((*it)->Is_RCS == true)
+		{	(*it)->Throttle_down(dt, RCS_Throttle_constant);
+		}
+	}
+}	
 
 void TVessel::Throttle_up(double dt)
-{	std::cout << "Bad call to TVessel::Throttle_up(double dt) " << std::endl;
+{	for(std::vector<Thruster*>::iterator it = Thrusters.begin(); it != Thrusters.end(); ++it)
+	{	if((*it)->Is_in_group(main_engines))
+		{	(*it)->Throttle_up(dt, Main_throttle_constant);
+		}
+	}
+	
 }
 
 void TVessel::Throttle_down(double dt)
-{	std::cout << "Bad call to TVessel::Throttle_down(double dt) " << std::endl;
+{	for(std::vector<Thruster*>::iterator it = Thrusters.begin(); it != Thrusters.end(); ++it)
+	{	if((*it)->Is_in_group(main_engines))
+		{	(*it)->Throttle_down(dt, Main_throttle_constant);
+		}
+	}
+}	
+
+void TVessel::Kill_rotation(double dt)
+{	if(this->NewtonianState.Rotation.Omega != 0.000000000000)
+	{	
+		double delta_omega = Absolute_value(this->NewtonianState.Rotation.Omega);
+		double magnitude_alpha;
+		double max_alpha;
+		if(this->NewtonianState.Rotation.Omega > 0.000000000000)
+		{	max_alpha = this->Get_max_alpha(counterclockwise);
+			magnitude_alpha = Absolute_value(max_alpha);
+			if(this->NewtonianState.Rotation.Alpha > 0.000000000000)
+			{	Rotate_left(dt);
+			}
+			else
+			{	if(magnitude_alpha > delta_omega)
+				{	double percentage = (delta_omega/magnitude_alpha);
+					Rotate_left(dt, percentage);
+				}
+				else
+				{	Rotate_left(dt);
+				}
+			}
+		}
+		else 	// the negative case
+		{	max_alpha = this->Get_max_alpha(clockwise);
+			magnitude_alpha = Absolute_value(max_alpha);
+			if(this->NewtonianState.Rotation.Alpha < 0.000000000000)
+			{	Rotate_right(dt);
+			}
+			else
+			{	if(magnitude_alpha > delta_omega)
+				{	double percentage = (delta_omega/magnitude_alpha);
+					Rotate_right(dt, percentage);
+				}
+				else
+				{	Rotate_right(dt);
+				}
+			}
+		}	
+	}	
+	// awwww yeahhhh, thats what Im talkin about
+	else
+	{	No_command(dt);
+	}
 }
 
-void TVessel::No_command(double dt)
-{	std::cout << "Bad call to TVessel::No_command(double dt) " << std::endl;
-}
 
-// all not handled at this level, but had to be defined anyways
 
 void TVessel::Draw_controls(SFML_Window * iwindow, bool Map_status)
 {	// should be a warning message here too...
@@ -715,7 +852,7 @@ void TVessel::Draw_vessel(SFML_Window * iwindow, double cam_scale)
 	Object_sprite->setRotation(NewtonianState.Rotation.Theta - iwindow->Aperture_rotation);
 	// that should work just fine and dandy
 
-	Flag_sprite->setPosition(camera_offset + sf::Vector2f((10*Hull_component->Length), -(10*Hull_component->Length)));
+	Flag_sprite.setPosition(camera_offset + sf::Vector2f((10*Hull_component->Length), -(10*Hull_component->Length)));
 	// draws the flag near the vessel for some reason.
 	// really just window-dressing here, not necessary
 	
@@ -751,8 +888,8 @@ void TVessel::Draw_flag(SFML_Window * iwindow, int zoom_factor)
 	
 	// scale the offset back by 1/(10^zoom), since the offset in pixels needs
 	// to be shrunk to fit the scale of the window
-	Flag_sprite->setPosition(camera_offset);
-	iwindow->window->draw(*Flag_sprite);
+	Flag_sprite.setPosition(camera_offset);
+	iwindow->window->draw(Flag_sprite);
 	// and we finally locate the sprite in the window, and draw it
 }
 

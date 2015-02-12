@@ -12,7 +12,7 @@ class DeltaGlider;
 
 class Ignition_engine
 {	public:
-	Ignition_engine(std::string title, unsigned int initial_window_width, unsigned int initial_window_height, std::string program_version, double redraw_displays_interval, std::string standard_display_font);
+	Ignition_engine(std::string title, unsigned int initial_window_width, unsigned int initial_window_height, std::string program_version, double redraw_displays_interval, std::string standard_display_font, std::string starfield);
 	// base constructor
 	// future versions should eventually have more overloads for things like
 	// start on construction, loading from a scn file or somesuch...
@@ -102,7 +102,7 @@ class Ignition_engine
 	
 	std::string Program_version;
 	// ahhh... this might be the window titles last few digits indicating the
-	// project number (0.1, 0.11, 0.71, 0.9, 1.0, etc...). Or maybe it was
+	// project number (0.1, 0.11, 0.71, 0.9, 1.0, etc...). Or maybe it was	double width_value = (double)initial_window_width;
 	// something else entirely, I dont remember right now
 	
 	// this should be investigated soon, although I see no reason why it would
@@ -167,5 +167,7 @@ void Exit_program();
 // ugly cleanup function that never seems to have everything it needs.
 // again, should be superceeded by the Ignition destructor
 // just ugly remnants of a young project
+
+double Larger_of(double value1, double value2);
 
 #endif

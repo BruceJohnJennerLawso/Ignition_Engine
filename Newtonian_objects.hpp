@@ -234,7 +234,7 @@ class CNewtonian_Object
 	
 	double pix_length;
 	
-	sf::Sprite * Flag_sprite;	
+	sf::Sprite Flag_sprite;	
 	// the little icon that gets drawn in the map view.
 	// A couple of things should change for this I think, specifically the flag
 	// will behave as a dynamic popup when the user mouses over it
@@ -270,25 +270,25 @@ class TVessel: virtual public CNewtonian_Object
 	// the hull, of which there should only ever be one
 	// I cant imagine why a second one of these should ever be needed
 	
-	void Init_vessel_type();
-	// it doesnt now, but this must need arguments in the future
-	// how could it possibly not?
 	
-	// I mean like things like position and whatnot
-	// although the init will probably
+	double RCS_Throttle_constant, Main_throttle_constant;
 	
-	virtual void Rotate_left(double dt);
-	virtual void Rotate_right(double dt);
-	virtual void Kill_rotation(double dt);					
+	void Rotate_left(double dt);
+	void Rotate_right(double dt);
+	
+	void Rotate_left(double dt, double throttle_target);
+	void Rotate_right(double dt, double throttle_target);
+	
+	void Kill_rotation(double dt);					
 	// this seems at first to conflict with rot left/right, but since input
 	// commands come in one by one, they shouldnt. I hope
-	virtual void Translate_forward(double dt);
-	virtual void Translate_backward(double dt);
-	virtual void Translate_left(double dt);
-	virtual void Translate_right(double dt);
-	virtual void Throttle_up(double dt);
-	virtual void Throttle_down(double dt);
-	virtual void No_command(double dt);
+	void Translate_forward(double dt);
+	void Translate_backward(double dt);
+	void Translate_left(double dt);
+	void Translate_right(double dt);
+	void Throttle_up(double dt);
+	void Throttle_down(double dt);
+	void No_command(double dt);
 	// basically, if Receive_inputs, or any other function decides that a
 	// particular control action needs to be run, one (or more?) of these
 	// methods gets called to make it happen

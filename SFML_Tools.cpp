@@ -559,7 +559,14 @@ void SFML_Window::Set_aperture_dimensions(long long unsigned int ap_w, long long
 }
 
 bool SFML_Window::Intersection(VectorVictor::Vector2 center, long double radius)
-{	center -= this->origin;
+{	// this *works* for now, but I very strongly am considering just redoing it
+	// as a circle with radius of the sum of the squares of the window axis.
+	// This is efficient for small camera views, but could prove really bad at
+	// large camera views...
+	
+	// I dunno, but the current thing is a mess, cant just leave it like this
+	
+	center -= this->origin;
 	// get the relative offset of the center of the circle from the window
 	// origin 
 	center.Rotate_vector(-(this->Aperture_rotation));
@@ -782,7 +789,11 @@ void Ignition_drawable::Center_element()
 // Ignition text type //////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
 
-Ignition_text::Ignition_text(sf::Font &text_font, sf::Vector2f initial_position, std::string initial_text, sf::Color initial_colour, unsigned int character_size, bool center_origin)
+Ignition_text::Ignition_text(std::string text_font, sf::Vector2f initial_position, std::string initial_text, sf::Color initial_colour, unsigned int character_size, bool center_origin)
+{	this->Init_object(text_font, initial_position, initial_text, initial_colour, character_size, center_origin);
+}
+
+Ignition_text::Ignition_text(sf::Font text_font, sf::Vector2f initial_position, std::string initial_text, sf::Color initial_colour, unsigned int character_size, bool center_origin)
 {	this->Init_object(text_font, initial_position, initial_text, initial_colour, character_size, center_origin);
 }
 
@@ -791,8 +802,24 @@ Ignition_text::Ignition_text()
 	// just try not to call this very often
 }
 
-bool Ignition_text::Init_object(sf::Font &text_font, sf::Vector2f initial_position, std::string initial_text, sf::Color initial_colour, unsigned int character_size, bool center_origin)
-{	text.setFont(text_font);
+bool Ignition_text::Init_object(std::string text_font, sf::Vector2f initial_position, std::string initial_text, sf::Color initial_colour, unsigned int character_size, bool center_origin)
+{	font.loadFromFile(text_font);
+	text.setFont(font);
+	text.setPosition(initial_position);
+	text.setString(initial_text);
+	text.setColor(initial_colour);
+	text.setCharacterSize(character_size);
+	if(center_origin == true)
+	{	this->Center_element();
+	}
+	return true;
+	// just to let everybody know that nothing went wrong
+}
+
+bool Ignition_text::Init_object(sf::Font text_font, sf::Vector2f initial_position, std::string initial_text, sf::Color initial_colour, unsigned int character_size, bool center_origin)
+{	font = text_font;
+	// hopefully this works, we might have to pass by reference if not
+	text.setFont(font);
 	text.setPosition(initial_position);
 	text.setString(initial_text);
 	text.setColor(initial_colour);

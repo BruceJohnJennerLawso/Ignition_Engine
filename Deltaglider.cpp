@@ -17,21 +17,18 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 
-DeltaGlider::DeltaGlider(double initial_x_position, double initial_y_position, double initial_x_velocity, double initial_y_velocity, double initial_theta, double initial_omega, double initial_main_propellant, double initial_rcs_propellant,  sf::Sprite * iFlag_sprite, sf::Texture * XWing_texture, std::string ivessel_name, std::string panel_path, sf::Font * controls_font, Propagator_type propagator)
+DeltaGlider::DeltaGlider(double initial_x_position, double initial_y_position, double initial_x_velocity, double initial_y_velocity, double initial_theta, double initial_omega, double initial_main_propellant, double initial_rcs_propellant,  sf::Texture vessel_textures, sf::Sprite flag_sprite, std::string ivessel_name, std::string panel_path, std::string controls_font, Propagator_type propagator)
 {	Talkback("Constructing Delta Glider");
 	// we write to the console for feedback while debugging
 	NewtonianState.Current_state = Flight;
 	Propagator = propagator;
 	
-	Init_vessel_type();
-	// run the setup function
-	
-	Flag_sprite = iFlag_sprite;			
+	Flag_sprite = flag_sprite;	
 	// set our flag affilation here
 	// this looks wrongish, I think this needs to be copied by value, definitely
 	// not reference, since the same flag may need to be drawn several times per
 	// frame
-	Flag_sprite->setScale(0.1,0.1);
+	Flag_sprite.setScale(0.1,0.1);
 	// scales it back by 1/10 along each axis, since the orginal was too big
 	// this is baddish
 	Object_name = ivessel_name;
@@ -81,25 +78,28 @@ DeltaGlider::DeltaGlider(double initial_x_position, double initial_y_position, d
 	Fuel_tanks.insert(Fuel_tanks.end(), RCS_fuel);		
 	Object_components.insert(Object_components.end(), RCS_fuel->Get_vessel_component_pointer());	
 	
-	Init_thruster(true, 470, 49000, 610, 0, 6.2000, -1, 0, 0.10, 0.12, RCS_fuel, rotate_clockwise, translate_right);
-	Init_thruster(true, 470, 49000, 610, 0, 6.2000, 1, 0, 0.10, 0.12, RCS_fuel, rotate_counterclockwise, translate_left);
-	Init_thruster(true, 470, 49000, 460, 0, 6.400, 0, 1, 0.10, 0.12, RCS_fuel, translate_back); 
-	Init_thruster(true, 470, 49000, 630, -0.20, -6.0000, -1, 0, 0.10, 0.12, RCS_fuel, rotate_counterclockwise, translate_right); 
-	Init_thruster(true, 470, 49000, 630, -0.20, -6.0000, 1, 0, 0.10, 0.12, RCS_fuel, rotate_clockwise, translate_left); 
-	Init_thruster(true, 470, 49000, 460, -0.2, -6.0000, 0, -1, 0.10, 0.12, RCS_fuel, translate_forward);
-		
+	Init_thruster(true, 470, 49000, 61, 0, 6.2000, -1, 0, 0.10, 0.12, RCS_fuel, rotate_clockwise, translate_right);
+	Init_thruster(true, 470, 49000, 61, 0, 6.2000, 1, 0, 0.10, 0.12, RCS_fuel, rotate_counterclockwise, translate_left);
+	Init_thruster(true, 470, 49000, 46, 0, 6.400, 0, 1, 0.10, 0.12, RCS_fuel, translate_back); 
+	Init_thruster(true, 470, 49000, 63, -0.20, -6.0000, -1, 0, 0.10, 0.12, RCS_fuel, rotate_counterclockwise, translate_right); 
+	Init_thruster(true, 470, 49000, 63, -0.20, -6.0000, 1, 0, 0.10, 0.12, RCS_fuel, rotate_clockwise, translate_left); 
+	Init_thruster(true, 470, 49000, 46, -0.2, -6.0000, 0, -1, 0.10, 0.12, RCS_fuel, translate_forward);
 	// and we construct all of the RCS thrusters in the same way
-	
-	// this should definitely be a function to minimize mistakes
 	
 	std::cout << Object_components.size() << " Vessel components" << std::endl;
 	// not sure why, but good to have the number of components on the vessel
 	// for debugging
 	
-	k_throttle = 29.9000;
+	RCS_Throttle_constant = 29.9000;
 	// we set this up so that the thruster goes from 0 to 2990 % in one second
 	// obviously that doesnt work, so it really represents 0 to 100% in 1/29.9 s
 	// (0.033 s, roughly 2 frames if fps is a healthy 60)
+	
+	Main_throttle_constant = 0.25;
+	// significantly slower for the main engines, here they take a full four
+	// seconds to go from 0 - 100
+	
+	
 	Throttle_lock = false;
 	// Throttle lock keeps the main engines at their current throttle setting
 	// instead of trying to slide back to zero each frame, which is useful
@@ -108,31 +108,39 @@ DeltaGlider::DeltaGlider(double initial_x_position, double initial_y_position, d
 	Update_PMI();
 	// once all of the vessel components are in, this should be run to get the
 	// initial value
-	Object_sprite = new sf::Sprite();
-	Object_sprite->setTexture(*XWing_texture);
 	// we create it and assign it the texture passed by the constructor
 	// (less memory waste per vessel than each one loading a copy of the texture
 	// for every instance
-	Vessel_tex = XWing_texture;
+	
+	Talkback("Setting up texture stuff");
+	Vessel_tex = new sf::Texture();
+	*Vessel_tex = vessel_textures;
+	Talkback("Copied texture");
 	// not sure why we need to copy the reference to this...
+	
+	Object_sprite = new sf::Sprite();
+	Talkback("Init the sprite");
+	Object_sprite->setTexture(*Vessel_tex);
+	
+	Talkback("Finished textures stuff");
 	
 	// this appears to be redundant, and a good candidate to remove
 	text_colour = new sf::Color(194, 38, 15);
 	// nice red colour for all of the vessel displays
 	
-	vessel_id.Init_object(*controls_font, sf::Vector2f(20, 380), "-", *text_colour, 16, false);
+	vessel_id.Init_object(controls_font, sf::Vector2f(20, 380), "-", *text_colour, 16, false);
 
-	main_fuel_level.Init_object(*controls_font, sf::Vector2f(20, 420), "-", *text_colour, 14, false);
+	main_fuel_level.Init_object(controls_font, sf::Vector2f(20, 420), "-", *text_colour, 14, false);
 	
-	rcs_fuel_level.Init_object(*controls_font, sf::Vector2f(20, 440), "-", *text_colour, 14, false);	
+	rcs_fuel_level.Init_object(controls_font, sf::Vector2f(20, 440), "-", *text_colour, 14, false);	
 	
-	omega_value.Init_object(*controls_font, sf::Vector2f(20, 460), "-", *text_colour, 14, false);		
+	omega_value.Init_object(controls_font, sf::Vector2f(20, 460), "-", *text_colour, 14, false);		
 	
-	theta_value.Init_object(*controls_font, sf::Vector2f(20, 480), "-", *text_colour, 14, false);	
+	theta_value.Init_object(controls_font, sf::Vector2f(20, 480), "-", *text_colour, 14, false);	
 
-	position_values.Init_object(*controls_font, sf::Vector2f(20, 500), "-", *text_colour, 14, false);	
+	position_values.Init_object(controls_font, sf::Vector2f(20, 500), "-", *text_colour, 14, false);	
 	
-	velocity_values.Init_object(*controls_font, sf::Vector2f(20, 520), "-", *text_colour, 14, false);		
+	velocity_values.Init_object(controls_font, sf::Vector2f(20, 520), "-", *text_colour, 14, false);		
 	
 	vessel_display.Init_object(sf::Vector2f(820, 460), sf::Color(255, 255, 255, 168), false, *Vessel_tex, true);
 	vessel_display.sprite.setScale(sf::Vector2f(0.5f, 0.5f));
@@ -179,7 +187,7 @@ DeltaGlider::DeltaGlider(double initial_x_position, double initial_y_position, d
 }	
 
 
-DeltaGlider::DeltaGlider(ObjectState initial_object_state, double initial_main_propellant, double initial_rcs_propellant,  sf::Sprite * iFlag_sprite, sf::Texture * XWing_texture, std::string ivessel_name, std::string panel_path, sf::Font * controls_font, Propagator_type propagator): CNewtonian_Object(initial_object_state)
+DeltaGlider::DeltaGlider(ObjectState initial_object_state, double initial_main_propellant, double initial_rcs_propellant,  sf::Texture vessel_textures, sf::Sprite flag_sprite, std::string ivessel_name, std::string panel_path, std::string controls_font, Propagator_type propagator): CNewtonian_Object(initial_object_state)
 {	// the new & improved constructor using the call to CNewtonians constructor
 	// so hopefully a fair bit shorter
 	// although we still have a long way to go in this area till the whole
@@ -199,15 +207,13 @@ DeltaGlider::DeltaGlider(ObjectState initial_object_state, double initial_main_p
 	// we write to the console for feedback while debugging
 	Propagator = propagator;
 	
-	Init_vessel_type();
-	// run the setup function
 	
-	Flag_sprite = iFlag_sprite;			
+	Flag_sprite = flag_sprite;			
 	// set our flag affilation here
 	// this looks wrongish, I think this needs to be copied by value, definitely
 	// not reference, since the same flag may need to be drawn several times per
 	// frame
-	Flag_sprite->setScale(0.1,0.1);
+	Flag_sprite.setScale(0.1,0.1);
 	// scales it back by 1/10 along each axis, since the orginal was too big
 	// this is baddish
 	Object_name = ivessel_name;
@@ -246,12 +252,12 @@ DeltaGlider::DeltaGlider(ObjectState initial_object_state, double initial_main_p
 	Fuel_tanks.insert(Fuel_tanks.end(), RCS_fuel);		
 	Object_components.insert(Object_components.end(), RCS_fuel->Get_vessel_component_pointer());	
 	
-	Init_thruster(true, 470, 49000, 610, 0, 6.2000, -1, 0, 0.10, 0.12, RCS_fuel, rotate_clockwise, translate_right);
-	Init_thruster(true, 470, 49000, 610, 0, 6.2000, 1, 0, 0.10, 0.12, RCS_fuel, rotate_counterclockwise, translate_left);
-	Init_thruster(true, 470, 49000, 460, 0, 6.400, 0, 1, 0.10, 0.12, RCS_fuel, translate_back); 
-	Init_thruster(true, 470, 49000, 630, -0.20, -6.0000, -1, 0, 0.10, 0.12, RCS_fuel, rotate_counterclockwise, translate_right); 
-	Init_thruster(true, 470, 49000, 630, -0.20, -6.0000, 1, 0, 0.10, 0.12, RCS_fuel, rotate_clockwise, translate_left); 
-	Init_thruster(true, 470, 49000, 460, -0.2, -6.0000, 0, -1, 0.10, 0.12, RCS_fuel, translate_forward);
+	Init_thruster(true, 470, 49000, 61, 0, 6.2000, -1, 0, 0.10, 0.12, RCS_fuel, rotate_clockwise, translate_right);
+	Init_thruster(true, 470, 49000, 61, 0, 6.2000, 1, 0, 0.10, 0.12, RCS_fuel, rotate_counterclockwise, translate_left);
+	Init_thruster(true, 470, 49000, 46, 0, 6.400, 0, 1, 0.10, 0.12, RCS_fuel, translate_back); 
+	Init_thruster(true, 470, 49000, 63, -0.20, -6.0000, -1, 0, 0.10, 0.12, RCS_fuel, rotate_counterclockwise, translate_right); 
+	Init_thruster(true, 470, 49000, 63, -0.20, -6.0000, 1, 0, 0.10, 0.12, RCS_fuel, rotate_clockwise, translate_left); 
+	Init_thruster(true, 470, 49000, 46, -0.2, -6.0000, 0, -1, 0.10, 0.12, RCS_fuel, translate_forward);
 		
 	// and we construct all of the RCS thrusters in the same way
 	
@@ -261,10 +267,15 @@ DeltaGlider::DeltaGlider(ObjectState initial_object_state, double initial_main_p
 	// not sure why, but good to have the number of components on the vessel
 	// for debugging
 	
-	k_throttle = 29.9000;
+	RCS_Throttle_constant = 29.9000;
 	// we set this up so that the thruster goes from 0 to 2990 % in one second
 	// obviously that doesnt work, so it really represents 0 to 100% in 1/29.9 s
 	// (0.033 s, roughly 2 frames if fps is a healthy 60)
+	
+	Main_throttle_constant = 0.25;
+	// significantly slower for the main engines, here they take a full four
+	// seconds to go from 0 - 100
+	
 	Throttle_lock = false;
 	// Throttle lock keeps the main engines at their current throttle setting
 	// instead of trying to slide back to zero each frame, which is useful
@@ -273,25 +284,25 @@ DeltaGlider::DeltaGlider(ObjectState initial_object_state, double initial_main_p
 	Update_PMI();
 	// once all of the vessel components are in, this should be run to get the
 	// initial value
-	Object_sprite = new sf::Sprite();
-	Object_sprite->setTexture(*XWing_texture);
 	// we create it and assign it the texture passed by the constructor
 	// (less memory waste per vessel than each one loading a copy of the texture
 	// for every instance
-	Vessel_tex = XWing_texture;
+	Vessel_tex = new sf::Texture();	
+	*Vessel_tex = vessel_textures;
 	// not sure why we need to copy the reference to this...
-	
+	Object_sprite = new sf::Sprite();
+	Object_sprite->setTexture(*Vessel_tex);
 	// this appears to be redundant, and a good candidate to remove
 	text_colour = new sf::Color(194, 38, 15);
 	// nice red colour for all of the vessel displays
 	
-	vessel_id.Init_object(*controls_font, sf::Vector2f(20, 380), "-", *text_colour, 16, false);
-	main_fuel_level.Init_object(*controls_font, sf::Vector2f(20, 420), "-", *text_colour, 14, false);
-	rcs_fuel_level.Init_object(*controls_font, sf::Vector2f(20, 440), "-", *text_colour, 14, false);	
-	omega_value.Init_object(*controls_font, sf::Vector2f(20, 460), "-", *text_colour, 14, false);		
-	theta_value.Init_object(*controls_font, sf::Vector2f(20, 480), "-", *text_colour, 14, false);	
-	position_values.Init_object(*controls_font, sf::Vector2f(20, 500), "-", *text_colour, 14, false);	
-	velocity_values.Init_object(*controls_font, sf::Vector2f(20, 520), "-", *text_colour, 14, false);		
+	vessel_id.Init_object(controls_font, sf::Vector2f(20, 380), "-", *text_colour, 16, false);
+	main_fuel_level.Init_object(controls_font, sf::Vector2f(20, 420), "-", *text_colour, 14, false);
+	rcs_fuel_level.Init_object(controls_font, sf::Vector2f(20, 440), "-", *text_colour, 14, false);	
+	omega_value.Init_object(controls_font, sf::Vector2f(20, 460), "-", *text_colour, 14, false);		
+	theta_value.Init_object(controls_font, sf::Vector2f(20, 480), "-", *text_colour, 14, false);	
+	position_values.Init_object(controls_font, sf::Vector2f(20, 500), "-", *text_colour, 14, false);	
+	velocity_values.Init_object(controls_font, sf::Vector2f(20, 520), "-", *text_colour, 14, false);		
 	vessel_display.Init_object(sf::Vector2f(820, 460), sf::Color(255, 255, 255, 168), false, *Vessel_tex, true);
 	vessel_display.sprite.setScale(sf::Vector2f(0.5f, 0.5f));
 	display_panel.Init_object(sf::Vector2f(5, 360), sf::Color(255, 255, 255), false, panel_path);
@@ -444,185 +455,6 @@ void DeltaGlider::Receive_cursor_inputs(Cursor_commands * cursor_action, long do
 	// any changes on the vessels end of things
 }
 
-void DeltaGlider::Translate_left(double dt)
-{	for(std::vector<Thruster*>::iterator it = Thrusters.begin(); it != Thrusters.end(); ++it)
-	{	if((*it)->Is_in_group(translate_left))
-		{	(*it)->Throttle_up(dt, k_throttle);
-		}
-		else
-		{	if((*it)->Is_RCS == true)
-			{	(*it)->Throttle_down(dt, k_throttle);
-			}
-		}
-	}
-}
-
-// obvious as it gets, just adjust throttles based on dt and the k_throttle
-// for the given thruster. This should accept a parameter to modify k_throttle
-// so we can modify it on the spot instead of passing through stuff with dt
-// I smell disaster there, so its better not to tempt fate
-
-void DeltaGlider::Translate_right(double dt)
-{	for(std::vector<Thruster*>::iterator it = Thrusters.begin(); it != Thrusters.end(); ++it)
-	{	if((*it)->Is_in_group(translate_right))
-		{	(*it)->Throttle_up(dt, k_throttle);
-		}
-		else
-		{	if((*it)->Is_RCS == true)
-			{	(*it)->Throttle_down(dt, k_throttle);
-			}
-		}
-	}
-}
-
-void DeltaGlider::Translate_backward(double dt)
-{	for(std::vector<Thruster*>::iterator it = Thrusters.begin(); it != Thrusters.end(); ++it)
-	{	if((*it)->Is_in_group(translate_back))
-		{	(*it)->Throttle_up(dt, k_throttle);
-		}
-		else
-		{	if((*it)->Is_RCS == true)
-			{	(*it)->Throttle_down(dt, k_throttle);
-			}
-		}
-	}
-}
-
-void DeltaGlider::Translate_forward(double dt)
-{	for(std::vector<Thruster*>::iterator it = Thrusters.begin(); it != Thrusters.end(); ++it)
-	{	if((*it)->Is_in_group(translate_forward))
-		{	(*it)->Throttle_up(dt, k_throttle);
-		}
-		else
-		{	if((*it)->Is_RCS == true)
-			{	(*it)->Throttle_down(dt, k_throttle);
-			}
-		}
-	}
-}	
-
-void DeltaGlider::Rotate_right(double dt)
-{	for(std::vector<Thruster*>::iterator it = Thrusters.begin(); it != Thrusters.end(); ++it)
-	{	if((*it)->Is_in_group(rotate_clockwise))
-		{	(*it)->Throttle_up(dt, k_throttle);
-		}
-		else
-		{	if((*it)->Is_RCS == true)
-			{	(*it)->Throttle_down(dt, k_throttle);
-			}
-		}
-	}
-}	
-
-void DeltaGlider::Rotate_right(double dt, double throttle_target)
-{	for(std::vector<Thruster*>::iterator it = Thrusters.begin(); it != Thrusters.end(); ++it)
-	{	if((*it)->Is_in_group(rotate_clockwise))
-		{	(*it)->Throttle_to(dt, k_throttle, throttle_target);
-		}
-		else
-		{	if((*it)->Is_RCS == true)
-			{	(*it)->Throttle_down(dt, k_throttle);
-			}
-		}
-	}
-}	
-
-void DeltaGlider::Rotate_left(double dt)
-{	for(std::vector<Thruster*>::iterator it = Thrusters.begin(); it != Thrusters.end(); ++it)
-	{	if((*it)->Is_in_group(rotate_counterclockwise))
-		{	(*it)->Throttle_up(dt, k_throttle);
-		}
-		else
-		{	if((*it)->Is_RCS == true)
-			{	(*it)->Throttle_down(dt, k_throttle);
-			}
-		}
-	}
-}	
-
-void DeltaGlider::Rotate_left(double dt, double throttle_target)
-{	for(std::vector<Thruster*>::iterator it = Thrusters.begin(); it != Thrusters.end(); ++it)
-	{	if((*it)->Is_in_group(rotate_counterclockwise))
-		{	(*it)->Throttle_to(dt, k_throttle, throttle_target);
-		}
-		else
-		{	if((*it)->Is_RCS == true)
-			{	(*it)->Throttle_down(dt, k_throttle);
-			}
-		}
-	}
-}	
-
-void DeltaGlider::No_command(double dt)
-{	for(std::vector<Thruster*>::iterator it = Thrusters.begin(); it != Thrusters.end(); ++it)
-	{	if((*it)->Is_RCS == true)
-		{	(*it)->Throttle_down(dt, k_throttle);
-		}
-	}
-}	
-
-void DeltaGlider::Throttle_up(double dt)
-{	for(std::vector<Thruster*>::iterator it = Thrusters.begin(); it != Thrusters.end(); ++it)
-	{	if((*it)->Is_in_group(main_engines))
-		{	(*it)->Throttle_up(dt, k_throttle);
-		}
-	}
-	
-}
-
-void DeltaGlider::Throttle_down(double dt)
-{	for(std::vector<Thruster*>::iterator it = Thrusters.begin(); it != Thrusters.end(); ++it)
-	{	if((*it)->Is_in_group(main_engines))
-		{	(*it)->Throttle_down(dt, k_throttle);
-		}
-	}
-}	
-
-void DeltaGlider::Kill_rotation(double dt)
-{	if(this->NewtonianState.Rotation.Omega != 0.000000000000)
-	{	
-		double delta_omega = Absolute_value(this->NewtonianState.Rotation.Omega);
-		double magnitude_alpha;
-		double max_alpha;
-		if(this->NewtonianState.Rotation.Omega > 0.000000000000)
-		{	max_alpha = this->Get_max_alpha(counterclockwise);
-			magnitude_alpha = Absolute_value(max_alpha);
-			if(this->NewtonianState.Rotation.Alpha > 0.000000000000)
-			{	Rotate_left(dt);
-			}
-			else
-			{	if(magnitude_alpha > delta_omega)
-				{	double percentage = (delta_omega/magnitude_alpha);
-					Rotate_left(dt, percentage);
-				}
-				else
-				{	Rotate_left(dt);
-				}
-			}
-		}
-		else 	// the negative case
-		{	max_alpha = this->Get_max_alpha(clockwise);
-			magnitude_alpha = Absolute_value(max_alpha);
-			if(this->NewtonianState.Rotation.Alpha < 0.000000000000)
-			{	Rotate_right(dt);
-			}
-			else
-			{	if(magnitude_alpha > delta_omega)
-				{	double percentage = (delta_omega/magnitude_alpha);
-					Rotate_right(dt, percentage);
-				}
-				else
-				{	Rotate_right(dt);
-				}
-			}
-		}	
-	}	
-	// awwww yeahhhh, thats what Im talkin about
-	else
-	{	No_command(dt);
-	}
-}
-
 
 DeltaGlider::~DeltaGlider()
 {	Thrusters.clear();
@@ -633,3 +465,9 @@ DeltaGlider::~DeltaGlider()
 	delete Hull_component;
 }
 
+TVessel * Construct_deltaglider(ObjectState initial_object_state, double initial_main_propellant, double initial_rcs_propellant,  sf::Texture vessel_textures, sf::Sprite flag_sprite, std::string ivessel_name, std::string panel_path, std::string controls_font, Propagator_type propagator)
+{	TVessel * new_deltaglider = new DeltaGlider(initial_object_state, initial_main_propellant, initial_rcs_propellant, vessel_textures, flag_sprite, ivessel_name, panel_path, controls_font, propagator);
+	// create a new DeltaGlider on the heap
+	return new_deltaglider;
+	// and pass along its pointer at the TVessel level
+}

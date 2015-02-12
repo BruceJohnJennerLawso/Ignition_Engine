@@ -20,10 +20,7 @@ Ignition_engine * Starfighter;
 
 SFML_titlescreen * Title_screen;
 // the splash screen before the program really gets goings 
-sf::Clock * Utility_clock;
-// dont recall what this does. I think its related to the info displays refresh rate
-sf::Font * displays_font;
-// the font used to draw default displays (the FPS, simtime meters,etc.)
+
 
 
 
@@ -109,7 +106,7 @@ int main()
 	Window_title.append(Starfighter_version);
 	// stick the version numbah on the end
 	std::cout << "Constructing Ignition Engine" << std::endl;
-	Starfighter = new Ignition_engine(Window_title, 609, 1024, Starfighter_version, 0.2, "./Data/Fonts/orbitron-light.ttf");	
+	Starfighter = new Ignition_engine(Window_title, 609, 1024, Starfighter_version, 0.2, "./Data/Fonts/orbitron-light.ttf", "./Data/Images/starfield.png");	
 	// give birth to our beautiful new engine object. Isnt it cute?
 	std::cout << "Right before Init_assets()" << std::endl;
 	Init_assets();	
@@ -344,10 +341,9 @@ void Init_assets()
 	
 	Talkback("Initializing assets");
 	spawn_point.x = 0; spawn_point.y = 0;	spawn_flipper = false;	init_theta = 0;
-	displays_font = new sf::Font();
-	displays_font->loadFromFile("./Data/Fonts/orbitron-light.ttf");
+	
+	
 	Title_screen = new SFML_titlescreen("./Data/intro.png", true, 0.700, 0.900, " ", "./Data/Fonts/Stjldbl1.ttf", 252, 223, 43, 72, sf::Vector2f(280, 50));
-	Utility_clock = new sf::Clock();
 	GCW_Flags_tex = new sf::Texture();
 	GCW_Flags_tex->loadFromFile("./Data/Images/logos.png");
 	Rebel_flag_sprite = new sf::Sprite(*GCW_Flags_tex);
@@ -362,9 +358,12 @@ void Init_assets()
 	XWing_panel_tex = new sf::Texture();
 	XWing_panel_tex->loadFromFile("./Data/Images/display_panel.png");
 	std::cout << "Loaded XWing_tex from file" << std::endl;
-	GL1 = new DeltaGlider(6678000.00, 0.00, 0.00, 8600.00, 270.00, 0, 40000, 20600, Rebel_flag_sprite, XWing_tex, "GL-01", "./Data/Images/display_panel.png", displays_font, RK4); 
-	GL2 = new DeltaGlider(6678000.00, -12.00, 0.00, 8600.00, 180, 0, 40000, 20600, Rebel_flag_sprite, XWing_tex, "GL-02", "./Data/Images/display_panel.png", displays_font, Euler1);
-	GL3 = new DeltaGlider(ObjectState(Flight_state(VectorVictor::Vector2(6678000.00, -42.00), VectorVictor::Vector2(0.00, 8600.00)), Rotation_state(180, 0, 0)), 40000, 20600, Rebel_flag_sprite, XWing_tex, "GL-03", "./Data/Images/display_panel.png", displays_font, RK4);	
+	
+	std::string orbitron_fontpath = "./Data/Fonts/orbitron-light.ttf";
+	
+	GL1 = new DeltaGlider(6678000.00, 0.00, 0.00, 8600.00, 270.00, 0, 40000, 20600, *XWing_tex, *Rebel_flag_sprite, "GL-01", "./Data/Images/display_panel.png", orbitron_fontpath, RK4); 
+	GL2 = new DeltaGlider(6678000.00, -12.00, 0.00, 8600.00, 180, 0, 40000, 20600, *XWing_tex, *Rebel_flag_sprite, "GL-02", "./Data/Images/display_panel.png", orbitron_fontpath, Euler1);
+	GL3 = new DeltaGlider(ObjectState(Flight_state(VectorVictor::Vector2(6678000.00, -42.00), VectorVictor::Vector2(0.00, 8600.00)), Rotation_state(180, 0, 0)), 40000, 20600, *XWing_tex, *Rebel_flag_sprite, "GL-03", "./Data/Images/display_panel.png", orbitron_fontpath, RK4);	
 
 	Starfighter->Vessel_list.insert(Starfighter->Vessel_list.end(), GL3);
 	Starfighter->Vessel_list.insert(Starfighter->Vessel_list.end(), GL2);

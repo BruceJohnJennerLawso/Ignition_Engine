@@ -77,3 +77,9 @@ John Lawson
 
 Smooth scale transforms enhancement Graphics Long Range
 #4 opened on Dec 2, 2014 by BruceJohnJennerLawso
+
+
+==Proposed idea==
+
+move TVessel into its own file pair separate from the newtonian stuff.
+its getting too big for one file again...

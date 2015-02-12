@@ -192,9 +192,11 @@ class Ignition_drawable
 
 class Ignition_text: public Ignition_drawable
 {	public:
-	Ignition_text(sf::Font &text_font, sf::Vector2f initial_position, std::string initial_text, sf::Color initial_colour, unsigned int character_size, bool center_origin);
+	Ignition_text(std::string text_font, sf::Vector2f initial_position, std::string initial_text, sf::Color initial_colour, unsigned int character_size, bool center_origin);
+	Ignition_text(sf::Font text_font, sf::Vector2f initial_position, std::string initial_text, sf::Color initial_colour, unsigned int character_size, bool center_origin);	
 	Ignition_text();
-	bool Init_object(sf::Font &text_font, sf::Vector2f initial_position, std::string initial_text, sf::Color initial_colour, unsigned int character_size, bool center_origin);
+	bool Init_object(std::string text_font, sf::Vector2f initial_position, std::string initial_text, sf::Color initial_colour, unsigned int character_size, bool center_origin);
+	bool Init_object(sf::Font text_font, sf::Vector2f initial_position, std::string initial_text, sf::Color initial_colour, unsigned int character_size, bool center_origin);	
 	
 	// should receive a sf::Font by reference
 	void Set_element(std::string text_string);
@@ -209,6 +211,7 @@ class Ignition_text: public Ignition_drawable
 	// 
 	void Draw_element(SFML_Window * iwindow);
 	void Center_element();
+	sf::Font font;
 	sf::Text text;
 	
 	~Ignition_text();

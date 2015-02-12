@@ -4,7 +4,7 @@
 
 
 
-Ignition_engine::Ignition_engine(std::string title, unsigned int initial_window_width, unsigned int initial_window_height, std::string program_version, double redraw_displays_interval, std::string standard_display_font)
+Ignition_engine::Ignition_engine(std::string title, unsigned int initial_window_width, unsigned int initial_window_height, std::string program_version, double redraw_displays_interval, std::string standard_display_font, std::string starfield)
 {	Main_Window = new SFML_Window(title, initial_window_width, initial_window_height);
 	// construct a new SFML window with title & size
 	commands = new key_commands();
@@ -31,15 +31,30 @@ Ignition_engine::Ignition_engine(std::string title, unsigned int initial_window_
 	// passed through a double indicating how long the refresh interval
 	// should be
 	Background_tex = new sf::Texture();
-	Background_tex->loadFromFile("./Data/Images/starfield.png");
+	Background_tex->loadFromFile(starfield);
 	Background_sprite = new sf::Sprite(*Background_tex);
 	// load up the background stars and slot them into their sprite for drawing
+	
+	// center the sprite onscreen
+	
+	double width_value = (double)initial_window_width;
+	double height_value = (double)initial_window_height;	
+	double field_scale = Larger_of((width_value/height_value), (height_value/width_value));
+	Background_sprite->setScale((field_scale),(field_scale));		
+	
+	double sprite_x = Background_tex->getSize().x;
+	double sprite_y = Background_tex->getSize().y;
+
+	Background_sprite->setOrigin((sprite_x/2), (sprite_y/2));
+	Background_sprite->setPosition(sf::Vector2f(sprite_x/2, sprite_y/2));
+	
+	// lets try without this and see what happens
 	
 	// the background sprite is being naughty here, gotta figure out some sort
 	// of workaround to make this work better
 	Displays_active = true;
 	// just a default behaviour, but again, still toggleable
-	
+	double Larger_of(double value1, double value2);
 	camera_scale = 1.00;
 	k_camera = 9.5;
 	
@@ -192,7 +207,7 @@ int Ignition_engine::Ignition()
 					// not a big deal, but it works better this way, smoother
 					// interfacing with the user IMO
 					Change_camera_scale(- (double)event.mouseWheel.delta);
-					// if the mouse wheel was moved, used the number of ticks that
+					// if the mouse wheel was moved, used the number of ticks thatdouble Larger_of(double value1, double value2);
 					// it moved by to change the scale of the current camera view
 				}
 			}
@@ -268,7 +283,8 @@ int Ignition_engine::Ignition()
 		// Send any commands that we sent to our key commands object
 		// out to the current vessel/input receiver
 		
-		//Background_sprite->setRotation(Main_Window->Aperture_rotation);
+		Background_sprite->setRotation(-Main_Window->Aperture_rotation);
+		// okay, lets try this again
 		
 		// this was screwy because I didnt think it through fully enough
 		// the problem is actually much more complex than I thought
@@ -420,7 +436,7 @@ void Ignition_engine::Handle_inputs()
 	{	this->Decrease_time_acceleration();
 	}
 	else if(this->commands->t == true)
-	{	this->Increase_time_acceleration();
+	{	this->Increase_time_acceleration();double Larger_of(double value1, double value2);
 	}
 	
 	if(this->commands->i == true)
@@ -603,3 +619,15 @@ Ignition_engine::~Ignition_engine()
 	delete Background_tex;
 }	// so, yeah...
 
+double Larger_of(double value1, double value2)
+{	if(value1 > value2)
+	{	return value1;
+	}
+	else if(value1 == value2)
+	{	return value1;
+		// dunno, just works okay, what difference does it make?
+	}
+	else
+	{	return value2;
+	}
+}
