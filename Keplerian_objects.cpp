@@ -201,6 +201,11 @@ void CKeplerian_Object::Draw_flag(SFML_Window * iwindow, int zoom_factor)
 {	std::cout << "Bad call to CKeplerian_Object::Draw_flag(SFML_Window * iwindow, int zoom_factor, VectorVictor::Rectangle * view_frame)" << std::endl;
 }
 
+
+CKeplerian_Object * CKeplerian_Object::Get_keplerian_pointer()
+{	return this;
+}
+
 // cant call either of these functions, since info is required that is not
 // available at this level. Buuut, if all the Keplerians get a position vector
 // variable, it could work!

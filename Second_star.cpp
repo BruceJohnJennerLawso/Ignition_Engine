@@ -3,7 +3,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 #include "Ignition_Engine.hpp"
-#define  Starfighter_version " 0.20"	// see? progress ;)
+#define  Ignition_version " 0.20"	// see? progress ;)
 // this should be renamed to reflect the move away from Starfighter
 
 
@@ -14,7 +14,7 @@
 
 // EVIL EVIL IS ERRYWHERE
 
-Ignition_engine * Starfighter;
+Ignition_engine * Ignition_testing;
 // the main ignition engine object
 
 
@@ -22,39 +22,6 @@ SFML_titlescreen * Title_screen;
 // the splash screen before the program really gets goings 
 
 
-
-
-sf::Texture * GCW_Flags_tex;
-// main texture for any & all flag textures that the sim uses in map view
-
-sf::Texture * XWing_tex;
-// the actual texture of the dg ship itself, passed on to the object at construction itself
-// specifically, would be more effective to pass sprites by value
-sf::Texture * XWing_status_tex;
-// the thingy that gets drawn at bottom left on the dgs screen
-sf::Texture * XWing_panel_tex;
-// the background panel that the DG draws so that the onscreen text displays
-// arent drawn onto stars
-
-
-sf::Sprite * Rebel_flag_sprite; 
-sf::Sprite * Imperial_flag_sprite;
-// individual sprites taken from the flags texture mentioned above
-// should be renamed eventually
-
-
-TVessel * GL1, * GL2, *GL3;
-
-
-CKeplerian_Object * Earth;
-// its this pale little blue dot out there somewhere
-// rumours are that it isnt a bad place to live.
-
-vector2 spawn_point;
-// the position where newly spawned vessels appear
-// needs to be Victored (whole thing is a mess really)
-double init_theta;
-bool spawn_flipper;
 
 //template <class T> void Iterate_forward(std::vector<T> &target_vector, std::vector<T>::iterator it, T &target_value)		// References are needed for the second pass, nicer to have for the first
 //{	//std::vector<T>::iterator it;
@@ -103,46 +70,51 @@ int main()
 {
 	std::string Window_title = "Ignition Engine";
 	// gotta give our baby a name
-	Window_title.append(Starfighter_version);
+	Window_title.append(Ignition_version);
 	// stick the version numbah on the end
 	std::cout << "Constructing Ignition Engine" << std::endl;
-	Starfighter = new Ignition_engine(Window_title, 609, 1024, Starfighter_version, 0.2, "./Data/Fonts/orbitron-light.ttf", "./Data/Images/starfield.png");	
+	Ignition_testing = new Ignition_engine(Window_title, 609, 1024, Ignition_version, 0.2, "./Data/Fonts/orbitron-light.ttf", "./Data/Images/starfield.png");	
 	// give birth to our beautiful new engine object. Isnt it cute?
 	std::cout << "Right before Init_assets()" << std::endl;
-	Init_assets();	
+	
+	TPlanet Earth(0.000, 0.0000727, 6378100, 245000, 5.9736e24, "./Data/Images/Planets/earth.png");
+	// its this pale little blue dot out there somewhere
+	// rumours are that it isnt a bad place to live.	
+	
+	Init_assets(Earth.Get_keplerian_pointer());	
 	// Create the assets used by the game
 	
-	while(Starfighter->Main_Window->window->isOpen())
+	while(Ignition_testing->Main_Window->window->isOpen())
 	{	// open up the SFML window embedded in the ignition object
 		sf::Event event;	
 		// to be honest, Ive never had a clue exactly why this is inited every frame
 		
 		
-		while (Starfighter->Main_Window->window->pollEvent(event))
+		while (Ignition_testing->Main_Window->window->pollEvent(event))
 		{	// request the main ignition window for events
 			if (event.type == sf::Event::Closed)
-            {	Starfighter->Main_Window->window->close();
+            {	Ignition_testing->Main_Window->window->close();
 				// the little x button at the top shuts this s*** down
 			}
 			if(event.type == sf::Event::KeyPressed)
-			{	Log_keystroke(event.key.code, Starfighter->commands, true);
+			{	Log_keystroke(event.key.code, Ignition_testing->commands, true);
 				// way to complicated to explain here,
 				// basically we pass info about keypresses on to the ignition engine
 			}
 			if(event.type == sf::Event::KeyReleased)
-			{	Log_keystroke(event.key.code, Starfighter->commands, false);
+			{	Log_keystroke(event.key.code, Ignition_testing->commands, false);
 				// same as above, just keyreleases now
 			}
         }
    		if(Title_screen->finished == true)
-		{	Starfighter->Set_aperture_scale();
+		{	Ignition_testing->Set_aperture_scale();
 			// And we have a liftoff!!! WOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO 
-			Starfighter->Ignition();	
+			Ignition_testing->Ignition();	
 			// basically the above method kicks the whole show into gear
 		}	
 		
 			
-   		Starfighter->Main_Window->window->setSize(sf::Vector2u(Starfighter->Main_Window->Width, Starfighter->Main_Window->Height));
+   		Ignition_testing->Main_Window->window->setSize(sf::Vector2u(Ignition_testing->Main_Window->Width, Ignition_testing->Main_Window->Height));
    		// ahh, I think this is the part where the window is forced back to its
    		// standard size as specified in the SFML window object.
    		
@@ -150,15 +122,15 @@ int main()
    		// that the center of the view slides back into place when the user
    		// tries to resize the window. Very complex, but doable later on methinks
 		
-		Starfighter->Main_Window->window->clear();
+		Ignition_testing->Main_Window->window->clear();
 		// gotta erase the board in order to start doing stuff again
 		Title_screen->Update_screen();
-		Starfighter->Main_Window->window->draw(*(Title_screen->splash_sprite));
-		Starfighter->Main_Window->window->draw(*(Title_screen->Title_text));
+		Ignition_testing->Main_Window->window->draw(*(Title_screen->splash_sprite));
+		Ignition_testing->Main_Window->window->draw(*(Title_screen->Title_text));
 		// this is wastefull and hideous. Needs to be fixed asap
 		// the title screen should be its own SFML window & such, not hitching
 		// a ride with the main ignition object
-		Starfighter->Main_Window->window->display();
+		Ignition_testing->Main_Window->window->display();
 		// this is important apparently...
 	}	// ahh, thats weird, why are there two calls to Ignition() ?
 	Exit_program();				
@@ -336,61 +308,75 @@ void key_commands::Minus()
 
 
 
-void Init_assets()
+void Init_assets(CKeplerian_Object * planet)
 {	// this is all realllly bad. Everything here is a mess quite frankly
 	
+	sf::Texture * Flags_tex;
+	// main texture for any & all flag textures that the sim uses in map view
+
+	sf::Texture * dg_tex;
+// the actual texture of the dg ship itself, passed on to the object at construction itself
+// specifically, would be more effective to pass sprites by value
+
+
+	sf::Sprite * csa_flag_sprite; 
+// individual sprites taken from the flags texture mentioned above
+// should be renamed eventually
+
+
+	TVessel * GL1, * GL2, *GL3;
+
+
+//	CKeplerian_Object * Earth;
+
+
+	
+	
+	
 	Talkback("Initializing assets");
-	spawn_point.x = 0; spawn_point.y = 0;	spawn_flipper = false;	init_theta = 0;
 	
 	
 	Title_screen = new SFML_titlescreen("./Data/intro.png", true, 0.700, 0.900, " ", "./Data/Fonts/Stjldbl1.ttf", 252, 223, 43, 72, sf::Vector2f(280, 50));
-	GCW_Flags_tex = new sf::Texture();
-	GCW_Flags_tex->loadFromFile("./Data/Images/logos.png");
-	Rebel_flag_sprite = new sf::Sprite(*GCW_Flags_tex);
-	Rebel_flag_sprite->setTextureRect(sf::IntRect(0,200,200,200));
-	Imperial_flag_sprite = new sf::Sprite(*GCW_Flags_tex);
-	Imperial_flag_sprite->setTextureRect(sf::IntRect(0,0,200,200));
-	XWing_tex = new sf::Texture;
-	XWing_tex->loadFromFile("./Data/Images/dg.png");
-	XWing_status_tex = new sf::Texture;
-	XWing_status_tex->loadFromFile("./Data/Images/dg.png");
-	XWing_status_tex->setSmooth(true);
-	XWing_panel_tex = new sf::Texture();
-	XWing_panel_tex->loadFromFile("./Data/Images/display_panel.png");
+	
+	Flags_tex = new sf::Texture();
+	Flags_tex->loadFromFile("./Data/Images/logos.png");
+	csa_flag_sprite = new sf::Sprite(*Flags_tex);
+	csa_flag_sprite->setTextureRect(sf::IntRect(0,200,200,200));
+	
+	dg_tex = new sf::Texture;
+	dg_tex->loadFromFile("./Data/Images/dg.png");
 	std::cout << "Loaded XWing_tex from file" << std::endl;
 	
 	std::string orbitron_fontpath = "./Data/Fonts/orbitron-light.ttf";
 	
-	GL1 = new DeltaGlider(6678000.00, 0.00, 0.00, 8600.00, 270.00, 0, 40000, 20600, *XWing_tex, *Rebel_flag_sprite, "GL-01", "./Data/Images/display_panel.png", orbitron_fontpath, RK4); 
-	GL2 = new DeltaGlider(6678000.00, -12.00, 0.00, 8600.00, 180, 0, 40000, 20600, *XWing_tex, *Rebel_flag_sprite, "GL-02", "./Data/Images/display_panel.png", orbitron_fontpath, Euler1);
-	GL3 = new DeltaGlider(ObjectState(Flight_state(VectorVictor::Vector2(6678000.00, -42.00), VectorVictor::Vector2(0.00, 8600.00)), Rotation_state(180, 0, 0)), 40000, 20600, *XWing_tex, *Rebel_flag_sprite, "GL-03", "./Data/Images/display_panel.png", orbitron_fontpath, RK4);	
+	GL1 = new DeltaGlider(6678000.00, 0.00, 0.00, 8600.00, 270.00, 0, 40000, 20600, *dg_tex, *csa_flag_sprite, "GL-01", "./Data/Images/display_panel.png", orbitron_fontpath, RK4); 
+	GL2 = new DeltaGlider(6678000.00, -12.00, 0.00, 8600.00, 180, 0, 40000, 20600, *dg_tex, *csa_flag_sprite, "GL-02", "./Data/Images/display_panel.png", orbitron_fontpath, Euler1);
+	GL3 = new DeltaGlider(ObjectState(Flight_state(VectorVictor::Vector2(6678000.00, -42.00), VectorVictor::Vector2(0.00, 8600.00)), Rotation_state(180, 0, 0)), 40000, 20600, *dg_tex, *csa_flag_sprite, "GL-03", "./Data/Images/display_panel.png", orbitron_fontpath, RK4);	
 
-	Starfighter->Vessel_list.insert(Starfighter->Vessel_list.end(), GL3);
-	Starfighter->Vessel_list.insert(Starfighter->Vessel_list.end(), GL2);
-	Starfighter->Vessel_list.insert(Starfighter->Vessel_list.end(), GL1);
+	Ignition_testing->Vessel_list.insert(Ignition_testing->Vessel_list.end(), GL3);
+	Ignition_testing->Vessel_list.insert(Ignition_testing->Vessel_list.end(), GL2);
+	Ignition_testing->Vessel_list.insert(Ignition_testing->Vessel_list.end(), GL1);
 	
-	Starfighter->Newtonian_list.insert(Starfighter->Newtonian_list.end(), GL3->Get_Newtonian_pointer());	
-	Starfighter->Newtonian_list.insert(Starfighter->Newtonian_list.end(), GL2->Get_Newtonian_pointer());
-	Starfighter->Newtonian_list.insert(Starfighter->Newtonian_list.end(), GL1->Get_Newtonian_pointer());	
+	Ignition_testing->Newtonian_list.insert(Ignition_testing->Newtonian_list.end(), GL3->Get_Newtonian_pointer());	
+	Ignition_testing->Newtonian_list.insert(Ignition_testing->Newtonian_list.end(), GL2->Get_Newtonian_pointer());
+	Ignition_testing->Newtonian_list.insert(Ignition_testing->Newtonian_list.end(), GL1->Get_Newtonian_pointer());	
 	
-	Earth = new TPlanet(0.000, 0.0000727, 6378100, 245000, 5.9736e24, "./Data/Images/Planets/earth.png");
-	Starfighter->Celestial_list.insert(Starfighter->Celestial_list.end(), Earth);
+	Ignition_testing->Celestial_list.insert(Ignition_testing->Celestial_list.end(), planet);
 	std::cout << "Finished constructing Vessels" << std::endl;
 	std::cout << "Initializing text displays" << std::endl;
 	std::cout << "Finished initializing text displays" << std::endl;
-	std::cout << "Vessel list size " << Starfighter->Vessel_list.size() << " Newtonian list size " << Starfighter->Newtonian_list.size() << std::endl;
+	std::cout << "Vessel list size " << Ignition_testing->Vessel_list.size() << " Newtonian list size " << Ignition_testing->Newtonian_list.size() << std::endl;
 }
 
 void Exit_program()
 {	delete Title_screen;
-	for(std::vector<TVessel*>::iterator it = Starfighter->Vessel_list.begin(); it != Starfighter->Vessel_list.end(); ++it)
+	for(std::vector<TVessel*>::iterator it = Ignition_testing->Vessel_list.begin(); it != Ignition_testing->Vessel_list.end(); ++it)
 	{	delete (*it);
-	}	delete XWing_tex;
-	delete XWing_status_tex;
-	delete XWing_panel_tex;
-	delete Rebel_flag_sprite;
-	delete Imperial_flag_sprite;
-	delete GCW_Flags_tex;
-	delete Starfighter;
+	}	
+	//delete dg_tex;
+	//delete csa_flag_sprite;
+	//delete Flags_tex;
+	// bear with me, I know what I am doing
+	delete Ignition_testing;
 }
 

@@ -160,7 +160,7 @@ class Ignition_engine
 	~Ignition_engine();
 };
 
-void Init_assets();
+void Init_assets(CKeplerian_Object * planet);
 // load up our external assets in a baddish way. really needs fixing soon
 
 void Exit_program();

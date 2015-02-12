@@ -102,6 +102,7 @@ class CKeplerian_Object
 	// how we check if the planet should be drawn
 	virtual void Draw_flag(SFML_Window * iwindow, int zoom_factor);
 	// and how we do it if it should
+	CKeplerian_Object * Get_keplerian_pointer();
 };
 
 //std::vector<CKeplerian_Object*> Celestial_list;
