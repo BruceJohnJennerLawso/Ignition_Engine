@@ -201,6 +201,12 @@ void CKeplerian_Object::Draw_flag(SFML_Window * iwindow, int zoom_factor)
 {	std::cout << "Bad call to CKeplerian_Object::Draw_flag(SFML_Window * iwindow, int zoom_factor, VectorVictor::Rectangle * view_frame)" << std::endl;
 }
 
+sf::Color CKeplerian_Object::Get_atmosphere_mask(VectorVictor::Vector2 window_origin, long double sim_time)
+{	sf::Color transparent(255,255,255,0);
+	// all transparent baby
+	return transparent;
+}
+
 
 CKeplerian_Object * CKeplerian_Object::Get_keplerian_pointer()
 {	return this;
@@ -215,18 +221,39 @@ CKeplerian_Object * CKeplerian_Object::Get_keplerian_pointer()
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 // TPlanet /////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
 
-
-
-
-
-TPlanet::TPlanet(long double initial_theta, long double omega, long double radius, long double atmosphere_height, long double mass, std::string planet_texture_path)
+TPlanet::TPlanet(long double initial_theta, long double omega, long double radius, long double atmosphere_height, long double mass, std::string planet_texture_path, sf::Color top_atm_color, sf::Color surf_atm_color)
 {	Theta = initial_theta;
 	Omega = omega;
 	Radius = radius;
 	Mass = mass;
+	
+	Top_atmosphere_colour = top_atm_color;
+	Top_atmosphere_colour.a = 0;
+	// force it to 0 even if it aint so that we dont get some weirdly defined
+	// atmosphere that doesnt smoothly fade to transparent as we go up
+	Surface_atmosphere_colour = surf_atm_color;
+	Surface_atmosphere_colour.a = 255;
+	// it just is, okay?
+	
+	Atmosphere_height = atmosphere_height;
+	
 	Object_texture = new sf::Texture();
 	if(!Object_texture->loadFromFile(planet_texture_path))
 	{	std::cout << "Planet " << Get_object_name() << " unable to load texture at " << planet_texture_path << std::endl;
@@ -405,6 +432,63 @@ void TPlanet::Draw_flag(SFML_Window * iwindow, int zoom_factor)
 // calculations for the position of the image in the 32 bit sf::Vector2f type,
 // I *think* this should be fixed by keeping everything up until the actual set
 // position call done by VV2s
+
+sf::Color TPlanet::Get_atmosphere_mask(VectorVictor::Vector2 window_origin, long double sim_time)
+{	VectorVictor::Vector2 offset(0,0);
+	offset = this->Get_position(sim_time);
+	window_origin -= offset;
+	long double altitude = window_origin.Get_vector_magnitude();
+	altitude -= this->Get_radius(0);
+	// hackaround for the moment
+	
+	// use our altitude to get the proper value of the atmo mask
+	if(altitude < (-100))
+	{	// if the camera is really deep underground, just draw gray to show that
+		// we're in rock
+		return sf::Color(43,43,43,255);
+		// the value of -100 here is just a guess, needs to be more specific
+		// maybe using a passed parameter for this
+		
+		// but a hundred meters seems reasonable for now
+		// soon we should not have any need to be underground anyways
+	}
+	else if(altitude == 0)
+	{	return Surface_atmosphere_colour;
+	}
+	else if(altitude < Atmosphere_height)
+	{	// we interpolate between the two colour end members depending on what
+		// our value of altitude is
+		float r, g, b, a;
+		a = (float)altitude;
+		a /= (float)Atmosphere_height;
+		//a *= 255;
+		r = Top_atmosphere_colour.r - Surface_atmosphere_colour.r;
+		g = Top_atmosphere_colour.g - Surface_atmosphere_colour.g;
+		b = Top_atmosphere_colour.b - Surface_atmosphere_colour.b;				
+		// get the relative differences between the colour components of our
+		// two end members. just ignore the cast thing, it should be all right
+		
+		r = (float)Surface_atmosphere_colour.r + (r*a);
+		g = (float)Surface_atmosphere_colour.g + (g*a);	
+		b = (float)Surface_atmosphere_colour.b + (b*a);
+		// and interpolate the rgb between the two end members
+		a = 1-a;
+		// bahahaha, winnah, winnah
+		a *= 255;
+		// this works, but linear interpolation against altitude still doesnt
+		// look quite right, it probably needs to scale with atmosphere density
+		
+		sf::Color atmosphere(r, g, b, a);
+		return atmosphere;
+		// this should work from here on out
+	}
+	else
+	{	sf::Color transparent(255,255,255,0);
+		// if we are above the atmosphere height, dont draw anything at all
+		// cause we just wanna see them pretty stars
+		return transparent;
+	}
+}
 
 TPlanet::~TPlanet()
 {	delete Object_texture;

@@ -74,6 +74,18 @@ class CKeplerian_Object
 	// from the planets prime meridian (all the little greenwiches xD)
 	// This just returns the constant above for the moment, but the world will
 	// not always be a perfect sphere!	
+	
+	long double Atmosphere_height;
+	// distance from the surface to the top of the atmosphere (the point we stop
+	// rendering the atmosphere mask at) in meters
+	sf::Color Surface_atmosphere_colour;
+	// the colour of the atmosphere mask at sea level on the planet
+	sf::Color Top_atmosphere_colour;
+	// The final colour of the atmosphere mask at an altitude of Atmosphere
+	// height above the ground
+	
+	// of course, the alpha on this  will be 0 at the max height
+	
 	long double Mass;
 	// in kilograms
 	long double Get_mass();
@@ -102,6 +114,9 @@ class CKeplerian_Object
 	// how we check if the planet should be drawn
 	virtual void Draw_flag(SFML_Window * iwindow, int zoom_factor);
 	// and how we do it if it should
+	virtual sf::Color Get_atmosphere_mask(VectorVictor::Vector2 window_origin, long double sim_time);
+	// get the colour of the atmosphere that we will render over the starfield
+	// as a sf::RectShape in the main window loop
 	CKeplerian_Object * Get_keplerian_pointer();
 };
 
@@ -114,7 +129,7 @@ class TPlanet: public CKeplerian_Object
 	// basic type derived from Keplerian object that handles official planets
 	// and mostly dwarf planets too. Basically anything that orbits the sun and
 	// is to big to realistically handle as a newtonian object
-	TPlanet(long double initial_theta, long double omega, long double radius, long double atmosphere_height, long double mass, std::string planet_texture_path);
+	TPlanet(long double initial_theta, long double omega, long double radius, long double atmosphere_height, long double mass, std::string planet_texture_path, sf::Color top_atm_color, sf::Color surf_atm_color);
 	void Frame(double dt, long double simtime);
 	VectorVictor::Vector2 Get_position(long double sim_time);
 	// this... this should work a bit differently, sim_time should be implicitly
@@ -128,6 +143,8 @@ class TPlanet: public CKeplerian_Object
 	void Draw_flag(SFML_Window * iwindow, int zoom_factor);	
 	// Similar deal as before. Should double check that the inview check uses
 	// the correct radius for that map scale
+	sf::Color Get_atmosphere_mask(VectorVictor::Vector2 window_origin, long double sim_time);
+	
 	~TPlanet();
 };
 

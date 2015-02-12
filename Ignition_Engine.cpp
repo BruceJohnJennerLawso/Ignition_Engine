@@ -322,6 +322,14 @@ int Ignition_engine::Ignition()
 			// we dont even need to have vessels in the sim for it to
 			// work. Allowing it to focus on a planet, or point, or
 			// whatever would be much better
+			
+			for(std::vector<CKeplerian_Object*>::iterator it = Celestial_list.begin(); it != Celestial_list.end(); ++it)
+			{	sf::RectangleShape atmosphere(sf::Vector2f(Main_Window->Width, Main_Window->Height));
+				atmosphere.setFillColor((*it)->Get_atmosphere_mask(Camera_target, simulation_time));
+				Main_Window->window->draw(atmosphere);
+			}
+			
+			
 			for(std::vector<TVessel*>::iterator it = Vessel_list.begin(); it != Vessel_list.end(); ++it)
 			{	// multiple loops is important here! doing it all in one
 				// caused the relative vessel issue (not the jitter though)

@@ -77,7 +77,7 @@ int main()
 	// give birth to our beautiful new engine object. Isnt it cute?
 	std::cout << "Right before Init_assets()" << std::endl;
 	
-	TPlanet Earth(0.000, 0.0000727, 6378100, 245000, 5.9736e24, "./Data/Images/Planets/earth.png");
+	TPlanet Earth(0.000, 0.0000727, 6378100, 80000, 5.9736e24, "./Data/Images/Planets/earth.png", sf::Color(235,249,252), sf::Color(157,226,252));
 	// its this pale little blue dot out there somewhere
 	// rumours are that it isnt a bad place to live.	
 	
