@@ -1,0 +1,9 @@
+#!/bin/bash
+
+printf "Beginning compilation..."
+./compile
+printf "Finished compilation\nBeginning linking..."
+./link
+printf "Finished linking"
+
+exit 0
