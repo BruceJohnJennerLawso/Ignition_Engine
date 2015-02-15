@@ -369,14 +369,19 @@ void Init_assets(CKeplerian_Object * planet)
 }
 
 void Exit_program()
-{	delete Title_screen;
-	for(std::vector<TVessel*>::iterator it = Ignition_testing->Vessel_list.begin(); it != Ignition_testing->Vessel_list.end(); ++it)
-	{	delete (*it);
-	}	
+{	std::cout << "calling Exit_program()" << std::endl;
+	delete Title_screen;
+	//for(std::vector<TVessel*>::iterator it = Ignition_testing->Vessel_list.begin(); it != Ignition_testing->Vessel_list.end(); ++it)
+	//{	delete (*it);
+	//}	
+	// ahh, this must be getting done in the destructor for ignition_engine
+	// the windows version of the project was crashing after this was called cause
+	// we were trying to delete stuff twice
 	//delete dg_tex;
 	//delete csa_flag_sprite;
 	//delete Flags_tex;
 	// bear with me, I know what I am doing
+	std::cout << "Deleting the ignition object" << std::endl;
 	delete Ignition_testing;
 }
 
