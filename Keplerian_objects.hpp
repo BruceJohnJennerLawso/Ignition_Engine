@@ -120,9 +120,15 @@ class CKeplerian_Object
 	CKeplerian_Object * Get_keplerian_pointer();
 };
 
-//std::vector<CKeplerian_Object*> Celestial_list;
-// naughty, naughty, tsk tsk
-// maybe this could use the pseudo-header guards to avoid issues
+class Planetary_surface: public sf::Drawable, public sf::Transformable
+{	public:
+	bool load(const std::string& tileset, sf::Vector2u tileSize, const int* tiles, unsigned int width, unsigned int height);
+	private:
+	virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const;
+
+    sf::VertexArray m_vertices;
+    sf::Texture m_tileset;
+};
 
 class TPlanet: public CKeplerian_Object
 {	public:
