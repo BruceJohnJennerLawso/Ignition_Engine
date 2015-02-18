@@ -46,6 +46,74 @@ class Force
 // Celestial Bodies ////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
 
+class Planetary_surface: public sf::Drawable, public sf::Transformable
+{	public:
+	Planetary_surface();
+	Planetary_surface(const std::string& tileset, sf::Vector2u tileSize, const int* tiles, unsigned int width, unsigned int height);
+	Planetary_surface(const std::string& tileset, sf::Vector2u tileSize, std::vector<int> tiles, unsigned int width, unsigned int height);
+	Planetary_surface(sf::Texture &tileset, sf::Vector2u tileSize, std::vector<int> tiles, unsigned int width, unsigned int height);	
+	// in practice, each planet will have a list of surface points, which will
+	// use a seed to generate the list of values in tiles based on the seed
+	// (ie fractally compressed terrain)
+	// also the terrain point contains some sort of reference to the type of
+	// terrain (grass, desert, water, whatever) 
+	
+	// not sure what Im gonna do about water though
+	// maybe a list of water points that behave like a normal surface tile
+	// cause oceans gotta be somewhat rounded if they cover several degrees of
+	// longitude and cant be really flat lines across huge distances 
+	
+	// hmm wait, cant define ocean bottoms that way, maybe just define seas
+	// by their beds, and the planetary sea level is used to find where the
+	// sea level tiles go from there, that way we can also have underwater
+	// dynamics
+	
+	// but Im going overboard here
+
+	bool load(const std::string& tileset, sf::Vector2u tileSize, const int* tiles, unsigned int width, unsigned int height);
+	bool load(const std::string& tileset, sf::Vector2u tileSize, std::vector<int> tiles, unsigned int width, unsigned int height);	
+	
+	bool load(sf::Texture &tileset, sf::Vector2u tileSize, std::vector<int> tiles, unsigned int width, unsigned int height);	
+	private:
+	virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const;
+
+    sf::VertexArray m_vertices;
+    sf::Texture m_tileset;
+    public:
+    ~Planetary_surface();
+};
+
+class Terrain_point
+{	Terrain_point();
+	Terrain_point(int terrain_type, long double radius, int point_id);
+	
+	bool Init_object(int terrain_type, long double radius, int point_id);
+	// setter
+	protected:
+	// sigh, I can never remember what these all do...
+	int Terrain_type;
+	// terrain types determine which texture set is used for the terrain block
+	
+	// if it goes over the number of types available, we just go to the last one
+	// defined, no problem
+	long double Radius;
+	// the radius of the planet at this given point
+	int Point_id;
+	// unique id of the point in the list of all of the planets terrain points,
+	// used to find the in universe location of the point
+	// int Seed;
+	// this comin later
+	
+	public:
+	bool Match_point(int point_id);
+
+		
+		
+	~Terrain_point();
+};
+
+
+
 class CKeplerian_Object
 {	public:
 	// not sure if keplerian is the right category, but this type is for any
@@ -111,24 +179,38 @@ class CKeplerian_Object
 	// different zoom factors, but I dont see a specific reason why they couldnt
 	// be stored here instead
 	virtual bool In_view(SFML_Window * window, int zoom_factor, long double simtime);	
+	virtual bool In_view(SFML_Window * window, long double cam_scale, long double simtime);		
 	// how we check if the planet should be drawn
 	virtual void Draw_flag(SFML_Window * iwindow, int zoom_factor);
+	virtual void Draw_flag(SFML_Window * iwindow, long double cam_scale, long double sim_time);	
 	// and how we do it if it should
 	virtual sf::Color Get_atmosphere_mask(VectorVictor::Vector2 window_origin, long double sim_time);
 	// get the colour of the atmosphere that we will render over the starfield
 	// as a sf::RectShape in the main window loop
+	
+	// this is virtual so that more complex behaviours can eventually be
+	// implemented, like gas giant atmospheres with many levels of atmosphere
+	
+	virtual int Get_terrain_points();
+	// returns the number of points in the terrain total, evenly spaced
+	// over the whole planet/moon
+	
+	// a quick note, based on a maximum value of int of around 2.1 billion,
+	// this gives Earth a max density of about 2 cm per point, which
+	// should be way better than needed
+	
+	// this we just define virtually and the basic planet is just gonna have
+	// some default value for the moment based on whatever the rough size of
+	// the planet is cause the whole thing is round
+	
+	std::vector<Terrain_point> Surface;
+	// the list of points that make up the surface
+	
+	virtual void Draw_surface(SFML_Window * iwindow);
+	
 	CKeplerian_Object * Get_keplerian_pointer();
 };
 
-class Planetary_surface: public sf::Drawable, public sf::Transformable
-{	public:
-	bool load(const std::string& tileset, sf::Vector2u tileSize, const int* tiles, unsigned int width, unsigned int height);
-	private:
-	virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const;
-
-    sf::VertexArray m_vertices;
-    sf::Texture m_tileset;
-};
 
 class TPlanet: public CKeplerian_Object
 {	public:
@@ -145,11 +227,19 @@ class TPlanet: public CKeplerian_Object
 	// need to remember what the order was for scales
 	// after a certain point of zooming out, we just assumed that the image
 	// looks the same no matter how much farther we go
+	sf::Sprite Planet_sprite;
+	
 	bool In_view(SFML_Window * window, int zoom_factor, long double simtime);
+	bool In_view(SFML_Window * window, long double cam_scale, long double simtime);	
 	void Draw_flag(SFML_Window * iwindow, int zoom_factor);	
+	void Draw_flag(SFML_Window * iwindow, long double cam_scale, long double sim_time);	
 	// Similar deal as before. Should double check that the inview check uses
 	// the correct radius for that map scale
 	sf::Color Get_atmosphere_mask(VectorVictor::Vector2 window_origin, long double sim_time);
+	
+	int Get_terrain_points();
+	
+	void Draw_surface(SFML_Window * iwindow);
 	
 	~TPlanet();
 };

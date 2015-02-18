@@ -247,8 +247,9 @@ long double TVessel::Get_max_alpha(rotation_direction direction)
 bool TVessel::In_view(SFML_Window * window, int zoom_factor)
 {	long double radius = this->Get_length();
 	radius /= 2;
-	if(window->Intersection(this->NewtonianState.FlightState.Position, radius) == true)
-	{	return true;
+	if(window->Intersection(this->NewtonianState.FlightState.Position, radius, 1) == true)
+	{	// cam scale of 1 for the moment just so we dont have any crazy stuff
+		return true;
 	}
 	else
 	{	//std::cout << "No intersection for vessel " << this->Get_vessel_name() << std::endl;
@@ -275,8 +276,25 @@ bool TVessel::In_view(SFML_Window * window, int zoom_factor)
 	// there was some logic behind squaring the distance, but I dont recall
 }
 
-void TVessel::Draw_vessel(SFML_Window * iwindow, double cam_scale)
-{	Object_sprite->setScale((pix_length/((Vessel_tex->getSize().y)*cam_scale)),(pix_length/((Vessel_tex->getSize().y)*cam_scale)));
+bool TVessel::In_view(SFML_Window * window, long double cam_scale)
+{	long double radius = this->Get_length();
+	radius /= 2;
+	if(window->Intersection(this->NewtonianState.FlightState.Position, radius, cam_scale) == true)
+	{	// cam scale of 1 for the moment just so we dont have any crazy stuff
+		return true;
+	}
+	else
+	{	//std::cout << "No intersection for vessel " << this->Get_vessel_name() << std::endl;
+		return false;
+	}
+}
+
+void TVessel::Draw_vessel(SFML_Window * iwindow, long double cam_scale)
+{	double scale_factor = pix_length/(Vessel_tex->getSize().y*cam_scale);
+	
+//	Object_sprite->setScale((pix_length/((Vessel_tex->getSize().y)*cam_scale)),(pix_length/((Vessel_tex->getSize().y)*cam_scale)));
+
+	Object_sprite->setScale(sf::Vector2f(scale_factor,scale_factor));
 	// rescale the axes of the texture to match pix_length in the y and the
 	// appropriate scale for the x dimension
 		

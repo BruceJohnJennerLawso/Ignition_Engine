@@ -524,6 +524,44 @@ long double VectorVictor::Get_vector_separation(Vector2 First_vector, Vector2 Se
 	return rad;
 }
 
+long double Minimum(long double value1, long double value2)
+{	if(value1 < value2)
+	{	return value1;
+	}
+	else
+	{	if(value1 == value2)
+		{	return value1;
+			// it dont matter
+		}
+		else
+		{	return value2;
+		}
+	}
+}
+
+long double Maximum(long double value1, long double value2)
+{	if(value1 > value2)
+	{	return value1;
+	}
+	else
+	{	if(value1 == value2)
+		{	return value1;
+			// it dont matter
+		}
+		else
+		{	return value2;
+		}
+	}
+}
+
+bool In_range(long double boundary1, long double boundary2, long double target_value)
+{	if((target_value >= Minimum(boundary1, boundary2))&&(target_value <= Maximum(boundary1, boundary2)))
+	{	// if the value falls in the range we're good to go
+		return true;
+	}
+	return false;
+}
+
 long double Absolute_value(long double value)
 {	if(value < 0)
 	{	value = -value;

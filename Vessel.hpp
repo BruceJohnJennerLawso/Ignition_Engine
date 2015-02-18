@@ -85,10 +85,12 @@ class TVessel: virtual public CNewtonian_Object
 	bool In_view(SFML_Window * window, int zoom_factor);
 	// This is implemented at this level
 	// (I think because we finally have access to the hull & its length)
+	bool In_view(SFML_Window * window, long double cam_scale);
+	
 	void Draw_flag(SFML_Window * window, int zoom_factor);	
 	// also implemented here, although no particular reason that I see
 
-	void Draw_vessel(SFML_Window * iwindow, double cam_scale);												
+	void Draw_vessel(SFML_Window * iwindow, long double cam_scale);												
 	// this should eventually become a vertex array with the thruster visuals 
 	// thrown in alongside it
 	virtual void Draw_controls(SFML_Window * iwindow, bool Map_status);

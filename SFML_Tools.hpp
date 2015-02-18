@@ -135,6 +135,10 @@ class SFML_Window
 	// or set the coordinates of the origin more explicitly
 	long long unsigned int Width, Height;
 	// the dimensions of the actual window itself, in pixels
+	// I think this is unnecessary to have the long long here, this was some
+	// sort of desperate problem solving with the window jitter issue I think
+	
+	// wastin memoryz here
 	long double Aperture_width, Aperture_height;
 	// the dimensions of what the window is currently spanning in the game
 	// universe, in meters
@@ -144,9 +148,15 @@ class SFML_Window
 	// set the rotation to its new value
 	void Set_aperture_dimensions(long long unsigned int ap_w, long long unsigned int ap_h);
 	// set those dimensions in meters
-	bool Intersection(VectorVictor::Vector2 center, long double radius);
+	bool Intersection(VectorVictor::Vector2 center, long double radius, long double cam_scale);
 	// check if a sphere with center and radius intersects the aperture box of
 	// the window, so that we know if it should be drawn
+	bool Window_intersection(sf::Vector2f window_point);
+	
+	bool Intersection(VectorVictor::Vector2 point, long double cam_scale);
+	// intersection of a given VV2 point with the window in camera view
+	bool Intersection(VectorVictor::Vector2 point, int zoom_factor);
+	// intersection of a given VV2 with the window in map view	
 	~SFML_Window();
 	// close up shop (and delete our RenderWindow)
 };
@@ -160,7 +170,9 @@ class SFML_Window
 
 sf::Vector2f Get_window_coordinates(VectorVictor::Vector2 sim_point, SFML_Window * iwindow, int map_scale);
 
-sf::Vector2f Get_window_coordinates(VectorVictor::Vector2 sim_point, SFML_Window * iwindow, double cam_scale);
+sf::Vector2f Get_window_coordinates(VectorVictor::Vector2 sim_point, SFML_Window * iwindow, long double cam_scale);
+
+
 
 VectorVictor::Vector2 Get_simulation_coordinates(sf::Vector2f window_point, SFML_Window * iwindow, int map_scale);
 

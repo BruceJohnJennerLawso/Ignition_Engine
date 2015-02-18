@@ -49,6 +49,200 @@ Force::~Force()
 }
 
 
+// Planetary_surface //////////////////////////////////////////////////////////
+// A class to render planet surface segments piece by piece when the main /////
+// window is close enough to the ground that it is required ///////////////////
+///////////////////////////////////////////////////////////////////////////////
+
+Planetary_surface::Planetary_surface()
+{	// ummm...
+}
+
+Planetary_surface::Planetary_surface(const std::string& tileset, sf::Vector2u tileSize, const int* tiles, unsigned int width, unsigned int height)
+{	if(!this->load(tileset, tileSize, tiles, width, height))
+	{	std::cout << "Failed to load planetary surface in Planetary_surface::Planetary_surface(const std::string& tileset, sf::Vector2u tileSize, const int* tiles, unsigned int width, unsigned int height)" << std::endl;
+		std::cout << "Unable to load tileset at " << tileset << std::endl;
+	}
+}
+	
+Planetary_surface::Planetary_surface(const std::string& tileset, sf::Vector2u tileSize, std::vector<int> tiles, unsigned int width, unsigned int height)
+{	if(!this->load(tileset, tileSize, tiles, width, height))
+	{	std::cout << "Failed to load planetary surface in Planetary_surface::Planetary_surface(const std::string& tileset, sf::Vector2u tileSize, std::vector<int> tiles, unsigned int width, unsigned int height)" << std::endl;
+		std::cout << "Unable to load tileset at " << tileset << std::endl;
+	}
+}
+
+Planetary_surface::Planetary_surface(sf::Texture &tileset, sf::Vector2u tileSize, std::vector<int> tiles, unsigned int width, unsigned int height)
+{	if(!this->load(tileset, tileSize, tiles, width, height))
+	{	std::cout << "Failed to load planetary surface in Planetary_surface::Planetary_surface(sf::Texture &tileset, sf::Vector2u tileSize, std::vector<int> tiles, unsigned int width, unsigned int height)" << std::endl;
+		// this should never come up, cause this version of the function cant
+		// even return false anyways
+		
+		// we'll see
+	}
+}
+	
+
+bool Planetary_surface::load(const std::string& tileset, sf::Vector2u tileSize, std::vector<int> tiles, unsigned int width, unsigned int height)
+{	// load the tileset texture
+	if(!m_tileset.loadFromFile(tileset))
+	{	return false;
+	}
+	// resize the vertex array to fit the level size
+	m_vertices.setPrimitiveType(sf::Quads);
+	m_vertices.resize(width * height * 4);
+	// populate the vertex array, with one quad per tile
+	// why is it 4 though...
+	for(unsigned int i = 0; i < width; ++i)
+	{	for(unsigned int j = 0; j < height; ++j)
+		{	// get the current tile number
+			int tileNumber = tiles.at(i+(j*width));
+			// find its position in the tileset texture
+			int tu = tileNumber % (m_tileset.getSize().x / tileSize.x);
+			int tv = tileNumber / (m_tileset.getSize().x / tileSize.x);
+			// get a pointer to the current tile's quad
+			sf::Vertex* quad = &m_vertices[(i + j * width) * 4];
+			// define its 4 corners
+			quad[0].position = sf::Vector2f(i * tileSize.x, j * tileSize.y);
+			quad[1].position = sf::Vector2f((i + 1) * tileSize.x, j * tileSize.y);
+			quad[2].position = sf::Vector2f((i + 1) * tileSize.x, (j + 1) * tileSize.y);
+			quad[3].position = sf::Vector2f(i * tileSize.x, (j + 1) * tileSize.y);
+			// define its 4 texture coordinates
+			quad[0].texCoords = sf::Vector2f(tu * tileSize.x, tv * tileSize.y);
+			quad[1].texCoords = sf::Vector2f((tu + 1) * tileSize.x, tv * tileSize.y);
+			quad[2].texCoords = sf::Vector2f((tu + 1) * tileSize.x, (tv + 1) * tileSize.y);
+			quad[3].texCoords = sf::Vector2f(tu * tileSize.x, (tv + 1) * tileSize.y);
+		}
+	}
+	return true;
+}
+
+bool Planetary_surface::load(const std::string& tileset, sf::Vector2u tileSize, const int* tiles, unsigned int width, unsigned int height)
+{	// load the tileset texture
+	if(!m_tileset.loadFromFile(tileset))
+	{	return false;
+	}
+	// resize the vertex array to fit the level size
+	m_vertices.setPrimitiveType(sf::Quads);
+	m_vertices.resize(width * height * 4);
+	// populate the vertex array, with one quad per tile
+	// why is it 4 though...
+	for(unsigned int i = 0; i < width; ++i)
+	{	for(unsigned int j = 0; j < height; ++j)
+		{	// get the current tile number
+			int tileNumber = tiles[i+(j*width)];
+			// find its position in the tileset texture
+			int tu = tileNumber % (m_tileset.getSize().x / tileSize.x);
+			int tv = tileNumber / (m_tileset.getSize().x / tileSize.x);
+			// get a pointer to the current tile's quad
+			sf::Vertex* quad = &m_vertices[(i + j * width) * 4];
+			// define its 4 corners
+			quad[0].position = sf::Vector2f(i * tileSize.x, j * tileSize.y);
+			quad[1].position = sf::Vector2f((i + 1) * tileSize.x, j * tileSize.y);
+			quad[2].position = sf::Vector2f((i + 1) * tileSize.x, (j + 1) * tileSize.y);
+			quad[3].position = sf::Vector2f(i * tileSize.x, (j + 1) * tileSize.y);
+			// define its 4 texture coordinates
+			quad[0].texCoords = sf::Vector2f(tu * tileSize.x, tv * tileSize.y);
+			quad[1].texCoords = sf::Vector2f((tu + 1) * tileSize.x, tv * tileSize.y);
+			quad[2].texCoords = sf::Vector2f((tu + 1) * tileSize.x, (tv + 1) * tileSize.y);
+			quad[3].texCoords = sf::Vector2f(tu * tileSize.x, (tv + 1) * tileSize.y);
+		}
+	}
+	return true;
+}
+
+bool Planetary_surface::load(sf::Texture &tileset, sf::Vector2u tileSize, std::vector<int> tiles, unsigned int width, unsigned int height)
+{	// set the tileset sf texture to the same point in memory as what was passed
+	// this is risky, but yolo
+	//(m_tileset&) = tileset;
+	
+	// it just dont wanna work
+	
+	// and if this really doesnt work, we can do it the conventional way
+	m_tileset = tileset;
+	
+	// resize the vertex array to fit the level size
+	m_vertices.setPrimitiveType(sf::Quads);
+	m_vertices.resize(width * height * 4);
+	// populate the vertex array, with one quad per tile
+	// why is it 4 though...
+	for(unsigned int i = 0; i < width; ++i)
+	{	for(unsigned int j = 0; j < height; ++j)
+		{	// get the current tile number
+			int tileNumber = tiles[i+(j*width)];
+			// find its position in the tileset texture
+			int tu = tileNumber % (m_tileset.getSize().x / tileSize.x);
+			int tv = tileNumber / (m_tileset.getSize().x / tileSize.x);
+			// get a pointer to the current tile's quad
+			sf::Vertex* quad = &m_vertices[(i + j * width) * 4];
+			// define its 4 corners
+			quad[0].position = sf::Vector2f(i * tileSize.x, j * tileSize.y);
+			quad[1].position = sf::Vector2f((i + 1) * tileSize.x, j * tileSize.y);
+			quad[2].position = sf::Vector2f((i + 1) * tileSize.x, (j + 1) * tileSize.y);
+			quad[3].position = sf::Vector2f(i * tileSize.x, (j + 1) * tileSize.y);
+			// define its 4 texture coordinates
+			quad[0].texCoords = sf::Vector2f(tu * tileSize.x, tv * tileSize.y);
+			quad[1].texCoords = sf::Vector2f((tu + 1) * tileSize.x, tv * tileSize.y);
+			quad[2].texCoords = sf::Vector2f((tu + 1) * tileSize.x, (tv + 1) * tileSize.y);
+			quad[3].texCoords = sf::Vector2f(tu * tileSize.x, (tv + 1) * tileSize.y);
+		}
+	}
+	return true;
+}
+
+
+void Planetary_surface::draw(sf::RenderTarget& target, sf::RenderStates states) const
+{	// apply the transform
+	states.transform *= getTransform();
+	// apply the tileset texture
+	states.texture = &m_tileset;
+	// draw the vertex array
+	target.draw(m_vertices, states);
+}
+
+Planetary_surface::~Planetary_surface()
+{	
+}
+
+
+// Terrain_point ///////////////////////////////////////////////////////////////
+// The info about each point on the planetary surface that is stored in a big //
+// list for each celestial body ////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+
+Terrain_point::Terrain_point()
+{	Terrain_type = 0;
+	// set the terrain to our default type
+	Radius = -1;
+	// hopefully flags it as set up by the default constructor
+	Point_id = -1;
+	// definitely flags it as something wrong...
+}
+
+Terrain_point::Terrain_point(int terrain_type, long double radius, int point_id)
+{	Terrain_type = terrain_type;
+	Radius = radius;
+	Point_id = point_id;
+}
+
+bool Terrain_point::Init_object(int terrain_type, long double radius, int point_id)
+{	Terrain_type = terrain_type;
+	Radius = radius;
+	Point_id = point_id;
+}
+
+bool Terrain_point::Match_point(int point_id)
+{	if(Point_id == point_id)
+	{	return true;
+	}
+	return false;
+	// why do I need this again...
+}
+
+Terrain_point::~Terrain_point()
+{
+}
+
 // Celestial Bodies ////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -197,14 +391,32 @@ bool CKeplerian_Object::In_view(SFML_Window * window, int zoom_factor, long doub
 	return false;
 }
 
+bool CKeplerian_Object::In_view(SFML_Window * window, long double cam_scale, long double simtime)
+{	std::cout << "Bad call to CKeplerian_Object::In_view(SFML_Window * window, long double cam_scale, long double simtime)" << std::endl;
+	return false;
+}
+
 void CKeplerian_Object::Draw_flag(SFML_Window * iwindow, int zoom_factor)
-{	std::cout << "Bad call to CKeplerian_Object::Draw_flag(SFML_Window * iwindow, int zoom_factor, VectorVictor::Rectangle * view_frame)" << std::endl;
+{	std::cout << "Bad call to CKeplerian_Object::Draw_flag(SFML_Window * iwindow, int zoom_factor)" << std::endl;
+}
+
+void CKeplerian_Object::Draw_flag(SFML_Window * iwindow, long double cam_scale, long double sim_time)
+{	std::cout << "Bad call to CKeplerian_Object::Draw_flag(SFML_Window * iwindow, long double cam_scale, long double sim_time)" << std::endl;
 }
 
 sf::Color CKeplerian_Object::Get_atmosphere_mask(VectorVictor::Vector2 window_origin, long double sim_time)
 {	sf::Color transparent(255,255,255,0);
 	// all transparent baby
 	return transparent;
+}
+
+int CKeplerian_Object::Get_terrain_points()
+{	return -1;
+	// say whaaat
+}
+
+void CKeplerian_Object::Draw_surface(SFML_Window * iwindow)
+{	// just yeah, dont look at this too hard just yet
 }
 
 
@@ -217,57 +429,6 @@ CKeplerian_Object * CKeplerian_Object::Get_keplerian_pointer()
 // variable, it could work!
 
 // changing this should be a priority
-
-
-// Planetary_surface //////////////////////////////////////////////////////////
-// A class to render planet surface segments piece by piece when the main /////
-// window is close enough to the ground that it is required ///////////////////
-///////////////////////////////////////////////////////////////////////////////
-
-bool Planetary_surface::load(const std::string& tileset, sf::Vector2u tileSize, const int* tiles, unsigned int width, unsigned int height)
-{	// load the tileset texture
-	if(!m_tileset.loadFromFile(tileset))
-	{	return false;
-	}
-	// resize the vertex array to fit the level size
-	m_vertices.setPrimitiveType(sf::Quads);
-	m_vertices.resize(width * height * 4);
-	// populate the vertex array, with one quad per tile
-	// why is it 4 though...
-	for(unsigned int i = 0; i < width; ++i)
-	{	for(unsigned int j = 0; j < height; ++j)
-		{	// get the current tile number
-			int tileNumber = tiles[i+(j*width)];
-			// find its position in the tileset texture
-			int tu = tileNumber % (m_tileset.getSize().x / tileSize.x);
-			int tv = tileNumber / (m_tileset.getSize().x / tileSize.x);
-			// get a pointer to the current tile's quad
-			sf::Vertex* quad = &m_vertices[(i + j * width) * 4];
-			// define its 4 corners
-			quad[0].position = sf::Vector2f(i * tileSize.x, j * tileSize.y);
-			quad[1].position = sf::Vector2f((i + 1) * tileSize.x, j * tileSize.y);
-			quad[2].position = sf::Vector2f((i + 1) * tileSize.x, (j + 1) * tileSize.y);
-			quad[3].position = sf::Vector2f(i * tileSize.x, (j + 1) * tileSize.y);
-			// define its 4 texture coordinates
-			quad[0].texCoords = sf::Vector2f(tu * tileSize.x, tv * tileSize.y);
-			quad[1].texCoords = sf::Vector2f((tu + 1) * tileSize.x, tv * tileSize.y);
-			quad[2].texCoords = sf::Vector2f((tu + 1) * tileSize.x, (tv + 1) * tileSize.y);
-			quad[3].texCoords = sf::Vector2f(tu * tileSize.x, (tv + 1) * tileSize.y);
-		}
-	}
-	return true;
-}
-
-
-void Planetary_surface::draw(sf::RenderTarget& target, sf::RenderStates states) const
-{	// apply the transform
-	states.transform *= getTransform();
-	// apply the tileset texture
-	states.texture = &m_tileset;
-	// draw the vertex array
-	target.draw(m_vertices, states);
-}
-
 
 
 
@@ -371,6 +532,14 @@ TPlanet::TPlanet(long double initial_theta, long double omega, long double radiu
 			// consecutive image should be 10x smaller than the previous one
 		}
 	}
+	float sprite_x = Object_texture->getSize().x;	
+	//sprite_x *= planet_sprite->getScale().x;
+	
+	float sprite_y = Object_texture->getSize().y;  
+	//sprite_y *= planet_sprite->getScale().y;	
+	
+	Planet_sprite.setOrigin((sprite_x/2), (sprite_y/2));
+	Planet_sprite.setTexture(*Object_texture);
 }	// once more, my code works and I dont know why ^^
 // I need to ask Vaughan or someone about this
 // odd that the relative location of the sprite origin stays the same relative
@@ -400,68 +569,24 @@ VectorVictor::Vector2 TPlanet::Get_position(long double sim_time)
 
 
 bool TPlanet::In_view(SFML_Window * window, int zoom_factor, long double simtime)
-{	
-	long double radius = this->Get_radius(0);
-	return window->Intersection(this->Get_position(simtime), radius);
-	// dont know if this will work okay with the call to Get position, this was
-	// behaving badly before
-	
-	
-	
-	
-	
-//	if((Get_position(Simulation_time).Get_x() >= (window->origin.x-(Get_radius(0))))&&(Get_position(Simulation_time).Get_x() <= ((window->origin.x + (window->Aperture_width+(Get_radius(0)))))))
-//	{	if((Get_position(Simulation_time).Get_y() <= (window->origin.y+(Get_radius(0))))&&(Get_position(Simulation_time).Get_y() >= (window->origin.y - ((window->Aperture_height+(Get_radius(0)))))))
-//		{	return true;
-//		}
-//		else
-//		{	return false;
-//		}
-//	}	
-//	else
-//	{	return false;
-//	}
-	// simple algorithm checks if the coordinates of the planet are within the
-	// box represented by our camera. Completely useless right now, since
-	// the planet isnt even drawn outside of map view, but surface elements
-	// will come into play later on
+{	long double radius = this->Get_radius(0);
+	return window->Intersection(this->Get_position(simtime), radius, 1);
+	// 1 is a placeholder for the cam scale here
+}
+
+bool TPlanet::In_view(SFML_Window * window, long double cam_scale, long double simtime)
+{	long double radius = this->Get_radius(0);
+	bool intersection = window->Intersection(this->Get_position(simtime), radius, 1);
+	if(intersection == true)
+	{	Talkback("Planet visible in camera view!");
+	}
+	return intersection;
 }
 
 void TPlanet::Draw_flag(SFML_Window * iwindow, int zoom_factor)
-{	// sounds odd since we dont exactly draw a flag here, but it works anyways
-	// could change this so it sounds better I guess... still early on
-	//sf::Vector2f offset(Get_position(Simulation_time).Get_x(), Get_position(Simulation_time).Get_y());	
-	// we create a sf vector here with the same magnitude as the in-universe
-	// position of the planet in question
-	//sf::Vector2f camera_origin(iwindow->origin.x, iwindow->origin.y);
-	// and we create a second sf vector representing the in-universe offset
-	// of the camera (specifically its upper left corner)
-	//offset -= camera_origin;
-	// we find the relative offset from the camera origin to the planets center
-	//offset.y = -offset.y;
-	// flip the coordinate system so up is positive y instead of vice-versa
-	// (its a peculiarity with how SFML works)
-	//offset.y *= pow(0.1, (zoom_factor));
-	//offset.x *= pow(0.1, (zoom_factor));
-	// and scale back the offsets by 10^zoom_factor
-	// since we need to take in game meters and scale them back to pixels
-	// on the screen
+{	sf::Vector2f camera_offset = Get_window_coordinates(Get_position(Simulation_time), iwindow, zoom_factor);
 	
-	// okay jitterbug free version:
-	
-	//VectorVictor::Vector2 offset(Get_position(Simulation_time).Get_x(),  Get_position(Simulation_time).Get_y());
-	//VectorVictor::Vector2 camera_origin(iwindow->origin.Get_x(), iwindow->origin.Get_y());
-	//offset -= camera_origin;
-	//offset.y *= -1;
-	//offset.y *= pow(0.1, (zoom_factor));
-	//offset.x *= pow(0.1, (zoom_factor));
-	
-	sf::Vector2f camera_offset = Get_window_coordinates(Get_position(Simulation_time), iwindow, zoom_factor);
-	
-	
-	
-	// looks like 1/10, 1/100, 1/1000, ... etc.
-	
+	// looks like 1/10, 1/100, 1/1000, ... etc.	
 	for(std::vector<sf::Sprite*>::iterator it = Planet_sprites.begin(); it != Planet_sprites.end(); ++it)
 	{	(*it)->setPosition(camera_offset);
 	}
@@ -475,10 +600,34 @@ void TPlanet::Draw_flag(SFML_Window * iwindow, int zoom_factor)
 	// inside the vector
 }
 
-// it would appear that the jitterbug is due to doing those relative offset
-// calculations for the position of the image in the 32 bit sf::Vector2f type,
-// I *think* this should be fixed by keeping everything up until the actual set
-// position call done by VV2s
+void TPlanet::Draw_flag(SFML_Window * iwindow, long double cam_scale, long double sim_time)
+{	long double pix_length = this->Get_radius(0) + Atmosphere_height;
+	// aww damn, this isnt gonna work indefinitely
+	
+	// the atmosphere height... knew there was something off
+	pix_length *= 2;
+	// make it equivalent to our diameter instead of the radius
+	pix_length *= 10;
+	// and do the funky scale thing so the camera view is 10 pixels per meter
+	long double scale_factor = pix_length/((Object_texture->getSize().y)*cam_scale);
+	// adjust the scale factor to match
+	Planet_sprite.setScale(sf::Vector2f(scale_factor,scale_factor));
+	// rescale the axes of the texture to match pix_length in the y and the
+	// appropriate scale for the x dimension
+		
+	// not sure why they both use y, but I think this was distorted when
+	// it used x & y.
+	// This area needs to be looked over again
+	sf::Vector2f camera_offset = Get_window_coordinates(this->Get_position(sim_time), iwindow, cam_scale);
+	// I just dont get it, this should work just fine
+	// translation looks okay, but the thing goes nuts rotating twice over the
+	// full 360 degrees 
+	Planet_sprite.setPosition(camera_offset);
+	Planet_sprite.setRotation(this->Theta - iwindow->Aperture_rotation);
+	// that should work just fine and dandy
+	iwindow->window->draw(Planet_sprite);
+	// this looks sorta workable I suppose
+}
 
 sf::Color TPlanet::Get_atmosphere_mask(VectorVictor::Vector2 window_origin, long double sim_time)
 {	VectorVictor::Vector2 offset(0,0);
@@ -535,6 +684,31 @@ sf::Color TPlanet::Get_atmosphere_mask(VectorVictor::Vector2 window_origin, long
 		// cause we just wanna see them pretty stars
 		return transparent;
 	}
+}
+
+int TPlanet::Get_terrain_points()
+{	long double density = this->Get_radius(0);
+	// get the radius of the planet in meters
+	density *= (2*Pi);
+	// convert it to the circumference of the planet
+	density /= 100;
+	// make the density the number of 100m segments required to cover the planet
+	// just 100m because it works here, but  in the future this will be more
+	// complex with the size of the segments determined by how many points the
+	// planets terrain has in total
+	int point_number = (int)density;
+	// and convert it to an integer. This will of course lose some precision,
+	// but we can get the proper length of the segment later using vector maths
+	// so there is no real issue with losing precision here
+	
+	// we just want a number of points for a segment length approximately 100m
+	// long for each one
+	return point_number;
+	// and send it on its way
+}
+
+void TPlanet::Draw_surface(SFML_Window * iwindow)
+{	// just yeah, dont look at this too hard just yet
 }
 
 TPlanet::~TPlanet()

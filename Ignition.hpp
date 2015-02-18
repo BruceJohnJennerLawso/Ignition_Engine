@@ -35,7 +35,7 @@
 
 #define Min_map_scale 1
 
-#define Max_cam_scale 10.00
+#define Max_cam_scale 100000.00
 #define Min_cam_scale 0.01
 
 template <class T> class Ignition_handle

@@ -220,6 +220,10 @@ bool CNewtonian_Object::In_view(SFML_Window * window, int zoom_factor)
 	return false;
 }
 
+bool CNewtonian_Object::In_view(SFML_Window * window, long double cam_scale)
+{	Talkback("Bad call to CNewtonian_Object::In_view(SFML_Window * window, long double cam_scale)");
+}
+
 void CNewtonian_Object::Print_data()
 {	Talkback("Bad call to CNewtonian_Object::Print_data()");
 }

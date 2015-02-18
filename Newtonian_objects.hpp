@@ -87,12 +87,8 @@ class CNewtonian_Object
 	// and I certainly wouldnt be doing any of this if it werent for him, so...
 	// yeah...
 	CNewtonian_Object();
-	// cmon, cmon
 	CNewtonian_Object(ObjectState initial_newtonian_state);
-	
-	
 	ObjectState NewtonianState;
-	
 	VectorVictor::Vector2 Acceleration;	
 	// where we are going is going
 	// another shitter to get rid of. Need to look up all references
@@ -103,7 +99,6 @@ class CNewtonian_Object
 	
 	// this isnt strictly necessary as an object variable, although it makes
 	// the code a wee bit simpler just leaving it in each frame
-	
 	Propagator_type Propagator;
 	// so this is just a nice little enum type that we can use here to indicate
 	// what kind of propagator the newtonian object is using in its quest to
@@ -112,25 +107,10 @@ class CNewtonian_Object
 	// The sim can switch this back and forth depending on whatever the hell
 	// it feels like doing with the newtonian object at that particular point
 	// in time (orbit stabilization and the like?)
-		
 	long double Length, PMI;
 	// I think the length is outdated now, since hull handles that.
 	// PMI is another good physical property, the total moment of inertia of the
 	// vessel around whatever our reference axis (center of mass) is
-	
-	// Our orientation in space and how its changing
-	// all stored in degrees
-	
-	
-	//bool Crashed;
-	// the current type of collision detection is quite simple, if we hit the
-	// ground at all, we crashed, and our position is locked to the point
-	// on the surface where we bought the farm
-	
-	// very much temporary, but wouldnt hurt to fix this up so that it works
-	// properly in following the surface position on the body where it crashed
-	// right now it just sits on the surface of the sphere as if it were
-	// frictionless
 	bool Crash_state(long double sim_time, std::vector<CKeplerian_Object*> &ignition_celestials);
 	// if we aint crashed, check if our position implies that we are
 	// auch, this is why the setup above was so ugly, shouldnt need to have
@@ -170,22 +150,17 @@ class CNewtonian_Object
 	void Update_motion(long double simtime, long double dt, std::vector<CKeplerian_Object*> &ignition_celestials);
 	// State propagator of the cartesian coordinates of the vessel
 	// currently single pass linear, (ie bad) but will be updated
-	
 	void Propagate_Euler1(long double sim_time, long double dt, VectorVictor::Vector2 &net_force, std::vector<CKeplerian_Object*> &ignition_celestials);
 	// brute force it. Dont even know where this would be useful anymore
 	// once the RK4 is implemented, but I guess it cant hurt
-	
 	void Propagate_RK4(long double sim_time, long double dt, VectorVictor::Vector2 &net_force, std::vector<CKeplerian_Object*> &ignition_celestials);
 	// run a step of length dt with an RK4 propagator for much better accuracy
 	// than an implicit Euler one will give
-	
 	Flight_state evaluate(const Flight_state &initial_state, long double simtime, long double dt, const Flight_state &derivative, std::vector<CKeplerian_Object*> &ignition_celestials, VectorVictor::Vector2 &net_force);
 	// It doesnt absolutely need to be a member method, but this makes it much easier
-	
 	void Update_rotation(long double simtime, long double dt);
 	// Same as for motion, just using the torques implied by the Force list
 	// in each frame
-	
 	bool Update_flag;
 	// this was an older idea
 	bool Update_flag_state();
@@ -196,7 +171,6 @@ class CNewtonian_Object
 	// queries all vessel components for their respective moments of inertia
 	// and adds them up. Updates are required over time to account for changes
 	// in mass inside the vessels parts
-	
 	virtual void Print_data();	
 	// A handy function for debugging, basically just a console printout of
 	// whatever is relevant when working on the thing
@@ -204,7 +178,6 @@ class CNewtonian_Object
 	// we pass the vessel the object with data on all keypresses in the last
 	// frame, and each implementation class of the Newtonian object handles
 	// it in its own way
-	
 	virtual void Receive_cursor_inputs(Cursor_commands * cursor_action, long double dt);
 	// very similarly to Receive_inputs, except we send it info about the mouse
 	// cursor and this applies to all vessels in the window
@@ -225,9 +198,11 @@ class CNewtonian_Object
 	// this should be partially moved around so that some actions are standard
 	// like rot/trans inputs should be handled from specific keys and should
 	// cause similar effects
-	virtual bool In_view(SFML_Window * window, int zoom_factor);	
+	virtual bool In_view(SFML_Window * window, int zoom_factor);			
 	// virtual for reasons I dont recall, maybe asteroids will handle this in
 	// some unorthodox way
+	virtual bool In_view(SFML_Window * window, long double cam_scale);
+	// aww yeah	
 	sf::Sprite * Object_sprite;	
 	// this is fine for now, but I really would prefer shifting it to the
 	// vessel components (specifically the hull in this case)

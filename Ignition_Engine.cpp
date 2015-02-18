@@ -97,8 +97,14 @@ void Ignition_engine::Update_standard_displays()
 		std::string framerate = SI::Get_formatted_value("FPS:", (long int)fps, 3, "");
 		fps_meter.Set_element(framerate);
 		// we set the fps meter
-		std::string zoomfactor = SI::Get_formatted_value("Map Scale:", ((long int)pow((long double)10, (int)zoom_exponent)), "x");
-		map_scale_meter.Set_element(zoomfactor);
+		if(map_view == false)
+		{	std::string zoomfactor = SI::Get_formatted_value("Camera View Scale:", (long int)(camera_scale/10), "x");
+			map_scale_meter.Set_element(zoomfactor);
+		}
+		else
+		{	std::string zoomfactor = SI::Get_formatted_value("Map Scale:", ((long int)pow((long double)10, (int)zoom_exponent)), "x");
+			map_scale_meter.Set_element(zoomfactor);
+		}
 		// and then set the map scale meter based on '10^zoom_exponent x'"
 		std::string timewarp = SI::Get_formatted_value( "Time Accel:", ((long int)pow((long double)10, (int)time_acceleration_exponent)), "x");
 		time_accel_meter.Set_element(timewarp);
@@ -206,7 +212,7 @@ int Ignition_engine::Ignition()
 					
 					// not a big deal, but it works better this way, smoother
 					// interfacing with the user IMO
-					Change_camera_scale(- (double)event.mouseWheel.delta);
+					Change_camera_scale(-1000*(double)event.mouseWheel.delta);
 					// if the mouse wheel was moved, used the number of ticks thatdouble Larger_of(double value1, double value2);
 					// it moved by to change the scale of the current camera view
 				}
@@ -322,13 +328,24 @@ int Ignition_engine::Ignition()
 			// we dont even need to have vessels in the sim for it to
 			// work. Allowing it to focus on a planet, or point, or
 			// whatever would be much better
-			
+			for(std::vector<CKeplerian_Object*>::iterator it = Celestial_list.begin(); it != Celestial_list.end(); ++it)
+			{	// same deal as camera view, just based on the size of the
+				// map view instead
+				if((*it)->In_view(Main_Window, camera_scale, simulation_time) == true)
+				{	(*it)->Draw_flag(Main_Window, camera_scale, simulation_time);	
+				}	// new versions of these functions using doubles now
+			}
 			for(std::vector<CKeplerian_Object*>::iterator it = Celestial_list.begin(); it != Celestial_list.end(); ++it)
 			{	sf::RectangleShape atmosphere(sf::Vector2f(Main_Window->Width, Main_Window->Height));
 				atmosphere.setFillColor((*it)->Get_atmosphere_mask(Camera_target, simulation_time));
 				Main_Window->window->draw(atmosphere);
 			}
-			
+			// this somehow needs to sort based on the scale of the window...
+			// I guess maybe we pass the current window pointer and the function
+			// takes care of it. The future way will probably need to be
+			// something like a grid of rectangular vertex arrays that have
+			// colours mapped to their corners based on a mapped function,
+			// get atm mask(game coordinate(window point))
 			
 			for(std::vector<TVessel*>::iterator it = Vessel_list.begin(); it != Vessel_list.end(); ++it)
 			{	// multiple loops is important here! doing it all in one

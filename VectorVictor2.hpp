@@ -112,4 +112,9 @@ namespace VectorVictor
 
 long double Absolute_value(long double value);
 
+
+long double Minimum(long double value1, long double value2);
+long double Maximum(long double value1, long double value2);
+bool In_range(long double value1, long double value2, long double target_value);
+
 #endif

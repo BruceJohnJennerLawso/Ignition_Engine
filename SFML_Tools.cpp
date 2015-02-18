@@ -558,7 +558,7 @@ void SFML_Window::Set_aperture_dimensions(long long unsigned int ap_w, long long
 	// same deal, now just for the aperture dimensions
 }
 
-bool SFML_Window::Intersection(VectorVictor::Vector2 center, long double radius)
+bool SFML_Window::Intersection(VectorVictor::Vector2 center, long double radius, long double cam_scale)
 {	// this *works* for now, but I very strongly am considering just redoing it
 	// as a circle with radius of the sum of the squares of the window axis.
 	// This is efficient for small camera views, but could prove really bad at
@@ -664,6 +664,43 @@ bool SFML_Window::Intersection(VectorVictor::Vector2 center, long double radius)
 	// heres hoping its more efficient than it looks...
 }
 
+bool SFML_Window::Window_intersection(sf::Vector2f window_point)
+{	if((window_point.x >= 0)&&(window_point.y >= 0))
+	{	// we check and make sure that our point has at least positive
+		// coordinate values
+		if((window_point.x <= (float)this->Width)&&(window_point.y <= (float)this->Height))
+		{	// and we check that the point is within the width and height of the
+			// window in pixels away from the (0,0)
+			return true;
+		}
+		else
+		{	return false;
+		}
+	}
+	else
+	{	return false;
+	}
+}
+
+bool SFML_Window::Intersection(VectorVictor::Vector2 point, long double cam_scale)
+{	// implicitly in camera view based on the double being passed
+	sf::Vector2f window_offset = Get_window_coordinates(point, this,cam_scale);
+	// get the relative offset of the given point relative to the window given
+	// the stuff we passed
+	return this->Window_intersection(window_offset);
+	// and return whatever Window_intersection thinks of that...
+}
+
+bool SFML_Window::Intersection(VectorVictor::Vector2 point, int zoom_factor)
+{	// implicitly in map view based on the int being passed
+	sf::Vector2f window_offset = Get_window_coordinates(point, this, zoom_factor);
+	std::cout << "Window coordinates of point: " << window_offset.x << "," << window_offset.y << std::endl;
+	// get the relative offset of the given point relative to the window given
+	// the stuff we passed
+	return this->Window_intersection(window_offset);
+	// and return whatever Window_intersection thinks of that...
+}
+
 SFML_Window::~SFML_Window()
 {	delete window;
 	//	cant forget this ;D
@@ -696,7 +733,7 @@ sf::Vector2f Get_window_coordinates(VectorVictor::Vector2 sim_point, SFML_Window
 	return camera_offset;
 }
 
-sf::Vector2f Get_window_coordinates(VectorVictor::Vector2 sim_point, SFML_Window * iwindow, double cam_scale)
+sf::Vector2f Get_window_coordinates(VectorVictor::Vector2 sim_point, SFML_Window * iwindow, long double cam_scale)
 {	
 	
 	

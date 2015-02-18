@@ -129,19 +129,12 @@ DeltaGlider::DeltaGlider(double initial_x_position, double initial_y_position, d
 	// nice red colour for all of the vessel displays
 	
 	vessel_id.Init_object(controls_font, sf::Vector2f(20, 380), "-", *text_colour, 16, false);
-
 	main_fuel_level.Init_object(controls_font, sf::Vector2f(20, 420), "-", *text_colour, 14, false);
-	
 	rcs_fuel_level.Init_object(controls_font, sf::Vector2f(20, 440), "-", *text_colour, 14, false);	
-	
 	omega_value.Init_object(controls_font, sf::Vector2f(20, 460), "-", *text_colour, 14, false);		
-	
-	theta_value.Init_object(controls_font, sf::Vector2f(20, 480), "-", *text_colour, 14, false);	
-
+	theta_value.Init_object(controls_font, sf::Vector2f(20, 480), "-", *text_colour, 14, false);
 	position_values.Init_object(controls_font, sf::Vector2f(20, 500), "-", *text_colour, 14, false);	
-	
 	velocity_values.Init_object(controls_font, sf::Vector2f(20, 520), "-", *text_colour, 14, false);		
-	
 	vessel_display.Init_object(sf::Vector2f(820, 460), sf::Color(255, 255, 255, 168), false, *Vessel_tex, true);
 	vessel_display.sprite.setScale(sf::Vector2f(0.5f, 0.5f));
 	// Ill get around to it later

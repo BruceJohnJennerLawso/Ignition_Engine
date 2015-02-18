@@ -57,14 +57,14 @@ class Ignition_engine
 	bool map_view;
 	// is the map view active? False denotes normal camera view
 	
-	long long int zoom_exponent;
+	int zoom_exponent;
 	// the exponent a of the scale of our map view (ie base scale*(10^a))
 	// 10^a is multiplied by the dimensions of the base map view (1024 x 609?)
 	// originally this was some sort of issue with resets over a certain scale,
 	// but its fixed now. I think this is safe to transfer back to a normal
 	// int, the problem was located elsewhere I believe
 	
-	double camera_scale;
+	long double camera_scale;
 	// the relative scale of the camera, with the default at 1 being the normal 
 	// camera scale of 10 pixels per meter? Larger camera_scale values than one
 	// indicate that the camera is zooming out, while smaller ones are for
