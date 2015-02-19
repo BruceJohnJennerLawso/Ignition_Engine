@@ -345,13 +345,16 @@ void Init_assets(CKeplerian_Object * planet)
 	
 	dg_tex = new sf::Texture;
 	dg_tex->loadFromFile("./Data/Images/dg.png");
-	std::cout << "Loaded XWing_tex from file" << std::endl;
+	std::cout << "Loaded dg_tex from file" << std::endl;
 	
 	std::string orbitron_fontpath = "./Data/Fonts/orbitron-light.ttf";
 	
 	GL1 = new DeltaGlider(6678000.00, 0.00, 0.00, 8600.00, 270.00, 0, 40000, 20600, *dg_tex, *csa_flag_sprite, "GL-01", "./Data/Images/display_panel.png", orbitron_fontpath, RK4); 
 	GL2 = new DeltaGlider(6678000.00, -12.00, 0.00, 8600.00, 180, 0, 40000, 20600, *dg_tex, *csa_flag_sprite, "GL-02", "./Data/Images/display_panel.png", orbitron_fontpath, Euler1);
 	GL3 = new DeltaGlider(ObjectState(Flight_state(VectorVictor::Vector2(6678000.00, -42.00), VectorVictor::Vector2(0.00, 8600.00)), Rotation_state(180, 0, 0)), 40000, 20600, *dg_tex, *csa_flag_sprite, "GL-03", "./Data/Images/display_panel.png", orbitron_fontpath, RK4);	
+	
+	Create_deltaglider(Ignition_testing->Vessel_list, Ignition_testing->Newtonian_list, Construct_deltaglider(ObjectState(Flight_state(VectorVictor::Vector2(6678000.00, -42.00), VectorVictor::Vector2(0.00, 6800.00)), Rotation_state(0, 0, 0)), 40000, 20600, *dg_tex, *csa_flag_sprite, "GL-04", "./Data/Images/display_panel.png", orbitron_fontpath, RK4));
+	// works like a charm. One more spike in the coffin
 
 	Ignition_testing->Vessel_list.insert(Ignition_testing->Vessel_list.end(), GL3);
 	Ignition_testing->Vessel_list.insert(Ignition_testing->Vessel_list.end(), GL2);

@@ -10,8 +10,8 @@
 #include <iostream>
 #include <math.h>
 #include <vector>
-#include "Vessel.hpp"
-
+//#include "Vessel.hpp"
+#include "mfd.hpp"
 
 #ifndef DeeeGEEEE
 #define DeeeGEEEE
@@ -79,6 +79,8 @@ class DeltaGlider: public TVessel
 	// abstraction will remove this anyways
 	
 	// ughh this is just awful
+	
+	void Render_MFDs();
 	~DeltaGlider();
 };
 
@@ -91,5 +93,7 @@ TVessel * Construct_deltaglider(ObjectState initial_object_state, double initial
 // this is so that we can just figure out what kind of vessel we need to make
 // from the scenario file and then just make it using the right function pointer
 // which has equivalent arguments to the above function
+
+bool Create_deltaglider(std::vector<TVessel*> &Vessels_list, std::vector<CNewtonian_Object*> &Newtonian_list, TVessel* New_dg_pointer); 
 #endif
 

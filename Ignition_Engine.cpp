@@ -215,6 +215,12 @@ int Ignition_engine::Ignition()
 					Change_camera_scale(-1000*(double)event.mouseWheel.delta);
 					// if the mouse wheel was moved, used the number of ticks thatdouble Larger_of(double value1, double value2);
 					// it moved by to change the scale of the current camera view
+				
+					// instead of 1000, this should be a variable or function
+					// that smoothly scales stuff from fine control at small
+					// values to coarse control at map view like distances
+					// Im thinking a function that takes the current camera
+					// scale as an argument
 				}
 			}
 			if(event.type == sf::Event::MouseMoved)

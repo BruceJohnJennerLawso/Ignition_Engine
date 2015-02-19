@@ -14,6 +14,9 @@
 #ifndef vESSEL
 #define vESSEL
 
+class MFD;
+// forward declarin yo
+
 // TVessel Class ///////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -114,11 +117,15 @@ class TVessel: virtual public CNewtonian_Object
 	// returns for the above string, as well as the object name defined in 
 	// Newtonian
 	
+	std::vector<MFD*> MFD_displays;
+	virtual void Render_MFDs();
 	
 	TVessel* Get_Vessel_pointer();
 	// the access at this abstraction layer
 	// this could always be tossed around by passing *pointer by reference
 	// in functions I guess
 };
+
+
 
 #endif

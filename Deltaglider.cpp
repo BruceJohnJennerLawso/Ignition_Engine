@@ -448,6 +448,12 @@ void DeltaGlider::Receive_cursor_inputs(Cursor_commands * cursor_action, long do
 	// any changes on the vessels end of things
 }
 
+void DeltaGlider::Render_MFDs()
+{	for(std::vector<MFD*>::iterator it = MFD_displays.begin(); it != MFD_displays.end(); ++it)
+	{	(*it)->Render_MFD(this->Get_Vessel_pointer());
+	} 
+}
+
 
 DeltaGlider::~DeltaGlider()
 {	Thrusters.clear();
@@ -463,4 +469,10 @@ TVessel * Construct_deltaglider(ObjectState initial_object_state, double initial
 	// create a new DeltaGlider on the heap
 	return new_deltaglider;
 	// and pass along its pointer at the TVessel level
+}
+
+bool Create_deltaglider(std::vector<TVessel*> &Vessels_list, std::vector<CNewtonian_Object*> &Newtonian_list, TVessel* New_dg_pointer)
+{	Vessels_list.insert(Vessels_list.end(), New_dg_pointer);
+	Newtonian_list.insert(Newtonian_list.end(), New_dg_pointer->Get_Newtonian_pointer());
+	return true;
 }

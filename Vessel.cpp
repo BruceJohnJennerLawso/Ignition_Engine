@@ -358,6 +358,10 @@ std::string TVessel::Get_vessel_name()
 {	return Object_name;
 }	// the string of the objects name
 
+void TVessel::Render_MFDs()
+{	std::cout << "Bad call to TVessel::Render_MFDs()" << std::endl;
+}
+
 TVessel* TVessel::Get_Vessel_pointer()
 {	return this;
 }

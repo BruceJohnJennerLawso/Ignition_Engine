@@ -576,11 +576,7 @@ bool TPlanet::In_view(SFML_Window * window, int zoom_factor, long double simtime
 
 bool TPlanet::In_view(SFML_Window * window, long double cam_scale, long double simtime)
 {	long double radius = this->Get_radius(0);
-	bool intersection = window->Intersection(this->Get_position(simtime), radius, 1);
-	if(intersection == true)
-	{	Talkback("Planet visible in camera view!");
-	}
-	return intersection;
+	return window->Intersection(this->Get_position(simtime), radius, 1);
 }
 
 void TPlanet::Draw_flag(SFML_Window * iwindow, int zoom_factor)
