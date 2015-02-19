@@ -450,7 +450,8 @@ void DeltaGlider::Receive_cursor_inputs(Cursor_commands * cursor_action, long do
 
 void DeltaGlider::Render_MFDs()
 {	for(std::vector<MFD*>::iterator it = MFD_displays.begin(); it != MFD_displays.end(); ++it)
-	{	(*it)->Render_MFD(this->Get_Vessel_pointer());
+	{	//(*it)->Render_MFD(this->Get_Vessel_pointer());
+		// ah, gonna have to fix this
 	} 
 }
 

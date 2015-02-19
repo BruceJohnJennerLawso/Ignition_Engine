@@ -121,6 +121,8 @@ class Ignition_engine
 	// so you simply need to create a ignition engine object with its
 	// constructor, call Ignition, and everything is handled from there
 	
+	// or at least thats the goal at the moment
+	
 	std::vector<CKeplerian_Object*> Celestial_list;
 	std::vector<CNewtonian_Object*> Newtonian_list;
 	std::vector<TVessel*> Vessel_list;
