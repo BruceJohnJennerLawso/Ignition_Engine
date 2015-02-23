@@ -21,8 +21,8 @@ enum Propagator_type{Euler1, RK4};
 
 enum Object_status{Flight, Landed, Crashed};
 // pretty simple, just are we in flight or on the ground,
-// and if we are on the ground, will we be able to take off again or is the ship
-// really just a metal smear across the ground somewhere
+// and if we are on the ground, will we be able to take off again, or is the 
+//ship really just a metal smear across the ground somewhere
 
 class Rotation_state
 {	public:
@@ -77,6 +77,9 @@ class ObjectState
 	Rotation_state Rotation;
 	~ObjectState();
 };
+
+
+
 
 class CNewtonian_Object
 {	public:
@@ -208,6 +211,7 @@ class CNewtonian_Object
 	// vessel components (specifically the hull in this case)
 	
 	double pix_length;
+	// this needs documenting
 	
 	sf::Sprite Flag_sprite;	
 	// the little icon that gets drawn in the map view.
@@ -217,16 +221,10 @@ class CNewtonian_Object
 	// right now its kinda off, since the sprite is drawing from the top left
 	// corner of the image, which caused confusion before
 	
-	
 	void Draw_flag(SFML_Window * iwindow, int zoom_factor);
-	// same stuff as before
-	
+	// the draw call used for map view	
 	std::string Object_name;	
-	// again, same idea as the one in CKeplerian
-	// this might also be nice as an inherited
-	// "named object" type. I dunno. Probably not worth it
-	
-	
+
 	CNewtonian_Object* Get_Newtonian_pointer();
 	// Abstract way of referencing the object at the Newtonian level
 };

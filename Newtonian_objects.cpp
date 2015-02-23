@@ -171,7 +171,7 @@ double CNewtonian_Object::Get_theta_in_radians()
 	rad_theta *= 6.283185308;		// 4/3 pau actually ;)
 	rad_theta /= 360;
 	return rad_theta;
-	// in radians/s
+	// in radians
 }
 
 double CNewtonian_Object::Get_theta_in_degrees()
@@ -194,7 +194,8 @@ double CNewtonian_Object::Get_total_mass()
 {	double net_mass = 0;
 	for(std::vector<Vessel_component*>::iterator it = Object_components.begin(); it != Object_components.end(); ++it)
 	{	net_mass += (*it)->Get_component_mass();
-	}	// just query every part on the vessel for its mass and add it all up
+	}	
+	// just query every part on the vessel for its mass and add it all up
 	return net_mass;
 
 }
@@ -203,8 +204,9 @@ void CNewtonian_Object::Update_PMI()
 {	PMI = 0;
 	for(std::vector<Vessel_component*>::iterator it = Object_components.begin(); it != Object_components.end(); ++it)
 	{	PMI += (*it)->Get_component_inertia();
-	}	// reset the moment of inertia to zero, then add it up again from the
-		// inertias contributed by each vessel part 
+	}	
+	// reset the moment of inertia to zero, then add it up again from the
+	// inertias contributed by each vessel part 
 }
 
 void CNewtonian_Object::Receive_inputs(key_commands * current_inputs, double dt)
@@ -228,8 +230,6 @@ void CNewtonian_Object::Print_data()
 {	Talkback("Bad call to CNewtonian_Object::Print_data()");
 }
 
-// above 3 should not be called, just error messages
-
 long double CNewtonian_Object::Get_PMI()
 {	return PMI;
 }
@@ -252,8 +252,7 @@ void CNewtonian_Object::Add_force(VectorVictor::Vector2 attack_point, VectorVict
 }
 	
 void CNewtonian_Object::Frame(long double dt, long double simtime, std::vector<CKeplerian_Object*> &ignition_celestials)
-{	// Important method here, many metaphorical wheels are turning
-
+{	
 	// at the start of the call, no forces are acting on the vessel
 	for(std::vector<Vessel_component*>::iterator it = Object_components.begin(); it != Object_components.end(); ++it)
 	{	(*it)->Update_component(dt, Force_list);	
@@ -262,16 +261,6 @@ void CNewtonian_Object::Frame(long double dt, long double simtime, std::vector<C
 		// like thrusters, wings, parts dragging in atmosphere, add a new force
 		// on to the parent Newtonian Objects force list
 	}
-	
-	
-	//for(std::vector<CKeplerian_Object*>::iterator it = ignition_celestials.begin(); it != ignition_celestials.end(); ++it)
-	//{	(*it)->Gravitate(Get_total_mass(), Get_theta_in_degrees(), NewtonianState.FlightState.Position ,Force_list);
-		// we cycle through all of the large bodies in the universe
-		// (probably excluding anything asteroid or smaller) and get them to add
-		// a gravitational force to the vessel
-	//}
-	// this cycling is on the way out I think
-	
 	
 	this->Update_motion(simtime, dt, ignition_celestials);
 	// the vessel uses the forces acting upon it to update its motion...
@@ -360,46 +349,45 @@ void CNewtonian_Object::Update_motion(long double simtime, long double dt, std::
 	}
 }
 
+// Euler Propagator ////////////////////////////////////////////////////////////
+
 void CNewtonian_Object::Propagate_Euler1(long double sim_time, long double dt, VectorVictor::Vector2 &net_force, std::vector<CKeplerian_Object*> &ignition_celestials)
 {		Acceleration.x = (net_force.x/Get_total_mass()); 
 		Acceleration.y = (net_force.y/Get_total_mass());	
-		
-		// Newtons laws, simply
+		// Newtons laws,
 		
 		// F = ma
 		// a = F/m
-		
 		for(std::vector<CKeplerian_Object*>::iterator it = ignition_celestials.begin(); it != ignition_celestials.end(); ++it)
 		{	
 			Acceleration += (*it)->Gravity_acceleration(NewtonianState.FlightState.Position, sim_time);
 			// we cycle through all of the large bodies in the universe
 			// (probably excluding anything asteroid or smaller) and get them to add
 			// a gravitational force to the vessel
-			
-			// this works nicely now, since the 
 		}
-		// and once we have done that, we get the gravity accelerations from
-		// each of the celestial objects in the sim
-		
+		// we get the gravity accelerations from each of the celestial objects
+		// in the sim
 		NewtonianState.FlightState.Velocity.x += ((Acceleration.x)*dt);
 		NewtonianState.FlightState.Velocity.y += ((Acceleration.y)*dt);
-		
-		//NewtonianState.FlightState.Position.x += (((NewtonianState.FlightState.Velocity.x)*dt) + (((0.500)*Acceleration.x)*dt*dt));
-		//NewtonianState.FlightState.Position.y += (((NewtonianState.FlightState.Velocity.y)*dt) + (((0.500)*Acceleration.y)*dt*dt));
-		
+		// update velocity based on position
 		NewtonianState.FlightState.Position.x += (((NewtonianState.FlightState.Velocity.x)*dt));
 		NewtonianState.FlightState.Position.y += (((NewtonianState.FlightState.Velocity.y)*dt));
-		
-		// Well then...
-		
-		// Simple constant acceleration equations of motion	
+		// update position based on velocity
 }
 
-void CNewtonian_Object::Propagate_RK4(long double sim_time, long double dt, VectorVictor::Vector2 &net_force, std::vector<CKeplerian_Object*> &ignition_celestials)
-{	// ah, so yaa
 
+
+
+
+
+
+
+
+// Runge-Kutta 4 Propagator ////////////////////////////////////////////////////
+
+void CNewtonian_Object::Propagate_RK4(long double sim_time, long double dt, VectorVictor::Vector2 &net_force, std::vector<CKeplerian_Object*> &ignition_celestials)
+{	
 	Flight_state a, b, c, d;
-	
 	Flight_state initial_derivative;
 	initial_derivative.Position.Set_values(0,0);
 	initial_derivative.Velocity.Set_values(0,0);
@@ -432,22 +420,11 @@ void CNewtonian_Object::Propagate_RK4(long double sim_time, long double dt, Vect
 	velocity += (a.Position + d.Position);
 	velocity *= (1.0/6.0);
 	
-	//VectorVictor::Vector2 velocity = ((1.0/6.0)*(a.Position + ((b.Position + c.Position)*2.0) + d.Position));
-	
-	//Acceleration = ((1.0/6.0)*(a.Velocity + 2.0*(b.Velocity + c.Velocity) + d.Velocity));
 	
 	Acceleration = (b.Velocity + c.Velocity);
 	Acceleration *= 2.0;
 	Acceleration += (a.Velocity + d.Velocity);
 	Acceleration *= (1.0/6.0);
-
-	//VectorVictor::Vector2 velocity = ((1.0/6.0)*(a.Position + ((b.Position + c.Position)*2.0) + d.Position));
-	//Acceleration = ((1.0/6.0)*(a.Velocity + 2.0*(b.Velocity + c.Velocity) + d.Velocity));
-	// we do some odd thing here to get a frame-wide accel and velocity?
-	// I think? I do recognize these as the RK4 scheme coefficients
-	
-	// I wanted to do it straight up like this, but my standard operators arent
-	// quite up to the challenge yet :(
 	
 	// looks like we weight them according to some set of coefficients that the
 	// given order of Runge Kutta specifies, and the velocity and accel that
@@ -460,8 +437,6 @@ void CNewtonian_Object::Propagate_RK4(long double sim_time, long double dt, Vect
 	// and we lastly step ahead the basic state of the system by the values
 	// we calculated as velocity and accel for the frame? Yeah, that sounds
 	// right
-	
-	// If this works first time, my mind will be blown
 }
 
 Flight_state CNewtonian_Object::evaluate(const Flight_state &initial_state, long double simtime, long double dt, const Flight_state &derivative, std::vector<CKeplerian_Object*> &ignition_celestials, VectorVictor::Vector2 &net_force)
@@ -469,44 +444,24 @@ Flight_state CNewtonian_Object::evaluate(const Flight_state &initial_state, long
 		
 	Flight_state state;
 	
-	//state.x = initial_state.x + derivative.dx*dt;
-	
-	//state.Position = initial_state.Position + ((derivative.Position)*dt);
-	
-	nanState = state.Position.Is_nan();
-	
 	state.Position = derivative.Position;
 	state.Position *= dt;	
 	state.Position += initial_state.Position;
-	
-	state.Position.Flag_nan("Nan caused by part A of evaluate", nanState);
-	
-	// I guess the last part is because its actually a*dt^2 or 
-	// (dx/dt)*dt^2 = dx*dt
-	
-	//state.Velocity = initial_state.Velocity + derivative.Velocity)*dt);
-	
-	nanState = state.Position.Is_nan();
-	
 	state.Velocity = derivative.Velocity;
 	state.Velocity *= dt;	
 	state.Velocity += initial_state.Velocity;	
-
-	state.Position.Flag_nan("Nan caused by part B of evaluate", nanState);
+	// I guess the last part is because its actually a*dt^2 or 
+	// (dx/dt)*dt^2 = dx*dt	
 	
 	// for some reason we step things forward 1 frame dt seconds using a Euler
 	// integrator
-	
-	//Derivative output;
 	Flight_state output;
-	
 	output.Position = state.Velocity;
 	// we set the output derivatives dx equal to the velocity of the state that
 	// we stepped forward earlier using the euler step
-	
 	Acceleration.x = (net_force.x/Get_total_mass()); 
 	Acceleration.y = (net_force.y/Get_total_mass());	
-	
+	// get acceleration using Newtons laws
 	for(std::vector<CKeplerian_Object*>::iterator it = ignition_celestials.begin(); it != ignition_celestials.end(); ++it)
 	{	
 		Acceleration += (*it)->Gravity_acceleration(state.Position, simtime);
@@ -514,13 +469,13 @@ Flight_state CNewtonian_Object::evaluate(const Flight_state &initial_state, long
 		// (probably excluding anything asteroid or smaller) and get them to add
 		// a gravitational force to the vessel
 	}
-	
 	output.Velocity = Acceleration;
 	// and lastly we set dv equal to whatever the current acceleration is should
 	// really be 
 	return output;
 }
 
+// Rotation update /////////////////////////////////////////////////////////////
 
 void CNewtonian_Object::Update_rotation(long double simtime, long double dt)
 {	

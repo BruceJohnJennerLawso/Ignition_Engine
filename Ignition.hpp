@@ -14,6 +14,7 @@
 #define DEBUG
 
 
+
 #ifdef _WIN64
 	#define WINDOWS
 #elif _WIN32
@@ -45,6 +46,8 @@ template <class T> class Ignition_handle
 	T * type_handle;
 	~Ignition_handle();
 };
+
+typedef unsigned int id;
 
 // this is just archived for now
 

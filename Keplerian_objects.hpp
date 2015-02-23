@@ -114,20 +114,52 @@ class Terrain_point
 
 
 
+
+
+
+
+
+
+
+
+
+
+typedef id celestial_id;
+// an id type for all celestial bodies
+
 class CKeplerian_Object
 {	public:
-	// not sure if keplerian is the right category, but this type is for any
-	// body that "moves on rails" since dynmic update of a planet would be
-	// agony.
+	CKeplerian_Object(long double theta, long double omega, long double mean_radius, long double atm_height, long double mass, std::string texture_path);
+	// constructor, fairly generic enough for celestial objects
+	static celestial_id Celestial_index;
+	// can be seen as either the number of celestial/keplerian objects in the
+	// sim, or the id # that will be assigned to the next object of this type
+	// created
+	
+	// used to assign a unique number as an id to each object of this type
+	celestial_id Get_new_index();
+	// returns a new index to assign to an object and increments the counter
+	// by one
+	celestial_id Celestial_id;
+	// the current objects id #
+	celestial_id Get_celestial_id();
+		
+	static std::vector<CKeplerian_Object*> Celestial_objects;
+	// the global list of all objects of type CKeplerian... and all objects that
+	// inherit from this type
+	void New_keplerian(CKeplerian_Object * new_this);		
+	// inserts the new keplerian objects pointer of this into the
+	// Celestial_objects vector. *must* be called every time an object
+	// of this type is created for things to work out nicely
 	virtual void Frame(double dt, long double simtime);
+	// virtual stub for the update function for objects of this type
 	long double Theta, Omega;
 	// rotation and angular rate, both stored in degrees, but can be accessed as
 	// radians where required
 	long double Get_omega();
-	// should add this for radians
+	// by default in degrees
 	long double Get_theta_in_degrees();		
 	long double Get_theta_in_radians();
-	// self explanatory I think
 	
 	long double Simulation_time;
 	// ahh, this I do not really like, it sort of syncs between the master
@@ -136,13 +168,11 @@ class CKeplerian_Object
 	
 	long double Radius;
 	// in meters. Sort of a global mean, specific radii will be determined later
-	// by  Get_radius(doubl longitude);
 	long double Get_radius(double longitude);
 	// Simple as it gets, just return the terrain height at given longitude
 	// from the planets prime meridian (all the little greenwiches xD)
 	// This just returns the constant above for the moment, but the world will
 	// not always be a perfect sphere!	
-	
 	long double Atmosphere_height;
 	// distance from the surface to the top of the atmosphere (the point we stop
 	// rendering the atmosphere mask at) in meters
@@ -152,32 +182,33 @@ class CKeplerian_Object
 	// The final colour of the atmosphere mask at an altitude of Atmosphere
 	// height above the ground
 	
-	// of course, the alpha on this  will be 0 at the max height
-	
+	//the alphas of both of these are forced to correct values in the
+	// constructor, so we dont get any monkey business
 	long double Mass;
-	// in kilograms
+	// Total mass of the celestial object in kilograms
 	long double Get_mass();
-	// return for above	
+	
 	virtual VectorVictor::Vector2 Get_position(long double sim_time);
-	// position at a given time. This is wacky in its current form, better if it
-	// were updated every frame and just stored until needed. This was overthink
-	// methinks
-	void Gravitate(long double satellite_mass, long double satellite_rotation, VectorVictor::Vector2 satellite_position, std::vector<Force> &parent_force_list);
-	// new function that tacks its gravity force onto a newtonian object when
-	// requested by that function. May not last long given changes in how the 
-	// state updaters work, but we will see
-	
+	// returns the position of the object at the current time. sim_time
+	// required so that we can use the orbit equations in 2d to get an
+	// exact position
 	VectorVictor::Vector2 Gravity_acceleration(VectorVictor::Vector2 satellite_position, long double simtime);
-	
+	// function returning the acceleration due to gravity caused by this body,
+	// for the parameters passed
 	std::string Object_name;
 	// Welcome to <Object_name>!
 	std::string Get_object_name();
-	// trivial
-	sf::Texture * Object_texture;
-	// odd, the texture of the planet is global...
-	// I think this was related to multiple sprites being generated for
-	// different zoom factors, but I dont see a specific reason why they couldnt
-	// be stored here instead
+	
+	sf::Texture Object_texture;
+	std::vector<sf::Sprite> Object_sprites;
+	// the whole sequence of sprites for each successive scaled map view
+	// need to remember what the order was for scales
+	// after a certain point of zooming out, we just assumed that the image
+	// looks the same no matter how much farther we go
+	sf::Sprite Object_sprite;
+	// the image of the object drawn in the camera view at huge scales, meant
+	// to gradually replace the map view in practice
+	
 	virtual bool In_view(SFML_Window * window, int zoom_factor, long double simtime);	
 	virtual bool In_view(SFML_Window * window, long double cam_scale, long double simtime);		
 	// how we check if the planet should be drawn
@@ -190,44 +221,68 @@ class CKeplerian_Object
 	
 	// this is virtual so that more complex behaviours can eventually be
 	// implemented, like gas giant atmospheres with many levels of atmosphere
-	
 	virtual int Get_terrain_points();
 	// returns the number of points in the terrain total, evenly spaced
 	// over the whole planet/moon
 	
 	// a quick note, based on a maximum value of int of around 2.1 billion,
 	// this gives Earth a max density of about 2 cm per point, which
-	// should be way better than needed
-	
-	// this we just define virtually and the basic planet is just gonna have
-	// some default value for the moment based on whatever the rough size of
-	// the planet is cause the whole thing is round
-	
+	// should be way better than needed	
 	std::vector<Terrain_point> Surface;
-	// the list of points that make up the surface
-	
+	// the list of points that make up the surface, containing info about radii
+	// at longitudes & so on
 	virtual void Draw_surface(SFML_Window * iwindow);
-	
+	// virtual function that draws the surface of the object when in camera view
 	CKeplerian_Object * Get_keplerian_pointer();
 };
 
+bool Retrieve_keplerian(celestial_id target_id, CKeplerian_Object * &target_object);
+// checks to see if an object with the given target id can be found, returns
+// true if it is found, and assigns its pointer to target_object so we can play
+// with an object BASED ON A NUMBER!!!
+
+
+
+
+
+
+
+
+
+
+typedef id planet_id;
 
 class TPlanet: public CKeplerian_Object
 {	public:
 	// basic type derived from Keplerian object that handles official planets
 	// and mostly dwarf planets too. Basically anything that orbits the sun and
 	// is to big to realistically handle as a newtonian object
+	static planet_id Planet_index;
+	// can be seen as either the number of planets in the
+	// sim, or the id # that will be assigned to the next object of this type
+	// created
+	
+	// used to assign a unique number as an id to each object of this type
+	planet_id Get_new_index();
+	// returns a new index to assign to an object and increments the counter
+	// by one
+	planet_id Planet_id;
+	// the current objects id #
+	planet_id Get_planet_id();
+		
+	static std::vector<TPlanet*> Planet_list;
+	// the global list of all objects of type CKeplerian... and all objects that
+	// inherit from this type
+	void New_keplerian(CKeplerian_Object * new_this);		
+	// inserts the new keplerian objects pointer of this into the
+	// Celestial_objects vector. *must* be called every time an object
+	// of this type is created for things to work out nicely
+	
 	TPlanet(long double initial_theta, long double omega, long double radius, long double atmosphere_height, long double mass, std::string planet_texture_path, sf::Color top_atm_color, sf::Color surf_atm_color);
 	void Frame(double dt, long double simtime);
 	VectorVictor::Vector2 Get_position(long double sim_time);
 	// this... this should work a bit differently, sim_time should be implicitly
 	// now, position evaluated and stored each frame
-	std::vector<sf::Sprite*> Planet_sprites;
-	// the whole sequence of sprites for each successive scaled map view
-	// need to remember what the order was for scales
-	// after a certain point of zooming out, we just assumed that the image
-	// looks the same no matter how much farther we go
-	sf::Sprite Planet_sprite;
 	
 	bool In_view(SFML_Window * window, int zoom_factor, long double simtime);
 	bool In_view(SFML_Window * window, long double cam_scale, long double simtime);	
@@ -243,6 +298,7 @@ class TPlanet: public CKeplerian_Object
 	
 	~TPlanet();
 };
+
 
 #endif
 
