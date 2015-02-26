@@ -12,9 +12,9 @@ enum orientation{upper_left, lower_left, upper_right, lower_right};
 class MFD
 {	public:
 
-	virtual int MFD_type();
+	virtual std::string Get_MFD_Name();
 
-	virtual bool Render_MFD(SFML_Window &window, key_commands &keyCommands, Cursor_commands &cursorCommands, long double &cameraScale, long double dt, 	int &time_acceleration, long double sim_time, TVessel &current_vessel, std::vector<CNewtonian_Object*> &newtonians, std::vector<CKeplerian_Object*> &keplerians, std::vector<TVessel*> &vessels, VectorVictor::Vector2 &Camera_target, long double &Camera_rotation);
+	virtual bool Render_MFD(SFML_Window &window, key_commands &keyCommands, Cursor_commands &cursorCommands, long double &cameraScale, long double dt, int &time_acceleration, long double sim_time, TVessel &current_vessel, std::vector<CNewtonian_Object*> &newtonians, std::vector<CKeplerian_Object*> &keplerians, std::vector<TVessel*> &vessels, VectorVictor::Vector2 &Camera_target, long double &Camera_rotation);
 	// phew, I think that is everything
 	void Draw_MFD(SFML_Window &window, sf::Color Placard_color);
 //	virtual void Draw_MFD(SFML_Window &window, sf::Texture Placard_background, bool scale_lock);	
@@ -66,7 +66,7 @@ class MFD
 	// this will allow for things like guidance programs in the MFD to be
 	// persistently saved as an MFD
 	
-	virtual ~MFD();
+	//virtual ~MFD();
 };
 
 
@@ -78,6 +78,7 @@ class Surface_MFD: public MFD
 	// string name
 	
 	// also the window orientation... etc.
+	std::string Get_MFD_Name();
 	
 	bool Render_MFD(SFML_Window &window, key_commands &keyCommands, Cursor_commands &cursorCommands, long double &cameraScale, long double dt, int &time_acceleration, long double sim_time, TVessel &current_vessel, std::vector<CNewtonian_Object*> &newtonians, std::vector<CKeplerian_Object*> &keplerians, std::vector<TVessel*> &vessels, VectorVictor::Vector2 &Camera_target, long double &Camera_rotation);
 	//void Draw_MFD(SFML_Window &window, sf::Color Placard_color);
@@ -89,4 +90,4 @@ class Surface_MFD: public MFD
 };
 
 
-bool Create_MFD(
+//bool Create_MFD(

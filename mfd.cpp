@@ -7,15 +7,19 @@
 //#include "Source.cpp"
 #include "mfd.hpp"
 
+std::string MFD::Get_MFD_Name()
+{	Talkback("Bad call to MFD::Get_MFD_Name()");
+	return "FUU";
+}
 
-bool MFD::Render_MFD(SFML_Window &window, key_commands &keyCommands, Cursor_commands &cursorCommands, long double &cameraScale, long double dt, 	int &time_acceleration, long double sim_time, TVessel &current_vessel, std::vector<CNewtonian_Object*> &newtonians, std::vector<CKeplerian_Object*> &keplerians, std::vector<TVessel*> &vessels, VectorVictor::Vector2 &Camera_target, long double &Camera_rotation)
+bool MFD::Render_MFD(SFML_Window &window, key_commands &keyCommands, Cursor_commands &cursorCommands, long double &cameraScale, long double dt, int &time_acceleration, long double sim_time, TVessel &current_vessel, std::vector<CNewtonian_Object*> &newtonians, std::vector<CKeplerian_Object*> &keplerians, std::vector<TVessel*> &vessels, VectorVictor::Vector2 &Camera_target, long double &Camera_rotation)
 {	Talkback("Bad call to MFD::Render_MFD(SFML_Window &window, key_commands &keyCommands, Cursor_commands &cursorCommands, long double &cameraScale, long double dt, 	int &time_acceleration, long double sim_time, TVessel &current_vessel, std::vector<CNewtonian_Object*> &newtonians, std::vector<CKeplerian_Object*> &keplerians, std::vector<TVessel*> &vessels, VectorVictor::Vector2 &Camera_target, long double &Camera_rotation)");
 }
 
 void MFD::Draw_MFD(SFML_Window &window, sf::Color Placard_color)
 {	// okay, here we go
-	sf::RectangleShape placard(Height, Width);
-	placard.setColor(Placard_color);
+	sf::RectangleShape placard(sf::Vector2f(Width, Height));
+	placard.setFillColor(Placard_color);
 	// we set the background to the mfd to the passed colour
 	placard.setPosition(this->Get_mfd_position(window));
 	// and we set its position in the window appropriately
@@ -33,7 +37,7 @@ void MFD::Draw_MFD(SFML_Window &window, sf::Color Placard_color)
 }
 
 sf::Vector2f MFD::Get_mfd_position(SFML_Window &window)
-{	sf::Vector2f position();
+{	sf::Vector2f position(MFD_offset.x, MFD_offset.y);
 	if(MFD_orientation == upper_left)
 	{	// the simple case, we do as usual
 		position = MFD_offset;
@@ -65,6 +69,18 @@ sf::Vector2f MFD::Get_mfd_position(SFML_Window &window)
 	}
 }
 
+// Surface MFD /////////////////////////////////////////////////////////////////
+// The first prototype /////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+
+Surface_MFD::Surface_MFD()
+{	
+}
+
+std::string Surface_MFD::Get_MFD_Name()
+{	std::string type_name = "Surface";
+	return type_name;
+}
 
 bool Surface_MFD::Render_MFD(SFML_Window &window, key_commands &keyCommands, Cursor_commands &cursorCommands, long double &cameraScale, long double dt, 	int &time_acceleration, long double sim_time, TVessel &current_vessel, std::vector<CNewtonian_Object*> &newtonians, std::vector<CKeplerian_Object*> &keplerians, std::vector<TVessel*> &vessels, VectorVictor::Vector2 &Camera_target, long double &Camera_rotation)
 {
@@ -101,4 +117,8 @@ bool Surface_MFD::Render_MFD(SFML_Window &window, key_commands &keyCommands, Cur
 	MFD_image = canvas.getTexture();
 	return true;
 	// we done here, everything went okay
+}
+
+Surface_MFD::~Surface_MFD()
+{
 }

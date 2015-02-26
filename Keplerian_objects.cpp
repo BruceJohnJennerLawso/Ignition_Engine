@@ -263,7 +263,7 @@ Terrain_point::~Terrain_point()
 // Celestial Bodies ////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
 
-CKeplerian_Object(long double theta, long double omega, long double mean_radius, long double atm_height, long double mass, std::string texture_path);
+CKeplerian_Object::CKeplerian_Object(long double theta, long double omega, long double mean_radius, long double atm_height, long double mass, std::string texture_path)
 {	Theta = theta;
 	Omega = omega;
 	Radius = mean_radius;
@@ -272,8 +272,8 @@ CKeplerian_Object(long double theta, long double omega, long double mean_radius,
 	
 	
 	
-	if(!Object_texture.loadFromFile(planet_texture_path))
-	{	std::cout << "Planet " << Get_object_name() << " unable to load texture at " << planet_texture_path << std::endl;
+	if(!Object_texture.loadFromFile(texture_path))
+	{	std::cout << "Planet " << Get_object_name() << " unable to load texture at " << texture_path << std::endl;
 		// Houston, we have a problem.
 	}
 	else
@@ -283,7 +283,7 @@ CKeplerian_Object(long double theta, long double omega, long double mean_radius,
 		// we want to create sprites to represent the body in the map view at
 		// multiple scales, specifically powers of 10, so we run a loop
 		
-		long double pix_length = Get_radius(0) + atmosphere_height;		
+		long double pix_length = Get_radius(0) + atm_height;		
 		// this was a decent fix for issues that popped up with the terrible
 		// png circle the first time around
 		
@@ -333,7 +333,7 @@ CKeplerian_Object(long double theta, long double omega, long double mean_radius,
 				// pix length
 			}
 			object_sprite.setRotation(Theta);
-			Object_sprites.insert(Objec_sprites.end(), object_sprite);
+			Object_sprites.insert(Object_sprites.end(), object_sprite);
 			// rotate the sprite to the appropriate angle supplied in the
 			// constructor arguments and insert it into the vector of planet
 			// sprites at the end. This means that the sprites go from larger
@@ -375,15 +375,6 @@ void CKeplerian_Object::New_keplerian(CKeplerian_Object * new_this)
 	// dont think calling the function like that is strictly necessary, but
 	// why take chances
 }
-
-
-
-
-
-
-
-
-
 
 void CKeplerian_Object::Frame(double dt, long double simtime)
 {	std::cout << "Bad call to CKeplerian_Object::Frame(double dt)" << std::endl;
@@ -527,9 +518,17 @@ planet_id TPlanet::Get_new_index()
 	return new_id;
 }
 
-planet_id TPlanet::Get_celestial_index()
+planet_id TPlanet::Get_planet_id()
 {	return Planet_id;
 }
+
+		
+std::vector<TPlanet*> TPlanet::Planet_list;
+	
+void TPlanet::New_planet(TPlanet * new_this)
+{	this->New_keplerian(this->Get_keplerian_pointer());
+	Planet_list.insert(Planet_list.end(), this->Get_planet_pointer());
+}	
 
 TPlanet::TPlanet(long double initial_theta, long double omega, long double radius, long double atmosphere_height, long double mass, std::string planet_texture_path, sf::Color top_atm_color, sf::Color surf_atm_color)
 : CKeplerian_Object(initial_theta, omega, radius, atmosphere_height, mass, planet_texture_path)
@@ -586,10 +585,10 @@ void TPlanet::Draw_flag(SFML_Window * iwindow, int zoom_factor)
 	// window coordinate system
 	
 	// looks like 1/10, 1/100, 1/1000, ... etc.	
-	for(std::vector<sf::Sprite>::iterator it = Planet_sprites.begin(); it != Planet_sprites.end(); ++it)
+	for(std::vector<sf::Sprite>::iterator it = Object_sprites.begin(); it != Object_sprites.end(); ++it)
 	{	(*it).setPosition(camera_offset);
 	}
-	for(std::vector<sf::Sprite>::iterator it = Planet_sprites.begin(); it != Planet_sprites.end(); ++it)
+	for(std::vector<sf::Sprite>::iterator it = Object_sprites.begin(); it != Object_sprites.end(); ++it)
 	{	(*it).setRotation(Theta - iwindow->Aperture_rotation);
 	}
 	// sort through our sprites and set their positions and rotations
@@ -597,7 +596,7 @@ void TPlanet::Draw_flag(SFML_Window * iwindow, int zoom_factor)
 	
 	// eh, just easier to do it this way. I should probably change it
 	// eventually so that it only positions the one that we need
-	iwindow->window->draw(Planet_sprites.at(zoom_factor-1));
+	iwindow->window->draw(Object_sprites.at(zoom_factor-1));
 	// pretty simple. Note the zoom - 1 offset to get the right location
 	// inside the vector
 }
@@ -611,9 +610,9 @@ void TPlanet::Draw_flag(SFML_Window * iwindow, long double cam_scale, long doubl
 	// make it equivalent to our diameter instead of the radius
 	pix_length *= 10;
 	// and do the funky scale thing so the camera view is 10 pixels per meter
-	long double scale_factor = pix_length/((Object_texture->getSize().y)*cam_scale);
+	long double scale_factor = pix_length/((Object_texture.getSize().y)*cam_scale);
 	// adjust the scale factor to match
-	Planet_sprite.setScale(sf::Vector2f(scale_factor,scale_factor));
+	Object_sprite.setScale(sf::Vector2f(scale_factor,scale_factor));
 	// rescale the axes of the texture to match pix_length in the y and the
 	// appropriate scale for the x dimension
 		
@@ -624,10 +623,10 @@ void TPlanet::Draw_flag(SFML_Window * iwindow, long double cam_scale, long doubl
 	// I just dont get it, this should work just fine
 	// translation looks okay, but the thing goes nuts rotating twice over the
 	// full 360 degrees 
-	Planet_sprite.setPosition(camera_offset);
-	Planet_sprite.setRotation(this->Theta - iwindow->Aperture_rotation);
+	Object_sprite.setPosition(camera_offset);
+	Object_sprite.setRotation(this->Theta - iwindow->Aperture_rotation);
 	// that should work just fine and dandy
-	iwindow->window->draw(Planet_sprite);
+	iwindow->window->draw(Object_sprite);
 	// this looks sorta workable I suppose
 }
 
@@ -713,8 +712,29 @@ void TPlanet::Draw_surface(SFML_Window * iwindow)
 {	// just yeah, dont look at this too hard just yet
 }
 
+TPlanet * TPlanet::Get_planet_pointer()
+{	return this;
+}
+
 TPlanet::~TPlanet()
 {	
+}
+
+bool Retrieve_planet(planet_id target_id, TPlanet * &target_object)
+{	for(std::vector<TPlanet*>::iterator it = TPlanet::Planet_list.begin(); it != TPlanet::Planet_list.end(); ++it)
+	{	if((*it)->Get_planet_id() == target_id)
+		{	// we found ya
+			target_object = (*it);
+			// copy the reference of the object at hand into the output pointer
+			return true;
+			// let the outside world know everything is A-Ok
+		}
+	}
+	// if we got to the end of the vector and found nothing its not here, we 
+	// return false so that the other end knows not to use the pointer for
+	// anything
+	return false;
+	
 }
 
 

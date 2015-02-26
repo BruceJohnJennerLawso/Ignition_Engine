@@ -273,8 +273,8 @@ class TPlanet: public CKeplerian_Object
 	static std::vector<TPlanet*> Planet_list;
 	// the global list of all objects of type CKeplerian... and all objects that
 	// inherit from this type
-	void New_keplerian(CKeplerian_Object * new_this);		
-	// inserts the new keplerian objects pointer of this into the
+	void New_planet(TPlanet * new_this);		
+	// inserts the new planet objects pointer of this into the
 	// Celestial_objects vector. *must* be called every time an object
 	// of this type is created for things to work out nicely
 	
@@ -296,9 +296,11 @@ class TPlanet: public CKeplerian_Object
 	
 	void Draw_surface(SFML_Window * iwindow);
 	
+	TPlanet * Get_planet_pointer();
 	~TPlanet();
 };
 
+bool Retrieve_planet(planet_id target_id, TPlanet * &target_object);
 
 #endif
 

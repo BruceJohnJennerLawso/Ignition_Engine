@@ -233,7 +233,7 @@ VectorVictor::Vector2  VectorVictor::Vector2::operator+= (VectorVictor::Vector2 
 }
 
 VectorVictor::Vector2  VectorVictor::Vector2::operator- (VectorVictor::Vector2 pminus)
-{	VectorVictor::Vector2 tminus;
+{	VectorVictor::Vector2 tminus(this->Get_x(), this->Get_y());
 	tminus.x -= pminus.x;
 	tminus.y -= pminus.y;
 	return (tminus);		
