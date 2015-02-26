@@ -358,8 +358,28 @@ std::string TVessel::Get_vessel_name()
 {	return Object_name;
 }	// the string of the objects name
 
-void TVessel::Render_MFDs()
-{	std::cout << "Bad call to TVessel::Render_MFDs()" << std::endl;
+void TVessel::Render_MFDs(SFML_Window &window, key_commands &keyCommands, Cursor_commands &cursorCommands, long double &cameraScale, long double dt, int &time_acceleration, long double sim_time, std::vector<CNewtonian_Object*> &newtonians, std::vector<CKeplerian_Object*> &keplerians, std::vector<TVessel*> &vessels, VectorVictor::Vector2 &Camera_target, long double &Camera_rotation)
+{	for(std::vector<MFD*>::iterator it = MFD_displays.begin(); it != MFD_displays.end(); ++it)
+	{	(*it)->Render_MFD(window, keyCommands, cursorCommands, cameraScale, dt, time_acceleration, sim_time, *this->Get_Vessel_pointer(), newtonians, keplerians, vessels, Camera_target, Camera_rotation);
+		// this looks good for now
+	} 
+}
+
+bool TVessel::Start_MFD(std::string mfd_type, orientation mfd_orientation, sf::Vector2f mfd_offset)
+{	MFD * new_mfd;
+	if(Create_MFD(mfd_type, new_mfd, mfd_orientation, mfd_offset) == true)
+	{	MFD_displays.insert(MFD_displays.end(), new_mfd);
+		return true;
+	}
+	return false;
+}
+
+void TVessel::Draw_MFDs(SFML_Window &window)
+{	for(std::vector<MFD*>::iterator it = MFD_displays.begin(); it != MFD_displays.end(); ++it)
+	{	(*it)->Draw_MFD(window, sf::Color(255, 255, 255));
+		// iterate through all of the MFDs that the vessel has and draw them to
+		// the screen
+	}
 }
 
 TVessel* TVessel::Get_Vessel_pointer()

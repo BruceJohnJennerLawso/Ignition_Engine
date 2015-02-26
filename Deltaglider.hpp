@@ -80,7 +80,7 @@ class DeltaGlider: public TVessel
 	
 	// ughh this is just awful
 	
-	void Render_MFDs();
+	//void Render_MFDs();
 	~DeltaGlider();
 };
 

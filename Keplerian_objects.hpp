@@ -189,6 +189,7 @@ class CKeplerian_Object
 	long double Get_mass();
 	
 	virtual VectorVictor::Vector2 Get_position(long double sim_time);
+	virtual VectorVictor::Vector2 Get_position();	
 	// returns the position of the object at the current time. sim_time
 	// required so that we can use the orbit equations in 2d to get an
 	// exact position
@@ -281,6 +282,7 @@ class TPlanet: public CKeplerian_Object
 	TPlanet(long double initial_theta, long double omega, long double radius, long double atmosphere_height, long double mass, std::string planet_texture_path, sf::Color top_atm_color, sf::Color surf_atm_color);
 	void Frame(double dt, long double simtime);
 	VectorVictor::Vector2 Get_position(long double sim_time);
+	VectorVictor::Vector2 Get_position();	
 	// this... this should work a bit differently, sim_time should be implicitly
 	// now, position evaluated and stored each frame
 	

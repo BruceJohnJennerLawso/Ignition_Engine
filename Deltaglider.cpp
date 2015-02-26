@@ -23,6 +23,8 @@ DeltaGlider::DeltaGlider(double initial_x_position, double initial_y_position, d
 	NewtonianState.Current_state = Flight;
 	Propagator = propagator;
 	
+	Start_MFD(surface_mfd, upper_right, sf::Vector2f(20, 60));
+	
 	Flag_sprite = flag_sprite;	
 	// set our flag affilation here
 	// this looks wrongish, I think this needs to be copied by value, definitely
@@ -200,6 +202,7 @@ DeltaGlider::DeltaGlider(ObjectState initial_object_state, double initial_main_p
 	// we write to the console for feedback while debugging
 	Propagator = propagator;
 	
+	Start_MFD(surface_mfd, upper_right, sf::Vector2f(20, 60));
 	
 	Flag_sprite = flag_sprite;			
 	// set our flag affilation here
@@ -446,13 +449,6 @@ void DeltaGlider::Draw_controls(SFML_Window * iwindow, bool Map_status)
 void DeltaGlider::Receive_cursor_inputs(Cursor_commands * cursor_action, long double dt)
 {	// this way we can check if the cursor is on us, and whether that merits
 	// any changes on the vessels end of things
-}
-
-void DeltaGlider::Render_MFDs()
-{	for(std::vector<MFD*>::iterator it = MFD_displays.begin(); it != MFD_displays.end(); ++it)
-	{	//(*it)->Render_MFD(this->Get_Vessel_pointer());
-		// ah, gonna have to fix this
-	} 
 }
 
 

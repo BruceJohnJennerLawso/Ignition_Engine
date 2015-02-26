@@ -36,6 +36,14 @@ void MFD::Draw_MFD(SFML_Window &window, sf::Color Placard_color)
 	// and draw it onscreen
 }
 
+void MFD::Set_MFD_orientation(orientation new_orientation)
+{	MFD_orientation = new_orientation;
+}
+
+void MFD::Set_MFD_offset(sf::Vector2f new_offset)
+{	MFD_offset = new_offset;
+}
+
 sf::Vector2f MFD::Get_mfd_position(SFML_Window &window)
 {	sf::Vector2f position(MFD_offset.x, MFD_offset.y);
 	if(MFD_orientation == upper_left)
@@ -74,32 +82,79 @@ sf::Vector2f MFD::Get_mfd_position(SFML_Window &window)
 ////////////////////////////////////////////////////////////////////////////////
 
 Surface_MFD::Surface_MFD()
-{	
+{	Height = 200;
+	Width = 200;
+	// these seem like reasonable defaults
+	if(!canvas.create(Height, Width))
+	{	// something screwed up, maybe we got no more memory to play with
+		Talkback("Unable to Create MFD canvas");
+	}	// also need to check to see whether the order of height/width is
+		// correct	
+		
+	// the canvas.create function proved insanely slow to create every single
+	// call to Render MFD, so we moved it here (ran at barely 3 fps)
+	
+	// My best idea would maybe be to make it an optional call in Render MFD
+	// to create it if the MFD gets resized
+	
+	if(!Display_font.loadFromFile("./Data/Fonts/orbitron-light.ttf"))
+	{	Talkback("Unable to load font for surface MFD");
+	}
 }
 
 std::string Surface_MFD::Get_MFD_Name()
-{	std::string type_name = "Surface";
+{	std::string type_name = surface_mfd;
 	return type_name;
 }
 
 bool Surface_MFD::Render_MFD(SFML_Window &window, key_commands &keyCommands, Cursor_commands &cursorCommands, long double &cameraScale, long double dt, 	int &time_acceleration, long double sim_time, TVessel &current_vessel, std::vector<CNewtonian_Object*> &newtonians, std::vector<CKeplerian_Object*> &keplerians, std::vector<TVessel*> &vessels, VectorVictor::Vector2 &Camera_target, long double &Camera_rotation)
 {
-	sf::RenderTexture canvas;
 	// we create a special sfml object that allows us to draw to it just like
 	// it is a screen, even though its not. Then at the end we can retrieve a
 	// texture from it and use that for drawing
-	if(!canvas.create(Height, Width))
-	{	// something screwed up, maybe we got no more memory to play with
-		Talkback("Unable to Create MFD canvas");
-		return false;
-	}	// also need to check to see whether the order of height/width is
-		// correct
+
 	canvas.clear();
 	
-	// we set up any old drawable and go
+	std::string altitude; 
+	if(current_vessel.NewtonianState.Current_state == Flight)
+	{	VectorVictor::Vector2 offset(0,0);		
+		// if the vessel is in flight, 
+		// set the offset to whatever the position of the parent vessel is
+		long double separation = 0;
+		std::vector<long double> altitude_list;
+		for(std::vector<CKeplerian_Object*>::iterator it = keplerians.begin(); it != keplerians.end(); ++it)
+		{	separation = 0;
+			// ummm
+			offset = current_vessel.NewtonianState.FlightState.Position;
+			//offset -= (*it)->Get_position();
+			// make our offset vector equal to the relative offset between
+			// the planet and the vessel
+			separation = offset.Get_vector_magnitude();
+			//separation -= (*it)->Get_radius(0);
+			// make separation equivalent to the magnitude of the vector in
+			// question and subtract the radius from that so we have altitude 
+			// instead of radius
+			altitude_list.push_back(separation);
+			// now we need to find the smallest value of the separation 
+		}
+		// having run through the list of keplerian objects we need to find the
+		// smallest value in the list
+		altitude = std::to_string(Smallest_value(altitude_list));
+		altitude = std::to_string(current_vessel.NewtonianState.Current_state);
+
+	}
+	else
+	{	altitude = "0 m";
+	}
 	
+	
+	
+	sf::Text Altitude;
+	Altitude.setFont(Display_font);
+	Altitude.setColor(sf::Color(252, 223, 43, 72));
+	Altitude.setString(altitude);
 	// canvas.draw(stuff);
-	
+	canvas.draw(Altitude);
 	// on the one hand, I could always just write another function that takes
 	// our crapload of arguments like before along with the rendertexture canvas
 	// by reference and draws it
@@ -121,4 +176,17 @@ bool Surface_MFD::Render_MFD(SFML_Window &window, key_commands &keyCommands, Cur
 
 Surface_MFD::~Surface_MFD()
 {
+}
+
+bool Create_MFD(std::string type_name, MFD * &new_mfd, orientation mfd_orientation, sf::Vector2f mfd_offset)
+{	if(type_name == surface_mfd)
+	{	// think this will work...
+		new_mfd = new Surface_MFD();
+		new_mfd->Set_MFD_orientation(mfd_orientation);
+		new_mfd->Set_MFD_offset(mfd_offset);
+		return true;
+	}
+	else
+	{	return false;
+	}
 }

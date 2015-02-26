@@ -568,3 +568,13 @@ long double Absolute_value(long double value)
 	}
 	return value;
 }
+
+long double Smallest_value(std::vector<long double> &list)
+{	long double smallest = list.at(0);
+	for(std::vector<long double>::iterator it = list.begin(); it != list.end(); ++it)
+	{	if((*it) < smallest)
+		{	smallest = (*it);
+		}
+	}
+	return smallest;
+}

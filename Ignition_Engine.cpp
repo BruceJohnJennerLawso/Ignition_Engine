@@ -169,6 +169,9 @@ int Ignition_engine::Ignition()
 		// keep updating the time since we last updated the displays
 		if(redraw_timer >= Redraw_interval)
 		{	this->Update_standard_displays();
+			for(std::vector<TVessel*>::iterator it = Vessel_list.begin(); it != Vessel_list.end(); ++it)
+			{	(*it)->Render_MFDs(*(Main_Window), *commands, *cursor_commands, camera_scale, deltat, time_acceleration_exponent, simulation_time, Newtonian_list, Celestial_list, Vessel_list, Camera_target, Camera_rotation);
+			}
 			redraw_timer = 0;
 			// if the timer goes off, redraw our displays, then reset the timer
 			// back to zero so it can work back up to the refresh time
@@ -379,6 +382,9 @@ int Ignition_engine::Ignition()
 					// and decide what to do with the info they receive at
 					// that point
 				}	
+			}
+			for(std::vector<TVessel*>::iterator it = Vessel_list.begin(); it != Vessel_list.end(); ++it)
+			{	(*it)->Draw_MFDs(*(Main_Window));
 			}
 		}	
 		else if(map_view == true)	// map view is active	// I guess the order here might work better as state updates, then camera, then draws?

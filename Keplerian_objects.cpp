@@ -413,6 +413,13 @@ VectorVictor::Vector2 CKeplerian_Object::Get_position(long double sim_time)
 	return origin;
 }
 
+VectorVictor::Vector2 CKeplerian_Object::Get_position()
+{	std::cout << "Bad call to CKeplerian_Object::Get_position()" << std::endl;
+	VectorVictor::Vector2 origin(0.00,0.00);
+	// not sure why all that was necessary, must have been bug-hunting
+	return origin;
+}
+
 VectorVictor::Vector2 CKeplerian_Object::Gravity_acceleration(VectorVictor::Vector2 satellite_position, long double simtime)
 {	long double G = 6.673e-11; 
 	// universal gravitational constant. Because I said so, thats why!!!
@@ -554,6 +561,14 @@ void TPlanet::Frame(double dt, long double simtime)
 }
 
 VectorVictor::Vector2 TPlanet::Get_position(long double sim_time)
+{	VectorVictor::Vector2 origin(0,0);
+	// for the moment this is sufficient for testing. Eventually this should
+	// just return the planets vector position member, after it is incremented
+	// in the frame call
+	return origin;
+}
+
+VectorVictor::Vector2 TPlanet::Get_position()
 {	VectorVictor::Vector2 origin(0,0);
 	// for the moment this is sufficient for testing. Eventually this should
 	// just return the planets vector position member, after it is incremented

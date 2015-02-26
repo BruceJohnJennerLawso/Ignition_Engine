@@ -5,6 +5,7 @@
 //#include "Headers.h"
 //#include "Source.cpp"
 #include "Ignition.hpp"
+#include <vector>
 
 #ifndef VectorVictor2
 #define VectorVictor2
@@ -116,5 +117,7 @@ long double Absolute_value(long double value);
 long double Minimum(long double value1, long double value2);
 long double Maximum(long double value1, long double value2);
 bool In_range(long double value1, long double value2, long double target_value);
+
+long double Smallest_value(std::vector<long double> &list);
 
 #endif
