@@ -17,6 +17,25 @@
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
 
+part_id Vessel_component::Component_index = 1;
+
+std::vector<Vessel_component*> Vessel_component::Vessel_components;
+
+part_id Vessel_component::Get_new_index()
+{	part_id new_id = Component_index;
+	Component_index += 1;
+	// increment by one
+	return new_id;
+}
+
+part_id Vessel_component::Get_component_id()
+{	return Component_index;
+}
+
+void Vessel_component::New_vessel_component(Vessel_component * new_this)
+{	Vessel_components.insert(Vessel_components.end(), this->Get_vessel_component_pointer());
+	// lookin guud
+}
 
 void Vessel_component::Draw_component(SFML_Window * iwindow, bool Map_status)
 {	Talkback("Bad call to Vessel_component::Draw_component(SFML_Window * iwindow, bool Map_status)");
@@ -43,7 +62,7 @@ double Vessel_component::Get_component_inertia()
 
 Vessel_component* Vessel_component::Get_vessel_component_pointer()
 {	return this;
-}	// abstraction, abstraction...
+}
 
 Vessel_component::~Vessel_component()
 {

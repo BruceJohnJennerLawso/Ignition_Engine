@@ -14,43 +14,44 @@
 #ifndef vesselpartsh
 #define vesselpartsh
 
+typedef id part_id;
+
 class Vessel_component
 {	public:
-	// anything on a vessel that has mass and does stuff
+	static part_id Component_index;
+	// the id # that will be assigned to the next object of this type created
+	part_id Get_new_index();
+	// returns a new index to assign to an object and increments the counter
+	// by one
+	part_id Component_id;
+	// the current objects id #
+	part_id Get_component_id();
+	static std::vector<Vessel_component*> Vessel_components;
+	// the global list of all objects of type Vessel component
+	void New_vessel_component(Vessel_component * new_this);		
+	// inserts the reference to the new vessel component into the global
+	// vessel component list
 	virtual void Update_component(double dt, std::vector<Force> &parent_force_list);
 	// the equivalent of Frame() for parts that make up vessels. parent force
 	// list is passed by reference so forces contributed by parts to their
 	// parent vessel can be tacked on
 	virtual void Draw_component(SFML_Window * iwindow, bool Map_status);
-	// a nice way of outsourcing the rendering on a part by part basis. This
-	// allows parts to handle their own rendering like exhaust from an engine,
-	// or the internal animations of a robotic arm or something
-	
-	// currently vessels are drawn onscreen by their hull object
+	// currently does nothing..., but I think this is meant to be used later
+	// on for drawing individual parts, some of which will opt to do nothing
+	// instead if the part really shouldnt be drawn all the time
 	Inertia_moment * Component_moment;
-	// object oriented way of getting the moment of inertia of a given simply
-	// shaped part. This may prove a bit inadequate especially if the part is
-	// dynamic/highly complex. Best option might be to stick with the virtual
-	// call to Get_component_inertia() and sort out issues on a case-by-case
-	// basis
-	
-	// this should be an issue on github
+	// the moment of inertia of the part, which can be of various types
+	// depending on the shape of the part (cylinder, box, sphere)
 	Vessel_component* Get_vessel_component_pointer();
-	// a wee bit confusing, but the idea here is that parts defined by more
-	// specific implementations can still pass a general definition pointer
-	// kind of like saying houses can come in many shapes, sizes, configurations
-	// but they all have an address. This is like give me the address
+	// returns a pointer of type vessel component, so we can get the value of
+	// this even from a child object
 	virtual double Get_component_mass();
-	// simple as it sounds. Virtual for obvious reasons
+	// return the total mass of the part
 	virtual double Get_component_inertia();
-	// simple as it sounds, just retrieving the moment of inertia for the part
-	// not sure where the parallel axis theorem is applied to this though, need
-	// to find that
+	// returns the moment of inertia of the part, including the application of
+	// the parallel axis theorem
 	~Vessel_component();
-	
-	friend class CNewtonian_Object;		// Didnt fix it anyways
-	// this was an old hack, the purpose of which I dont recall. Should be
-	// removed, but I want to test the change when I do it.
+
 };
 
 
