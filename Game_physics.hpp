@@ -225,6 +225,13 @@ class Inertia_sphere: public Inertia_moment
 	~Inertia_sphere();
 };
 
+
+// next step could be making a half sphere type for rocket engine types
+
+// and maybe a delta triangle type so we can approximate the DGs shape properly?
+
+
+
 // Boxes, hollow and solid /////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
 

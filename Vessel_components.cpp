@@ -78,7 +78,7 @@ Vessel_component::~Vessel_component()
 Resource_Tank::Resource_Tank(double initial_tank_resource_mass, double tank_mass, double inner_radius, double outer_radius, double tank_length, VectorVictor::Vector2 PositionVector)
 {	Tank_mass = tank_mass;
 	Resource_mass = initial_tank_resource_mass;
-	Component_moment = new Inertia_cylinder(inner_radius, outer_radius, tank_length, PositionVector);
+	Component_moment = new Hollow_cylinder(inner_radius, outer_radius, tank_length);
 	Empty = false;
 	// the Empty should be conditional, but whatever
 	

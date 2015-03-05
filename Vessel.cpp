@@ -360,8 +360,11 @@ std::string TVessel::Get_vessel_name()
 
 void TVessel::Render_MFDs(SFML_Window &window, key_commands &keyCommands, Cursor_commands &cursorCommands, long double &cameraScale, long double dt, int &time_acceleration, long double sim_time, std::vector<CNewtonian_Object*> &newtonians, std::vector<CKeplerian_Object*> &keplerians, std::vector<TVessel*> &vessels, VectorVictor::Vector2 &Camera_target, long double &Camera_rotation)
 {	for(std::vector<MFD*>::iterator it = MFD_displays.begin(); it != MFD_displays.end(); ++it)
-	{	(*it)->Render_MFD(window, keyCommands, cursorCommands, cameraScale, dt, time_acceleration, sim_time, *this->Get_Vessel_pointer(), newtonians, keplerians, vessels, Camera_target, Camera_rotation);
+	{	(*it)->Render_MFD(window, keyCommands, cursorCommands, cameraScale, dt, time_acceleration, sim_time, *this, newtonians, keplerians, vessels, Camera_target, Camera_rotation);
 		// this looks good for now
+		
+		// tried changing what exactly gets sent to the MFD for the vessel
+		// type, maybe this will fix it
 	} 
 }
 
