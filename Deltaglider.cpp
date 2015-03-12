@@ -387,7 +387,7 @@ long double DeltaGlider::Get_PMI()
 
 void DeltaGlider::Print_data()
 {	std::cout << "RCS Fuel: " << RCS_fuel->Resource_mass << std::endl;
-	std::cout << "Crash state: " << Crashed << std::endl;
+	std::cout << "Crash state: " << this->NewtonianState.Current_state << std::endl;
 	// general useful data
 	
 	// should probably reformat this a wee bit

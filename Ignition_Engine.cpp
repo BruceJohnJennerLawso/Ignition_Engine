@@ -383,9 +383,14 @@ int Ignition_engine::Ignition()
 					// that point
 				}	
 			}
-			for(std::vector<TVessel*>::iterator it = Vessel_list.begin(); it != Vessel_list.end(); ++it)
-			{	(*it)->Draw_MFDs(*(Main_Window));
-			}
+			//for(std::vector<TVessel*>::iterator it = Vessel_list.begin(); it != Vessel_list.end(); ++it)
+			//{	(*it)->Draw_MFDs(*(Main_Window));
+			//}
+			
+			// well... that was far and away the dumbest issue so far
+			
+			// the hardest things to fix are when its actually working right
+			// and you just dont see it...
 		}	
 		else if(map_view == true)	// map view is active	// I guess the order here might work better as state updates, then camera, then draws?
 		{	for(std::vector<CKeplerian_Object*>::iterator it = Celestial_list.begin(); it != Celestial_list.end(); ++it)
@@ -421,6 +426,7 @@ int Ignition_engine::Ignition()
 		{	Current_vessel->Draw_controls(Main_Window, map_view);
 			this->Draw_standard_displays();
 			// drawing the generic displays, along with the vessel specific ones
+			Current_vessel->Draw_MFDs(*(Main_Window));
 		}
 		Main_Window->window->display();	// good SFML stuff
     }

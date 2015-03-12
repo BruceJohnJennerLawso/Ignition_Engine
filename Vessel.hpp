@@ -186,6 +186,8 @@ class MFD
 	// specifically, this tells us in window coordinates, the location of
 	// the upper left corner of this MFD
 	
+	sf::Vector2f Transform_to_mfd(SFML_Window &window, sf::Vector2f input);
+	
 	//virtual bool Load(filestuffz);
 	//virtual bool Save(filestuffz&);
 	// save things to a text scenario file (an .isc ?)

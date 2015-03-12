@@ -13,7 +13,7 @@ std::string MFD::Get_MFD_Name()
 }
 
 bool MFD::Render_MFD(SFML_Window &window, key_commands &keyCommands, Cursor_commands &cursorCommands, long double &cameraScale, long double dt, int &time_acceleration, long double sim_time, TVessel &current_vessel, std::vector<CNewtonian_Object*> &newtonians, std::vector<CKeplerian_Object*> &keplerians, std::vector<TVessel*> &vessels, VectorVictor::Vector2 &Camera_target, long double &Camera_rotation)
-{	Talkback("Bad call to MFD::Render_MFD(SFML_Window &window, key_commands &keyCommands, Cursor_commands &cursorCommands, long double &cameraScale, long double dt, 	int &time_acceleration, long double sim_time, TVessel &current_vessel, std::vector<CNewtonian_Object*> &newtonians, std::vector<CKeplerian_Object*> &keplerians, std::vector<TVessel*> &vessels, VectorVictor::Vector2 &Camera_target, long double &Camera_rotation)");
+{	Talkback("Bad call to MFD::Render_MFD(SFML_Window &window, key_commands &keyCommands, Cursor_commands &cursorCommands, long double &cameraScale, long double dt, int &time_acceleration, long double sim_time, TVessel &current_vessel, std::vector<CNewtonian_Object*> &newtonians, std::vector<CKeplerian_Object*> &keplerians, std::vector<TVessel*> &vessels, VectorVictor::Vector2 &Camera_target, long double &Camera_rotation)");
 }
 
 void MFD::Draw_MFD(SFML_Window &window, sf::Color Placard_color)
@@ -77,13 +77,18 @@ sf::Vector2f MFD::Get_mfd_position(SFML_Window &window)
 	}
 }
 
+sf::Vector2f MFD::Transform_to_mfd(SFML_Window &window, sf::Vector2f input)
+{	input -= this->Get_mfd_position(window);
+	return input;
+}
+
 // Surface MFD /////////////////////////////////////////////////////////////////
 // The first prototype /////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
 
 Surface_MFD::Surface_MFD()
-{	Height = 200;
-	Width = 200;
+{	Height = 400;
+	Width = 400;
 	// these seem like reasonable defaults
 	if(!canvas.create(Height, Width))
 	{	// something screwed up, maybe we got no more memory to play with
@@ -126,11 +131,11 @@ bool Surface_MFD::Render_MFD(SFML_Window &window, key_commands &keyCommands, Cur
 		{	separation = 0;
 			// ummm
 			offset = current_vessel.NewtonianState.FlightState.Position;
-			//offset -= (*it)->Get_position();
+			offset -= (*it)->Get_position();
 			// make our offset vector equal to the relative offset between
 			// the planet and the vessel
 			separation = offset.Get_vector_magnitude();
-			//separation -= (*it)->Get_radius(0);
+			separation -= (*it)->Get_radius(0);
 			// make separation equivalent to the magnitude of the vector in
 			// question and subtract the radius from that so we have altitude 
 			// instead of radius
@@ -140,18 +145,40 @@ bool Surface_MFD::Render_MFD(SFML_Window &window, key_commands &keyCommands, Cur
 		// having run through the list of keplerian objects we need to find the
 		// smallest value in the list
 		altitude = std::to_string(Smallest_value(altitude_list));
-		altitude = std::to_string(current_vessel.NewtonianState.Current_state);
+
+		// awwwwww YEEHAW
 
 	}
 	else
 	{	altitude = "0 m";
 	}
+
+	//altitude = std::to_string(current_vessel->NewtonianState.Current_state);	
+	
+	//altitude = current_vessel.Get_vessel_name();	
 	
 	
 	
 	sf::Text Altitude;
 	Altitude.setFont(Display_font);
-	Altitude.setColor(sf::Color(252, 223, 43, 72));
+	Altitude.setColor(sf::Color(157,226,252, 255));
+	
+	if(cursorCommands.Right_click == true)
+	{	sf::Vector2f offset = Transform_to_mfd(window, cursorCommands.position); 
+		std::cout << "mfd click offset: (" << offset.x << "," << offset.y << ")" << std::endl; 
+		if((offset.x <= Width)&&(offset.y <= Height))
+		{	if((offset.x >= 0)&&(offset.y >= 0))
+			{
+				Altitude.setColor(sf::Color(252, 223, 43, 255));
+				// this works, but not very smoothly, since we only get info
+				// about clicks every couple milliseconds or so, which makes it
+				// very sticky
+				
+				// perhaps we just force a re render every time a click is 
+				// clicked on an MFD to get around this
+			}
+		}
+	}
 	Altitude.setString(altitude);
 	// canvas.draw(stuff);
 	canvas.draw(Altitude);
