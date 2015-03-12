@@ -80,9 +80,8 @@ class Solid_cylinder: public Inertia_moment
 	Solid_cylinder(double radius, double height);		
 	// Solid cylinder, density constant over the whole thing
 	protected:
-	bool Hollow;
 	// flag that determines which type of cylinder it is
-	double Inner_radius, Outer_radius, height;
+	double Radius, Height;
 	// Height is the length along the z axis here
 	double K;	
 	
@@ -99,6 +98,8 @@ class Hollow_cylinder: public Inertia_moment
 	// especially
 	public:
 	Hollow_cylinder(double inner_radius, double outer_radius, double cylinder_height);	
+	
+	
 	// hollow cyclinder, but not technically closed at the end, open like a
 	// toilet paper roll. Kinda works well enough for most applications, since
 	// the ends are usually thin, but a solution using another pair of solid
@@ -125,6 +126,7 @@ class Solid_sphere: public Inertia_moment
 	// matter which angle you look at them from
 	// kinda trippy if you stop to think about it
 	public:
+	Solid_sphere();
 	Solid_sphere(double radius);								
 	// Solid sphere. Not sure what the point of it would be, but who cares
 	void Set_values(double radius);

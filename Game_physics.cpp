@@ -12,9 +12,6 @@ double Inertia_moment::Get_moment_about_pivot(VectorVictor::Vector2 pivot_point,
 {	return 0;
 }	// needs an error talkback message
 
-double Inertia_moment::Get_moment_about_pivot(double inside_mass, double outside_mass)
-{	return 0;
-}	// needs an error talkback message
 
 bool Inertia_moment::Is_hollow()
 {	Talkback("Bad call to Inertia_moment::Is_hollow()");
@@ -29,7 +26,7 @@ Inertia_moment::~Inertia_moment()
 // for when we just want a # ///////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
 
-Inertia_complex::Inertia_complex(double  kfactor)
+Inertia_complex::Inertia_complex(double kfactor)
 {	K = kfactor;
 }
 
@@ -81,10 +78,10 @@ Solid_cylinder::Solid_cylinder(double radius, double cylinder_height)
 
 double Solid_cylinder::Get_moment_about_pivot(VectorVictor::Vector2 pivot_point, double inside_mass, double outside_mass)
 {	double moment = 0;
-	moment += (outside_mass*K);
+	moment += (inside_mass*K);
 	if(pivot_point.Get_vector_magnitude_squared() != 0)
 	{	double r = pivot_point.Get_vector_magnitude();
-		moment += (outside_mass*(r*r));							
+		moment += (inside_mass*(r*r));							
 		// I(r) = Icg + (m(r^2))	
 	}
 	return moment;
@@ -107,8 +104,8 @@ Hollow_cylinder::Hollow_cylinder(double inner_radius, double outer_radius, doubl
 {	Inner_radius = inner_radius;
 	Outer_radius = outer_radius;
 	Height = cylinder_height;
-	K = ((Height*Height)/12);
-	// or whatever the final solved integral ends up being
+	K = ((3*((outer_radius*outer_radius)+(inner_radius*inner_radius))) + (Height*Height))/12;
+	// whew, that should be good enough for now
 	Interior.Set_values(inner_radius, cylinder_height);
 }
 
@@ -122,7 +119,7 @@ double Hollow_cylinder::Get_moment_about_pivot(VectorVictor::Vector2 pivot_point
 		moment += (outside_mass*(r*r));							
 		// I(r) = Icg + (m(r^2))	
 	}
-	moment += Interior.Get_moment_about_pivot(pivot_point, 0, inside_mass);	
+	moment += Interior.Get_moment_about_pivot(pivot_point, inside_mass, 0);	
 	// get the moment of inertia of the inside part
 	return moment;
 }
@@ -139,23 +136,27 @@ Hollow_cylinder::~Hollow_cylinder()
 // Solid sphere, constant Rho throughout ///////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
 
+Solid_sphere::Solid_sphere()
+{
+}
+
 Solid_sphere::Solid_sphere(double radius)
-{	Radius = radius;
-	K = whatever;
+{	this->Set_values(radius);
 }
 
 void Solid_sphere::Set_values(double radius)
 {	Radius = radius;
+	K = (2/5)*(radius*radius);
 }	
 
 double Solid_sphere::Get_moment_about_pivot(VectorVictor::Vector2 pivot_point, double inside_mass, double outside_mass)
 {	double moment = 0;
-	moment += (outside_mass*K);
+	moment += (inside_mass*K);
 	// this is under some review right now, these definitions might not have
 	// been accurate
 	if(pivot_point.Get_vector_magnitude_squared() != 0)
 	{	double r = pivot_point.Get_vector_magnitude();
-		moment += (outside_mass*(r*r));							
+		moment += (inside_mass*(r*r));							
 		// I(r) = Icg + (m(r^2))	
 	}
 	return moment;
@@ -172,36 +173,11 @@ Solid_sphere::~Solid_sphere()
 // Hollow sphere, with a different density inside //////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
 
-class Hollow_sphere: public Inertia_moment
-{	// probably the easiest to do because spheres are basically the same no
-	// matter which angle you look at them from
-	// kinda trippy if you stop to think about it
-	public:						
-	// Solid sphere. Not sure what the point of it would be, but who cares
-	Hollow_sphere(double inner_radius, double outer_radius);	
-	// Sphere with an internal cavity, of radius inner_radius and a different
-	// density than the outer shell. Could be a fuel tank or anything really
-	// the best structure for confining a pressure is supposed to be a sphere
-	// anyways
-	protected:
-	// which type of sphere we have
-	double Inner_radius, Outer_radius;
-	// physical parameters, in meters as always
-	double K;	
-	// the inertia constant calculated at construction
-	
-	// maybe the protected access is so nothing messes with the hollow state?
-	// that would make things fly out the window
-	public:
-	double Get_moment_about_pivot(VectorVictor::Vector2 pivot_point, double inside_mass, double outside_mass);
-	bool Is_hollow();
-	~Hollow_sphere();
-};
-
 Hollow_sphere::Hollow_sphere(double inner_radius, double outer_radius)
 {	Inner_radius = inner_radius;
 	Outer_radius = outer_radius;
-	K = whatever;
+	K = (2/5)*(((pow(outer_radius, 5))-(pow(inner_radius, 5)))/((pow(outer_radius, 3))-(pow(inner_radius, 3))));
+	// ugly aint it
 }
 
 
@@ -215,7 +191,7 @@ double Hollow_sphere::Get_moment_about_pivot(VectorVictor::Vector2 pivot_point, 
 		moment += (outside_mass*(r*r));							
 		// I(r) = Icg + (m(r^2))	
 	}
-	moment += Interior.Get_moment_about_pivot(pivot_point, 0, inside_mass);	
+	moment += Interior.Get_moment_about_pivot(pivot_point, inside_mass, 0);	
 	// get the moment of inertia of the inside part
 	return moment;
 }

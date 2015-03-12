@@ -203,7 +203,11 @@ double CNewtonian_Object::Get_total_mass()
 void CNewtonian_Object::Update_PMI()
 {	PMI = 0;
 	for(std::vector<Vessel_component*>::iterator it = Object_components.begin(); it != Object_components.end(); ++it)
-	{	PMI += (*it)->Get_component_inertia();
+	{	PMI += (*it)->Get_component_inertia((*it)->Component_position);
+		// once shifting cog is a thing, we will need to shift the passed vector
+		// by whatever offset the offset center of mass has
+		
+		// but we'll worry about that later
 	}	
 	// reset the moment of inertia to zero, then add it up again from the
 	// inertias contributed by each vessel part 

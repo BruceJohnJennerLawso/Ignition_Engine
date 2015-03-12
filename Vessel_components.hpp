@@ -42,14 +42,23 @@ class Vessel_component
 	Inertia_moment * Component_moment;
 	// the moment of inertia of the part, which can be of various types
 	// depending on the shape of the part (cylinder, box, sphere)
+	
+	VectorVictor::Vector2 Component_position;
+	// the position of the part relative to the parent vessel
+	
+	// long double seems like overkill here, maybe a float or double vector
+	// should be sufficient at least
+	
+	virtual double Get_component_mass();
+	// return the total mass of the part
+	virtual double Get_component_inertia(VectorVictor::Vector2 axis);
+	// returns the moment of inertia of the part, including the application of
+	// the parallel axis theorem
+	
+	
 	Vessel_component* Get_vessel_component_pointer();
 	// returns a pointer of type vessel component, so we can get the value of
 	// this even from a child object
-	virtual double Get_component_mass();
-	// return the total mass of the part
-	virtual double Get_component_inertia();
-	// returns the moment of inertia of the part, including the application of
-	// the parallel axis theorem
 	~Vessel_component();
 
 };
@@ -77,14 +86,12 @@ class Resource_Tank: public Vessel_component
 	// what it sounds like. In kilos
 	bool Empty;
 	// Flag to check so we dont keep trying to suck fuel out of an empty tank 
-	double Get_tank_inertia();
-	// just a quick method to automate things. Exactly what it sounds like
 	double Get_resource_mass();
 	// again simple, just the resource mass, ignoring the mass of the tank
 	// structure
 	double Get_component_mass();
 	// tank and resource mass together
-	double Get_component_inertia();	
+	double Get_component_inertia(VectorVictor::Vector2 axis);	
 	// same as explained above. Total moment of inertia for the resource tank
 	~Resource_Tank();
 };
@@ -107,16 +114,14 @@ class Thruster: public Vessel_component
 	// and 0 being completely shut off		
 	
 	// mix ratio is (mass oxidizer/mass fuel) for optimum exhaust velocity
-	VectorVictor::Vector2 Thruster_position;						
-	// coordinates local to the parent vessel where the thruster has its origin
-	// these are just relative to positions of where things are located on a
-	// vessel, might change relative to the center of mass once that feature is
-	// implemented 
+	
 	VectorVictor::Vector2 Thruster_direction;
 	// normalized along with direction at construction if necessary, since its
 	// gotta have a magnitude of 1
 	// this is the direction that the nozzle points in, opposite to the
 	// direction of the actual force vector
+	
+	// again, long double seems like massive overkill here
 	std::vector<thruster_group> Groups;
 	// a list of all of the groups that
 	bool Is_in_group(thruster_group group);
@@ -149,7 +154,7 @@ class Thruster: public Vessel_component
 	virtual long double Get_maximum_torque(double dt);
 	
 	double Get_component_mass();
-	double Get_component_inertia();		
+	double Get_component_inertia(VectorVictor::Vector2 axis);		
 	// same as usual, physical properties of the thruster
 	Thruster* Get_thruster_pointer();
 	// another abstraction like Vessel Component pointers
@@ -237,9 +242,8 @@ class Hull: public Vessel_component
 	// to go anywhere else
 	double Get_hull_length();
 	double Get_hull_length_squared();
-	double Get_hull_inertia();
 	double Get_component_mass();
-	double Get_component_inertia();
+	double Get_component_inertia(VectorVictor::Vector2 axis);
 	// just regular methods to return data mentioned above		
 	~Hull();
 };
