@@ -91,6 +91,10 @@ class CNewtonian_Object
 	// yeah...
 	CNewtonian_Object();
 	CNewtonian_Object(ObjectState initial_newtonian_state);
+	
+	ObjectState PreviousState;
+	// I know, i know, inconsistency, so shoot me...
+	
 	ObjectState NewtonianState;
 	VectorVictor::Vector2 Acceleration;	
 	// where we are going is going
