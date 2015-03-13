@@ -91,6 +91,16 @@ class CNewtonian_Object
 	// yeah...
 	CNewtonian_Object();
 	CNewtonian_Object(ObjectState initial_newtonian_state);
+	
+	ObjectState PreviousState;
+	// I know, i know, inconsistency, so shoot me...
+	
+	// so this state stores whatever our vessel looks like at the top of the
+	// frame, that way we can compare and contrast at the end of the frame
+	// & use it to do physics stuffz
+	
+	// but we arent using it just yet...
+	
 	ObjectState NewtonianState;
 	VectorVictor::Vector2 Acceleration;	
 	// where we are going is going
