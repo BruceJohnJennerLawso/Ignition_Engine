@@ -276,12 +276,25 @@ void CNewtonian_Object::Frame(long double dt, long double simtime, std::vector<C
 	// every single frame
 	Force_list.clear();
 	// set the net force on the object back to zero for the next frame
+	
 	if(NewtonianState.Current_state != Crashed)
 	{	// if we arent crashed at the moment, check if we are crashed
 		if(Crash_state(simtime, ignition_celestials) == true)
 		{	// If we are crashed, set our status to that
 			std::cout << "Goodbye cruel world" << std::endl;
 			NewtonianState.Current_state = Crashed;
+		}
+	}
+	Collision_checked = false;
+	// set our flag so that the object will be checked for any collisions
+}
+
+void CNewtonian_Object::Collision_detect(std::vector<CNewtonian_Object*> &collidable_objects)
+{	// this is gonna be a big one...
+	for(std::vector<CNewtonian_Object*>::iterator it = collidable_objects.begin(); it != collidable_objects.end(); ++it)
+	{	if((*it)->Collision_checked == false)
+		{	// check and see if we are collided
+			
 		}
 	}
 }

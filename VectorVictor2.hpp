@@ -120,4 +120,17 @@ bool In_range(long double value1, long double value2, long double target_value);
 
 long double Smallest_value(std::vector<long double> &list);
 
+class Circle
+{	public:
+	Circle();
+	Circle(VectorVictor::Vector2 position, long double radius);
+	// okayyy
+	
+	VectorVictor::Vector2 Position;
+	// the center of the thing
+	long double Radius;
+	// the radius of it
+	~Circle();
+};
+
 #endif

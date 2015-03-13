@@ -103,12 +103,21 @@ class CNewtonian_Object
 	
 	ObjectState NewtonianState;
 	VectorVictor::Vector2 Acceleration;	
-	// where we are going is going
-	// another shitter to get rid of. Need to look up all references
-	// on the other hand this is somewhat useful...
 	
-	// but this is going to become a bit muddy once the RK4 propagator is
-	// online
+	// a cursory check shows that this definitely could be changed so that the
+	// functions using it now just use their own VV2s
+	
+	bool Collision_checked;
+	// a quick value that gets flipped once the vessel in question has handled
+	// its own collision detection. This prevents vessel A from colliding with
+	// vessel B, and then Vessel B colliding a second time with A and so on
+	
+	// hmmm, this is trickier than I thought
+	
+	// cause it branches out with each vessel that is being collided with
+	
+	
+	
 	
 	// this isnt strictly necessary as an object variable, although it makes
 	// the code a wee bit simpler just leaving it in each frame
@@ -174,6 +183,9 @@ class CNewtonian_Object
 	void Update_rotation(long double simtime, long double dt);
 	// Same as for motion, just using the torques implied by the Force list
 	// in each frame
+	void Collision_detect(std::vector<CNewtonian_Object*> &collidable_objects);
+	
+	
 	bool Update_flag;
 	// this was an older idea
 	bool Update_flag_state();
