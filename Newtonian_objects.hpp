@@ -184,7 +184,9 @@ class CNewtonian_Object
 	// Same as for motion, just using the torques implied by the Force list
 	// in each frame
 	void Collision_detect(std::vector<CNewtonian_Object*> &collidable_objects);
+	Circle Get_collision_bound();
 	
+	virtual long double Get_radius();
 	
 	bool Update_flag;
 	// this was an older idea

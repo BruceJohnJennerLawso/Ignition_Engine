@@ -36,7 +36,7 @@ class TVessel: virtual public CNewtonian_Object
 	Hull * Hull_component;
 	// the hull, of which there should only ever be one
 	// I cant imagine why a second one of these should ever be needed
-	
+	long double Get_radius();
 	
 	double RCS_Throttle_constant, Main_throttle_constant;
 	

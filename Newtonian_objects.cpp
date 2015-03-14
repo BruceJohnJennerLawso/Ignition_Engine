@@ -291,12 +291,62 @@ void CNewtonian_Object::Frame(long double dt, long double simtime, std::vector<C
 
 void CNewtonian_Object::Collision_detect(std::vector<CNewtonian_Object*> &collidable_objects)
 {	// this is gonna be a big one...
+	VectorVictor::Vector2 offset(0,0);
 	for(std::vector<CNewtonian_Object*>::iterator it = collidable_objects.begin(); it != collidable_objects.end(); ++it)
 	{	if((*it)->Collision_checked == false)
 		{	// check and see if we are collided
 			
+			if(this->Get_collision_bound().Intersection((*it)->Get_collision_bound(), offset)) == true)
+			{	// ladies and gentlemen, we have a collision
+			
+				// now what are we gonna do about it? :P
+				
+				// in pseudocode description
+				
+				// VV2 V1 (*this object) is proj of (*this).velocity onto the offset
+				
+				// VV2 V2 (*it object) is proj of (*it).velocity onto the offset
+				
+				// we subtract the component velocities normal to the collision
+				// plane from the original velocity vector so we are only left
+				// with the velocity component that wont be affected by the
+				// collision (ie is parallel to the collision plane)
+				
+				// and for simplicity, we just get the velocity vectors that
+				// will be involved in the collision as their magnitudes in
+				// long double format
+				
+				// long double v1 = V1.Get_vector_magnitude()
+				// long double v2 = V2.Get_vector_magnitude()
+				
+				// we normalize V1 & V2 to just get absolute directions of the
+				// relative velocities, then we do comparisons of whether the
+				// two vectors are both 0, antiparallel pointing in,
+				// antiparallel pointing out, parallel, etc.
+				// since each case will kinda need its own solution depending
+				// on the relative directions of V1 & V2
+				
+				// we solve whatever case popped up using the proper pair of
+				// energy conserved and momentum conserved equations
+				// (potentially energy could not be conserved based on some
+				// coefficient that each vessel supplies)
+				
+				// finally, we apply the new values of 
+				
+				
+			}
 		}
 	}
+}
+
+Circle CNewtonian_Object::Get_collision_bound()
+{	Circle output(this->NewtonianState.FlightState.Position, this->Get_radius());
+	return output;
+}
+
+long double CNewtonian_Object::Get_radius()
+{	Talkback("Bad call to CNewtonian_Object::Get_radius()");
+	return -1;
 }
 
 bool CNewtonian_Object::Crash_state(long double sim_time, std::vector<CKeplerian_Object*> &ignition_celestials)

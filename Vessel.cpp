@@ -13,7 +13,20 @@
 
 
 
-// getting a little more specific at this point, dealing with specific
+long double TVessel::Get_radius()
+{	long double radius = this->Hull_component->Get_length();
+	radius /= 2;
+	return radius;
+	// that looks guud to me for now at least
+	
+	// a better future solution would be to make get radius a method for all
+	// parts regardless of type, and then a loop sorts through them and creates
+	// a new bounding circle for the total vessel based on whatever it finds
+	// before finally returning it
+}
+
+
+// getting a little more specific than CNewtonian, dealing with specific
 // functionality that a spacecraft really needs to have
 
 
