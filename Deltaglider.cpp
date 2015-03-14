@@ -51,6 +51,7 @@ DeltaGlider::DeltaGlider(double initial_x_position, double initial_y_position, d
 	
 	VectorVictor::Vector2 origin(0,0);
 	Hull_component = new Hull(16000, 0.4, 17.5, origin);
+	this->Length = 17.5;
 	Object_components.insert(Object_components.end(), Hull_component);
 	// we construct the hull component and insert it into the general component
 	// list. The vessel can access it by either the Hull component reference
@@ -219,6 +220,7 @@ DeltaGlider::DeltaGlider(ObjectState initial_object_state, double initial_main_p
 	
 	VectorVictor::Vector2 origin(0,0);
 	Hull_component = new Hull(16000, 0.4, 17.5, origin);
+	this->Length = 17.5;
 	Object_components.insert(Object_components.end(), Hull_component);
 	// we construct the hull component and insert it into the general component
 	// list. The vessel can access it by either the Hull component reference

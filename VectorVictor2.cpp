@@ -578,3 +578,41 @@ long double Smallest_value(std::vector<long double> &list)
 	}
 	return smallest;
 }
+
+// Circle //////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+
+Circle::Circle()
+{	Position.Set_values(0,0);
+	Radius = -1;
+	// flags it as not really constructed yet
+}
+
+Circle::Circle(VectorVictor::Vector2 position, long double radius)
+{	this->Set_values(position, radius);
+}
+
+void Circle::Set_values(VectorVictor::Vector2 &position, long double radius)
+{	Position = position;
+	Radius = radius;
+}
+
+bool Circle::Intersection(Circle &target_circle, VectorVictor::Vector2 &offset)
+{	offset = (target_circle.Position - this->Position);
+	//get the relative offset from the *this Circle to the target circle
+	long double separation = offset.Get_vector_magnitude_squared();
+	if(separation < Squared(target_circle.Radius + this->Radius))
+	{	// compared the relative squares, & found an intersection
+		return true;
+	}
+	return false;
+}
+
+Circle::~Circle()
+{
+}
+
+long double Squared(long double value)
+{	value *= value;
+	return value;
+}

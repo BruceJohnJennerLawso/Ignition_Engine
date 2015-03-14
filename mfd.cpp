@@ -9,7 +9,7 @@
 
 std::string MFD::Get_MFD_Name()
 {	Talkback("Bad call to MFD::Get_MFD_Name()");
-	return "FUU";
+	return "FUUUUUUUUUUU";
 }
 
 bool MFD::Render_MFD(SFML_Window &window, key_commands &keyCommands, Cursor_commands &cursorCommands, long double &cameraScale, long double dt, int &time_acceleration, long double sim_time, TVessel &current_vessel, std::vector<CNewtonian_Object*> &newtonians, std::vector<CKeplerian_Object*> &keplerians, std::vector<TVessel*> &vessels, VectorVictor::Vector2 &Camera_target, long double &Camera_rotation)
@@ -179,6 +179,27 @@ bool Surface_MFD::Render_MFD(SFML_Window &window, key_commands &keyCommands, Cur
 			}
 		}
 	}
+	
+	Circle vessel_bound(current_vessel.NewtonianState.FlightState.Position, (current_vessel.Length/2));
+	
+	VectorVictor::Vector2 origin(0,0);
+	
+	Circle target_bound(VectorVictor::Vector2(0,0), 10);
+	for(std::vector<CNewtonian_Object*>::iterator it = newtonians.begin(); it != newtonians.end(); ++it)
+	{	if((*it) != current_vessel.Get_Newtonian_pointer())
+		{	// make sure we dont find ourselves
+			target_bound.Set_values((*it)->NewtonianState.FlightState.Position, (((*it)->Length))/2);
+			if(vessel_bound.Intersection(target_bound, origin))
+			{	Altitude.setColor(sf::Color(252, 0, 0, 255));
+				std::cout << "Intersection with object" << std::endl;
+			}
+			else
+			{	std::cout << origin.Get_vector_magnitude() << std::endl;
+			}
+		}
+	}
+	
+	
 	Altitude.setString(altitude);
 	// canvas.draw(stuff);
 	canvas.draw(Altitude);

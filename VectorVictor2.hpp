@@ -124,13 +124,23 @@ class Circle
 {	public:
 	Circle();
 	Circle(VectorVictor::Vector2 position, long double radius);
-	// okayyy
 	
+	void Set_values(VectorVictor::Vector2 &position, long double radius);
+	// okayyy
 	VectorVictor::Vector2 Position;
 	// the center of the thing
 	long double Radius;
 	// the radius of it
+	bool Intersection(Circle &target_circle, VectorVictor::Vector2 &offset);
+	// if there is an intersection between the calling circle and the
+	// target_circle, returns true
+	
+	// always copies the offset between the centers of the two circles to the
+	// offset vector2 passed by reference
+	
 	~Circle();
 };
+
+long double Squared(long double value);
 
 #endif
