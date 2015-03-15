@@ -331,9 +331,18 @@ void CNewtonian_Object::Collision_detect(std::vector<CNewtonian_Object*> &collid
 				// (potentially energy could not be conserved based on some
 				// coefficient that each vessel supplies)
 				
-				// finally, we apply the new values of 
+				// finally, we apply the new values of v1 & v2  to the V1 & V2
+				// vectors, and re-add them to the velocity values of each part
 				
 				
+				
+				// aaand, lastly if not leastly, we set (*this).collision
+				// checked to true so we dont do the whole thing twice, and
+				// we call (*it).Collision_detect, which then subsequently
+				// checks the (*it) object for any additional collisions with
+				// other objects besides this one and so on
+				
+				// I think this should work in theory
 			}
 		}
 	}

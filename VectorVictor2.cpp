@@ -454,6 +454,25 @@ long double VectorVictor::Vector2::Get_vector_magnitude_squared()
 	return output;				
 }
 
+
+long double VectorVictor::Vector2::Dot(VectorVictor::Vector2 &vector)
+{	long double output = ((this->x*vector.x)+(this->y*vector.y));
+	return output;
+}
+
+long double VectorVictor::Vector2::Cross(VectorVictor::Vector2 &vector)
+{	long double output = ((this->x*vector.y)-(vector.x*this->y));
+	return output;
+}
+
+VectorVictor::Vector2 VectorVictor::Vector2::Projection(VectorVictor::Vector2 &onto)
+{	VectorVictor::Vector2 output(onto.x, onto.y);
+	// create a copy of the vector we are projecting onto
+	output *= ((this->Dot(onto))/(onto.Dot(onto)));
+	// multiply it by (V1 dot V2)/(V2 dot V2)
+	return output;
+}
+
 // Destructor //////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -471,6 +490,8 @@ long double VectorVictor::Get_dot_product(long double x1, long double y1, long d
 	// & return the result. same thing below
 	return output;
 }
+
+
 
 long double VectorVictor::Get_dot_product(VectorVictor::Vector2 First_vector, VectorVictor::Vector2 Second_vector)
 {	long double x1 = First_vector.Get_x();

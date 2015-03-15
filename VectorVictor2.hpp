@@ -58,6 +58,13 @@ namespace VectorVictor
 		long double Get_vector_magnitude_squared();
 		// returns the length of the vector, but squared so we dont need to
 		// run an expensive call to sqrt()			
+		
+		long double Dot(VectorVictor::Vector2 &vector);
+		long double Cross(VectorVictor::Vector2 &vector);
+		
+		VectorVictor::Vector2 Projection(VectorVictor::Vector2 &onto);
+		// return the projection of (*this) onto the vector onto
+		
 		Vector2 operator + (const Vector2);							
 		Vector2 operator += (const Vector2);
 		// addition operators, just what they sound like
@@ -136,8 +143,8 @@ class Circle
 	// target_circle, returns true
 	
 	// always copies the offset between the centers of the two circles to the
-	// offset vector2 passed by reference
-	
+	// offset vector2 passed by reference, regardless of whether there is an
+	// intersection between the two circles
 	~Circle();
 };
 
