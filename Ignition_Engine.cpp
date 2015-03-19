@@ -162,6 +162,8 @@ int Ignition_engine::Ignition()
 	
 	// so we set it to the first vessel in the main vessel list 
 	
+	Main_Window->window->setFramerateLimit(60);
+
 	while (Main_Window->window->isOpen())
 	{	sf::Event event;
 		// some internal thing with SFML inputs
@@ -169,9 +171,10 @@ int Ignition_engine::Ignition()
 		// keep updating the time since we last updated the displays
 		if(redraw_timer >= Redraw_interval)
 		{	this->Update_standard_displays();
-			for(std::vector<TVessel*>::iterator it = Vessel_list.begin(); it != Vessel_list.end(); ++it)
-			{	(*it)->Render_MFDs(*(Main_Window), *commands, *cursor_commands, camera_scale, deltat, time_acceleration_exponent, simulation_time, Newtonian_list, Celestial_list, Vessel_list, Camera_target, Camera_rotation);
-			}
+			//for(std::vector<TVessel*>::iterator it = Vessel_list.begin(); it != Vessel_list.end(); ++it)
+			//{	(*it)->Render_MFDs(*(Main_Window), *commands, *cursor_commands, camera_scale, deltat, time_acceleration_exponent, simulation_time, Newtonian_list, Celestial_list, Vessel_list, Camera_target, Camera_rotation);
+			//}
+			Current_vessel->Render_MFDs(*(Main_Window), *commands, *cursor_commands, camera_scale, deltat, time_acceleration_exponent, simulation_time, Newtonian_list, Celestial_list, Vessel_list, Camera_target, Camera_rotation);
 			redraw_timer = 0;
 			// if the timer goes off, redraw our displays, then reset the timer
 			// back to zero so it can work back up to the refresh time

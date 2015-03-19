@@ -14,6 +14,7 @@ std::string MFD::Get_MFD_Name()
 
 bool MFD::Render_MFD(SFML_Window &window, key_commands &keyCommands, Cursor_commands &cursorCommands, long double &cameraScale, long double dt, int &time_acceleration, long double sim_time, TVessel &current_vessel, std::vector<CNewtonian_Object*> &newtonians, std::vector<CKeplerian_Object*> &keplerians, std::vector<TVessel*> &vessels, VectorVictor::Vector2 &Camera_target, long double &Camera_rotation)
 {	Talkback("Bad call to MFD::Render_MFD(SFML_Window &window, key_commands &keyCommands, Cursor_commands &cursorCommands, long double &cameraScale, long double dt, int &time_acceleration, long double sim_time, TVessel &current_vessel, std::vector<CNewtonian_Object*> &newtonians, std::vector<CKeplerian_Object*> &keplerians, std::vector<TVessel*> &vessels, VectorVictor::Vector2 &Camera_target, long double &Camera_rotation)");
+	return false;
 }
 
 void MFD::Draw_MFD(SFML_Window &window, sf::Color Placard_color)
@@ -74,6 +75,10 @@ sf::Vector2f MFD::Get_mfd_position(SFML_Window &window)
 		position.x = deltax;
 		position.y = deltay;
 		return position;
+	}
+	else
+	{	return position;
+		// dammit MSVC
 	}
 }
 
