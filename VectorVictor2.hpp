@@ -22,6 +22,15 @@
 // The VectorVictor namespace //////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
 
+enum vector_orientation{inwards, outwards, parallel, non_parallel};
+// definitions of whether the orientation of two vectors when parallel is
+// pointing inwards towards each other (inwards), outwards and away from
+// each other (outwards), or parallel, each pointing in the same direction
+
+// non-parallel is reserved for if the check goes down and they arent actually
+// parallel anyways, so we screwed up somewhere
+std::string Orientation_as_text(vector_orientation input);
+
 namespace VectorVictor
 {	class Vector2	
 	{	// core entity of VectorVictor for now
@@ -64,6 +73,15 @@ namespace VectorVictor
 		
 		VectorVictor::Vector2 Projection(VectorVictor::Vector2 &onto);
 		// return the projection of (*this) onto the vector onto
+		
+		bool Parallel(VectorVictor::Vector2 &vector);
+		// returns true if *this and vector are paralell to each other
+		// (*not antiparallel*)
+		
+		bool Antiparallel(VectorVictor::Vector2 &vector);
+		// returns true if *this and vector are antiparallel to each other
+		// ie scalar multiples of each other, but pointing in opposite
+		// directions
 		
 		Vector2 operator + (const Vector2);							
 		Vector2 operator += (const Vector2);
@@ -116,6 +134,22 @@ namespace VectorVictor
 	// of torque
 	long double Get_vector_separation(Vector2 First_vector, Vector2 Second_vector);
 	// Not sure this was ever even used, but I dont think it can hurt anything..
+	
+	class Vector_pair
+	{	public:
+		Vector_pair(VectorVictor::Vector2 position, VectorVictor::Vector2 direction);
+		
+		vector_orientation Orientation(Vector_pair &vector);
+		
+		VectorVictor::Vector2 Position;
+		VectorVictor::Vector2 Direction; 
+	
+		~Vector_pair();
+	};
+	// a quick placeholder, very similar to the force class in that it pairs up
+	// vectors and does fun stuff with them
+	
+	
 };
 
 long double Absolute_value(long double value);

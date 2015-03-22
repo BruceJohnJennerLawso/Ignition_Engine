@@ -304,8 +304,14 @@ void CNewtonian_Object::Collision_detect(std::vector<CNewtonian_Object*> &collid
 				// in pseudocode description
 				
 				// VV2 V1 (*this object) is proj of (*this).velocity onto the offset
-				
+				VectorVictor::Vector2 V1(0,0);
+				V1 = this->NewtonianState.FlightState.Velocity;
+				V1 = V1.Projection(offset);
 				// VV2 V2 (*it object) is proj of (*it).velocity onto the offset
+				VectorVictor::Vector2 V2(0,0);
+				V2 = (*it)->NewtonianState.FlightState.Velocity;
+				V2 = V2.Projection(offset);
+				
 				
 				// we subtract the component velocities normal to the collision
 				// plane from the original velocity vector so we are only left
@@ -315,9 +321,8 @@ void CNewtonian_Object::Collision_detect(std::vector<CNewtonian_Object*> &collid
 				// and for simplicity, we just get the velocity vectors that
 				// will be involved in the collision as their magnitudes in
 				// long double format
-				
-				// long double v1 = V1.Get_vector_magnitude()
-				// long double v2 = V2.Get_vector_magnitude()
+				long double v1 = V1.Get_vector_magnitude();
+				long double v2 = V2.Get_vector_magnitude();
 				
 				// we normalize V1 & V2 to just get absolute directions of the
 				// relative velocities, then we do comparisons of whether the

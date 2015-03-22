@@ -1,8 +1,32 @@
 #include "VectorVictor2.hpp"
 #include <iostream>
-#include <math.h>	// Roger, Roger.
+#include <math.h>	
+// Roger, Roger.
+
 //#include "Inertia_moment.h"
 
+
+std::string Orientation_as_text(vector_orientation input)
+{	std::string output = "";
+	switch(input)
+	{	case inwards:
+		output = "inwards";
+		break;
+		
+		case outwards:
+		output = "outwards";
+		break;
+		
+		case parallel:
+		output = "parallel";
+		break;
+		
+		case non_parallel:
+		output = "non parallel";
+		break;
+	}
+	return output;
+}
 
 // The VectorVictor namespace //////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
@@ -473,6 +497,25 @@ VectorVictor::Vector2 VectorVictor::Vector2::Projection(VectorVictor::Vector2 &o
 	return output;
 }
 
+bool VectorVictor::Vector2::Parallel(VectorVictor::Vector2 &vector)
+{	long double ratio = (this->x/vector.x);
+	if(ratio == (this->y/vector.y))
+	{	return true;
+	}
+	return false;
+}
+
+bool VectorVictor::Vector2::Antiparallel(VectorVictor::Vector2 &vector)
+{	long double ratio = (this->x/vector.x);
+	if(ratio == (this->y/vector.y))
+	{	if(ratio < 0)
+		{	return true;
+		}
+	}
+	return false;	
+}
+
+
 // Destructor //////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -637,3 +680,60 @@ long double Squared(long double value)
 {	value *= value;
 	return value;
 }
+
+
+
+// Vector_pair experiment //////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+
+VectorVictor::Vector_pair::Vector_pair(VectorVictor::Vector2 position, VectorVictor::Vector2 direction)
+{	Position = position;
+	Direction = direction;
+}
+
+vector_orientation VectorVictor::Vector_pair::Orientation(Vector_pair &vector)
+{	if(!this->Direction.Parallel(vector.Direction))
+	{	VectorVictor::Vector2 offset(0,0);
+		offset = (this->Position - vector.Position);
+		if((offset.Parallel(this->Direction))&&(offset.Parallel(vector.Direction)))
+		{	// we checked and both direction vectors are at least pointing in
+			// the line between their positions, otherwise non_parallel
+			
+			// and now we need to check the exact details of how they are
+			// oriented in 2d space, relating to the exact value of that c value
+			// where V1 = cV2
+			
+			// but we might be able to tiptoe around that using some logic
+			if(this->Direction.Antiparallel(vector.Direction) == false)
+			{	// if we aint antiparallel, we must be parallel ya know
+				return parallel;
+			}
+			else if(vector.Direction.Antiparallel(offset) == true)
+			{	// see the diagram for the explain on this one
+				
+				// its based on the exact direction of offset starting at the
+				// tip of vector.position and pointing towards the tip of
+				// this->position
+				return outwards;
+			}
+			else
+			{	// having covered every other case, we are good to go
+				return inwards;
+			}
+		}
+		
+	}
+	return non_parallel;
+		
+}
+
+VectorVictor::Vector_pair::~Vector_pair()
+{
+}
+
+
+
+
+
+
+

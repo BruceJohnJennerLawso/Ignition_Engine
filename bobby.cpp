@@ -1,5 +1,6 @@
 // bobby.cpp ///////////////////////////////////////////////////////////////////
 // base line tests on Vector Victor2 ///////////////////////////////////////////
+// shes got a bobby pin!!! /////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
 //#include <std_files>
 //#include "Headers.h"
@@ -76,8 +77,23 @@ int main()
 	    vector2.setPosition(sf::Vector2f(250 +fuubar2.x,250 -fuubar2.y));	    
 	    vector3.setPosition(sf::Vector2f(250 +fuubar3.x,250 -fuubar3.y));	    	    
 	    
+	    std::string output_text = SI::Get_formatted_value(fuubar1.Get_vector_magnitude() , 3, "units	");
 	    
-	    text.setString(SI::Get_formatted_value(fuubar1.Get_vector_magnitude() , 3, "units"));
+	    if(fuubar2.Parallel(fuubar1))
+	    {    output_text.append("Parallel");
+			// well, at least we know that works
+		}
+	    //VectorVictor::Vector_pair a(fuubar1, (fuubar2 - fuubar1));
+	    //VectorVictor::Vector_pair b(fuubar1, (fuubar3 - fuubar1));
+	    
+		//output_text.append(Orientation_as_text(a.Orientation(b)));	    
+		// this is definitely not working right at the moment, perhaps a little
+		// bit of tinkering can kick it into gear
+		
+		// it thinks that anything parallel is nonparallel, and vice versa
+		
+		// for now, we just leave it
+	    text.setString(output_text);
 	    
 		window.clear();
 		window.draw(shape);
