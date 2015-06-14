@@ -13,7 +13,7 @@
 #include <iostream>
 #include <string>
 
-typedef unsigned int integer;
+typedef int integer;
 
 integer inputInteger(std::string prompt);
 
@@ -21,9 +21,30 @@ std::string inputString(std::string prompt);
 
 
 int main()
-{	integer hello = -1;
-	hello = inputInteger("Please Input Integer Number: ");
-	std::cout << hello << std::endl;
+{	//integer hello = -1;
+	//hello = inputInteger("Please Input Integer Number: ");
+	//std::cout << hello << std::endl;
+	
+	VectorVictor::Vector2 dir1(inputInteger("pair 1 dir x: "),inputInteger("pair 1 dir y: "));
+	VectorVictor::Vector2 pos1(inputInteger("pair 1 pos x: "), inputInteger("pair 1 pos y: "));
+	
+	VectorVictor::Vector_pair pair1(pos1, dir1);
+	
+	
+	VectorVictor::Vector2 dir2(inputInteger("pair 2 dir x: "),inputInteger("pair 2 dir y: "));
+	VectorVictor::Vector2 pos2(inputInteger("pair 2 pos x: "), inputInteger("pair 2 pos y: "));
+	
+	VectorVictor::Vector_pair pair2(pos2, dir2);	
+	
+
+	if(dir1.Antiparallel(dir2) == true)
+	{	std::cout << "Directions are parallel" << std::endl;
+	}
+	else
+	{	std::cout << "pair 1 pos & dir: ( " << pos1.Get_vector("u") << " " << dir1.Get_vector("u") << " ) pair 2 pos & dir: ( " << pos2.Get_vector("u") << " " << dir2.Get_vector("u") << std::endl; 
+	}
+	std::cout << Orientation_as_text(pair1.Orientation(pair2)) << std::endl;
+	
 	return 0;
 }
 

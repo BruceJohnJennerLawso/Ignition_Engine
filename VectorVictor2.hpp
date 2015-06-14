@@ -22,7 +22,7 @@
 // The VectorVictor namespace //////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
 
-enum vector_orientation{inwards, outwards, parallel, non_parallel};
+enum vector_orientation{inwards, outwards, aligned, non_aligned};
 // definitions of whether the orientation of two vectors when parallel is
 // pointing inwards towards each other (inwards), outwards and away from
 // each other (outwards), or parallel, each pointing in the same direction
@@ -140,6 +140,7 @@ namespace VectorVictor
 		Vector_pair(VectorVictor::Vector2 position, VectorVictor::Vector2 direction);
 		
 		vector_orientation Orientation(Vector_pair &vector);
+		
 		
 		VectorVictor::Vector2 Position;
 		VectorVictor::Vector2 Direction; 

@@ -17,12 +17,12 @@ std::string Orientation_as_text(vector_orientation input)
 		output = "outwards";
 		break;
 		
-		case parallel:
-		output = "parallel";
+		case aligned:
+		output = "aligned";
 		break;
 		
-		case non_parallel:
-		output = "non parallel";
+		case non_aligned:
+		output = "non aligned";
 		break;
 	}
 	return output;
@@ -508,7 +508,8 @@ bool VectorVictor::Vector2::Parallel(VectorVictor::Vector2 &vector)
 bool VectorVictor::Vector2::Antiparallel(VectorVictor::Vector2 &vector)
 {	long double ratio = (this->x/vector.x);
 	if(ratio == (this->y/vector.y))
-	{	if(ratio < 0)
+	{	std::cout << "Ratio value: " << ratio << std::endl;
+		if(ratio < 0)
 		{	return true;
 		}
 	}
@@ -692,7 +693,7 @@ VectorVictor::Vector_pair::Vector_pair(VectorVictor::Vector2 position, VectorVic
 }
 
 vector_orientation VectorVictor::Vector_pair::Orientation(Vector_pair &vector)
-{	if(!this->Direction.Parallel(vector.Direction))
+{	if(this->Direction.Parallel(vector.Direction) == true)
 	{	VectorVictor::Vector2 offset(0,0);
 		offset = (this->Position - vector.Position);
 		if((offset.Parallel(this->Direction))&&(offset.Parallel(vector.Direction)))
@@ -706,7 +707,7 @@ vector_orientation VectorVictor::Vector_pair::Orientation(Vector_pair &vector)
 			// but we might be able to tiptoe around that using some logic
 			if(this->Direction.Antiparallel(vector.Direction) == false)
 			{	// if we aint antiparallel, we must be parallel ya know
-				return parallel;
+				return aligned;
 			}
 			else if(vector.Direction.Antiparallel(offset) == true)
 			{	// see the diagram for the explain on this one
@@ -723,8 +724,9 @@ vector_orientation VectorVictor::Vector_pair::Orientation(Vector_pair &vector)
 		}
 		
 	}
-	return non_parallel;
-		
+	else
+	{	return non_aligned;
+	}	
 }
 
 VectorVictor::Vector_pair::~Vector_pair()
