@@ -298,10 +298,14 @@ void CNewtonian_Object::Collision_detect(std::vector<CNewtonian_Object*> &collid
 			
 			if(this->Get_collision_bound().Intersection((*it)->Get_collision_bound(), offset)) == true)
 			{	// ladies and gentlemen, we have a collision
-			
 				// now what are we gonna do about it? :P
 				
+				// note that offset got the proper values when copied by
+				// reference in the call above
+				
 				// in pseudocode description
+				
+				
 				
 				// VV2 V1 (*this object) is proj of (*this).velocity onto the offset
 				VectorVictor::Vector2 V1(0,0);
@@ -313,6 +317,32 @@ void CNewtonian_Object::Collision_detect(std::vector<CNewtonian_Object*> &collid
 				V2 = V2.Projection(offset);
 				
 				
+				VectorVictor::Vector_pair orientation1(this->NewtonianState.FlightState.Position, V1);
+				VectorVictor::Vector_pair orientation2((*it)->NewtonianState.FlightState.Position, V2);				
+				
+				vector_orientation normalVelocities = orientation1.Orientation(orientation2);
+				
+				long double v1 = V1.Get_vector_magnitude();
+				long double v2 = V2.Get_vector_magnitude();
+				
+				if(normalVelocities == inwards)
+				{
+				}
+				else if(normalVelocities == outwards)
+				{
+				}
+				else if(normalVelocities == aligned)
+				{
+				}
+				else
+				{	// something went wrong, our velocity vectors werent aligned
+					// even though theyre  projected onto the same vector
+					
+					// possibly this could be problematic if one or both vectors
+					// are zero direction???
+				}
+				this->Collision_checked = true;
+				(*it)->Collision_detect(collidable_objects);
 				// we subtract the component velocities normal to the collision
 				// plane from the original velocity vector so we are only left
 				// with the velocity component that wont be affected by the
@@ -321,8 +351,6 @@ void CNewtonian_Object::Collision_detect(std::vector<CNewtonian_Object*> &collid
 				// and for simplicity, we just get the velocity vectors that
 				// will be involved in the collision as their magnitudes in
 				// long double format
-				long double v1 = V1.Get_vector_magnitude();
-				long double v2 = V2.Get_vector_magnitude();
 				
 				// we normalize V1 & V2 to just get absolute directions of the
 				// relative velocities, then we do comparisons of whether the
@@ -330,6 +358,7 @@ void CNewtonian_Object::Collision_detect(std::vector<CNewtonian_Object*> &collid
 				// antiparallel pointing out, parallel, etc.
 				// since each case will kinda need its own solution depending
 				// on the relative directions of V1 & V2
+				
 				
 				// we solve whatever case popped up using the proper pair of
 				// energy conserved and momentum conserved equations
