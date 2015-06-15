@@ -25,12 +25,7 @@ class Vessel_component
 	// by one
 	part_id Component_id;
 	// the current objects id #
-	part_id Get_component_id();
-	static std::vector<Vessel_component*> Vessel_components;
 	// the global list of all objects of type Vessel component
-	void New_vessel_component(Vessel_component * new_this);		
-	// inserts the reference to the new vessel component into the global
-	// vessel component list
 	virtual void Update_component(double dt, std::vector<Force> &parent_force_list);
 	// the equivalent of Frame() for parts that make up vessels. parent force
 	// list is passed by reference so forces contributed by parts to their

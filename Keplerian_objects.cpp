@@ -354,8 +354,6 @@ CKeplerian_Object::CKeplerian_Object(long double theta, long double omega, long 
 celestial_id CKeplerian_Object::Celestial_index = 1;
 // set our first created object of type CKeplerian_Object to have an id of 1
 // zero is used as an error code to indicate something funky going on
-std::vector<CKeplerian_Object*> CKeplerian_Object::Celestial_objects;
-// this was the breakthrough
 
 
 
@@ -370,11 +368,6 @@ celestial_id CKeplerian_Object::Get_celestial_id()
 {	return Celestial_id;
 }
 
-void CKeplerian_Object::New_keplerian(CKeplerian_Object * new_this)
-{	Celestial_objects.insert(Celestial_objects.end(), this->Get_keplerian_pointer());
-	// dont think calling the function like that is strictly necessary, but
-	// why take chances
-}
 
 void CKeplerian_Object::Frame(double dt, long double simtime)
 {	std::cout << "Bad call to CKeplerian_Object::Frame(double dt)" << std::endl;
@@ -484,21 +477,6 @@ CKeplerian_Object * CKeplerian_Object::Get_keplerian_pointer()
 {	return this;
 }
 
-bool Retrieve_keplerian(celestial_id target_id, CKeplerian_Object * &target_object)
-{	for(std::vector<CKeplerian_Object*>::iterator it = CKeplerian_Object::Celestial_objects.begin(); it != CKeplerian_Object::Celestial_objects.end(); ++it)
-	{	if((*it)->Get_celestial_id() == target_id)
-		{	// we found ya
-			target_object = (*it);
-			// copy the reference of the object at hand into the output pointer
-			return true;
-			// let the outside world know everything is A-Ok
-		}
-	}
-	// if we got to the end of the vector and found nothing its not here, we 
-	// return false so that the other end knows not to use the pointer for
-	// anything
-	return false;
-}
 
 
 
@@ -529,13 +507,6 @@ planet_id TPlanet::Get_planet_id()
 {	return Planet_id;
 }
 
-		
-std::vector<TPlanet*> TPlanet::Planet_list;
-	
-void TPlanet::New_planet(TPlanet * new_this)
-{	this->New_keplerian(this->Get_keplerian_pointer());
-	Planet_list.insert(Planet_list.end(), this->Get_planet_pointer());
-}	
 
 TPlanet::TPlanet(long double initial_theta, long double omega, long double radius, long double atmosphere_height, long double mass, std::string planet_texture_path, sf::Color top_atm_color, sf::Color surf_atm_color)
 : CKeplerian_Object(initial_theta, omega, radius, atmosphere_height, mass, planet_texture_path)
@@ -733,23 +704,6 @@ TPlanet * TPlanet::Get_planet_pointer()
 
 TPlanet::~TPlanet()
 {	
-}
-
-bool Retrieve_planet(planet_id target_id, TPlanet * &target_object)
-{	for(std::vector<TPlanet*>::iterator it = TPlanet::Planet_list.begin(); it != TPlanet::Planet_list.end(); ++it)
-	{	if((*it)->Get_planet_id() == target_id)
-		{	// we found ya
-			target_object = (*it);
-			// copy the reference of the object at hand into the output pointer
-			return true;
-			// let the outside world know everything is A-Ok
-		}
-	}
-	// if we got to the end of the vector and found nothing its not here, we 
-	// return false so that the other end knows not to use the pointer for
-	// anything
-	return false;
-	
 }
 
 

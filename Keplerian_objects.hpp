@@ -143,14 +143,8 @@ class CKeplerian_Object
 	celestial_id Celestial_id;
 	// the current objects id #
 	celestial_id Get_celestial_id();
-		
-	static std::vector<CKeplerian_Object*> Celestial_objects;
 	// the global list of all objects of type CKeplerian... and all objects that
 	// inherit from this type
-	void New_keplerian(CKeplerian_Object * new_this);		
-	// inserts the new keplerian objects pointer of this into the
-	// Celestial_objects vector. *must* be called every time an object
-	// of this type is created for things to work out nicely
 	virtual void Frame(double dt, long double simtime);
 	// virtual stub for the update function for objects of this type
 	long double Theta, Omega;
@@ -237,10 +231,7 @@ class CKeplerian_Object
 	CKeplerian_Object * Get_keplerian_pointer();
 };
 
-bool Retrieve_keplerian(celestial_id target_id, CKeplerian_Object * &target_object);
-// checks to see if an object with the given target id can be found, returns
-// true if it is found, and assigns its pointer to target_object so we can play
-// with an object BASED ON A NUMBER!!!
+
 
 
 
@@ -270,14 +261,6 @@ class TPlanet: public CKeplerian_Object
 	planet_id Planet_id;
 	// the current objects id #
 	planet_id Get_planet_id();
-		
-	static std::vector<TPlanet*> Planet_list;
-	// the global list of all objects of type CKeplerian... and all objects that
-	// inherit from this type
-	void New_planet(TPlanet * new_this);		
-	// inserts the new planet objects pointer of this into the
-	// Celestial_objects vector. *must* be called every time an object
-	// of this type is created for things to work out nicely
 	
 	TPlanet(long double initial_theta, long double omega, long double radius, long double atmosphere_height, long double mass, std::string planet_texture_path, sf::Color top_atm_color, sf::Color surf_atm_color);
 	void Frame(double dt, long double simtime);
@@ -301,8 +284,6 @@ class TPlanet: public CKeplerian_Object
 	TPlanet * Get_planet_pointer();
 	~TPlanet();
 };
-
-bool Retrieve_planet(planet_id target_id, TPlanet * &target_object);
 
 #endif
 
