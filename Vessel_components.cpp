@@ -17,6 +17,10 @@
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
 
+Vessel_component::Vessel_component(VectorVictor::Vector2 component_position)
+{	Component_position = component_position;
+}
+
 part_id Vessel_component::Component_index = 1;
 
 part_id Vessel_component::Get_new_index()
@@ -68,13 +72,13 @@ Vessel_component::~Vessel_component()
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
 
-Resource_Tank::Resource_Tank(double initial_tank_resource_mass, double tank_mass, double inner_radius, double outer_radius, double tank_length, VectorVictor::Vector2 PositionVector)
+Resource_Tank::Resource_Tank(double initial_tank_resource_mass, double tank_mass, double inner_radius, double outer_radius, double tank_length, VectorVictor::Vector2 PositionVector): Vessel_component(PositionVector)
 {	Tank_mass = tank_mass;
 	Resource_mass = initial_tank_resource_mass;
 	Component_moment = new Hollow_cylinder(inner_radius, outer_radius, tank_length);
 	Empty = false;
 	// the Empty should be conditional, but whatever
-	Component_position = PositionVector;
+	//Component_position = PositionVector;
 	// just simple passing of info to the object here.
 }
 
@@ -203,7 +207,7 @@ Thruster* Thruster::Get_thruster_pointer()
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
 
-Monopropellant_thruster::Monopropellant_thruster(bool is_rcs, double thruster_mass, double vexhaust, double max_flow_rate, double position_x, double position_y, double direction_x, double direction_y, double inner_radius, double outer_radius, Resource_Tank * fuel_tank, thruster_group group_one)
+Monopropellant_thruster::Monopropellant_thruster(bool is_rcs, double thruster_mass, double vexhaust, double max_flow_rate, double position_x, double position_y, double direction_x, double direction_y, double inner_radius, double outer_radius, Resource_Tank * fuel_tank, thruster_group group_one): Vessel_component(VectorVictor::Vector2(position_x, position_y))
 {	Exhaust_velocity = vexhaust;
 	Maximum_flow_rate = max_flow_rate;
 	Thruster_direction.Set_values(direction_x, direction_y);
@@ -217,11 +221,11 @@ Monopropellant_thruster::Monopropellant_thruster(bool is_rcs, double thruster_ma
 	Groups.insert(Groups.end(), group_one);
 	Is_RCS = is_rcs;
 	// all the nice initialization
-	Component_position.Set_values(position_x, position_y);
+	//Component_position.Set_values(position_x, position_y);
 	// it works, but a VV2 would be nicer
 }
 
-Monopropellant_thruster::Monopropellant_thruster(bool is_rcs, double thruster_mass, double vexhaust, double max_flow_rate, double position_x, double position_y, double direction_x, double direction_y, double inner_radius, double outer_radius, Resource_Tank * fuel_tank, thruster_group group_one, thruster_group group_two)
+Monopropellant_thruster::Monopropellant_thruster(bool is_rcs, double thruster_mass, double vexhaust, double max_flow_rate, double position_x, double position_y, double direction_x, double direction_y, double inner_radius, double outer_radius, Resource_Tank * fuel_tank, thruster_group group_one, thruster_group group_two): Vessel_component(VectorVictor::Vector2(position_x, position_y))
 {	Exhaust_velocity = vexhaust;
 	Maximum_flow_rate = max_flow_rate;
 	Thruster_direction.Set_values(direction_x, direction_y);
@@ -236,11 +240,11 @@ Monopropellant_thruster::Monopropellant_thruster(bool is_rcs, double thruster_ma
 	Groups.insert(Groups.end(), group_two);
 	Is_RCS = is_rcs;
 	// all the nice initialization
-	Component_position.Set_values(position_x, position_y);
+	//Component_position.Set_values(position_x, position_y);
 }
 
 
-Monopropellant_thruster::Monopropellant_thruster(bool is_rcs, double thruster_mass, double vexhaust, double max_flow_rate, double position_x, double position_y, double direction_x, double direction_y, double inner_radius, double outer_radius, Resource_Tank * fuel_tank, thruster_group group_one, thruster_group group_two, thruster_group group_three)
+Monopropellant_thruster::Monopropellant_thruster(bool is_rcs, double thruster_mass, double vexhaust, double max_flow_rate, double position_x, double position_y, double direction_x, double direction_y, double inner_radius, double outer_radius, Resource_Tank * fuel_tank, thruster_group group_one, thruster_group group_two, thruster_group group_three): Vessel_component(VectorVictor::Vector2(position_x, position_y))
 {	Exhaust_velocity = vexhaust;
 	Maximum_flow_rate = max_flow_rate;
 	Thruster_direction.Set_values(direction_x, direction_y);
@@ -256,7 +260,7 @@ Monopropellant_thruster::Monopropellant_thruster(bool is_rcs, double thruster_ma
 	Groups.insert(Groups.end(), group_three);
 	Is_RCS = is_rcs;
 	// all the nice initialization
-	Component_position.Set_values(position_x, position_y);	
+	//Component_position.Set_values(position_x, position_y);	
 }
 
 long double Monopropellant_thruster::Get_maximum_torque(double dt)
@@ -351,7 +355,7 @@ Monopropellant_thruster::~Monopropellant_thruster()
 ////////////////////////////////////////////////////////////////////////////////
 
 
-Bipropellant_thruster::Bipropellant_thruster(double thruster_mass, double vexhaust, double optimal_mix_ratio, double max_flow_rate, double position_x, double position_y, double direction_x, double direction_y, double inner_radius, double outer_radius, Resource_Tank * fuel_tank, Resource_Tank * oxidizer_tank)
+Bipropellant_thruster::Bipropellant_thruster(double thruster_mass, double vexhaust, double optimal_mix_ratio, double max_flow_rate, double position_x, double position_y, double direction_x, double direction_y, double inner_radius, double outer_radius, Resource_Tank * fuel_tank, Resource_Tank * oxidizer_tank): Vessel_component(VectorVictor::Vector2(position_x, position_y))
 {	Exhaust_velocity = vexhaust;	// I like verbose constructor definitions and I cannot lie ;)
 	Maximum_flow_rate = max_flow_rate;
 	Component_position.Set_values(position_x, position_y);
@@ -460,7 +464,7 @@ Bipropellant_thruster::~Bipropellant_thruster()
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
 
-Hull::Hull(double hull_mass, double inertia_factor, double hull_length, VectorVictor::Vector2 PositionVector)
+Hull::Hull(double hull_mass, double inertia_factor, double hull_length, VectorVictor::Vector2 PositionVector): Vessel_component(PositionVector)
 {	Hull_mass = hull_mass;
 	Component_moment = new Inertia_complex(inertia_factor);
 	Length = hull_length;	

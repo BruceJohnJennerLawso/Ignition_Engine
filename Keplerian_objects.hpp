@@ -114,16 +114,6 @@ class Terrain_point
 
 
 
-
-
-
-
-
-
-
-
-
-
 typedef id celestial_id;
 // an id type for all celestial bodies
 

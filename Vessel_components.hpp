@@ -18,6 +18,10 @@ typedef id part_id;
 
 class Vessel_component
 {	public:
+	
+	Vessel_component(VectorVictor::Vector2 component_position);
+
+
 	static part_id Component_index;
 	// the id # that will be assigned to the next object of this type created
 	part_id Get_new_index();
