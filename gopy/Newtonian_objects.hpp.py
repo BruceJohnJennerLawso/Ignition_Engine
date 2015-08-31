@@ -1,0 +1,243 @@
+# Game_Objects.h ###############################
+# All of the core classes that the ignition engine requires to function, ###
+# including Newtonian and Keplerian parent classes for all celestial bodies #/
+# and vessels ################################/
+########################################
+#include <string>
+#include <iostream>
+#include <math.h>
+#include <vector>
+#include "Vessel_components.hpp"
+
+#ifndef NewtonsObjects
+#define NewtonsObjects
+# all of your physics are belong to Newton
+
+# Newtonian Class ##############################/
+########################################
+
+enum Propagator_type{Euler1, RK4
+# thats all I can think of just yet...
+
+enum Object_status{Flight, Landed, Crashed
+# pretty simple, are we in flight or on the ground,
+# and if we are on the ground, we be able to take off again, is the 
+#ship really just a metal smear across the ground somewhere
+
+class Rotation_state
+{	public:
+	Rotation_state()
+	Rotation_state(long double theta, double omega, double alpha)
+	operator = ( Rotation_state r);	
+	long double Theta, Omega, Alpha
+	~Rotation_state()
+
+
+class Flight_state
+{	public:
+	Flight_state()
+	Flight_state(VectorVictor.Vector2 initial_position, initial_velocity)
+	bool Init_flight_state(VectorVictor.Vector2 initial_position, initial_velocity)
+	operator = ( Flight_state s)
+	VectorVictor.Vector2 Position
+	VectorVictor.Vector2 Velocity
+	~Flight_state()
+
+
+class Surface_state
+{	public:
+	Surface_state()
+	Surface_state(std.string planet_name, double longitude)
+	operator = ( Surface_state s)
+	std.string Planet_name
+	# ehh.. I forget wat the plan was here
+	long double Longitude
+	~Surface_state()
+
+
+class ObjectState
+{	public:
+	ObjectState()
+	ObjectState(Flight_state initial_flight_state, rotation)
+	# implicitly in flight
+	ObjectState(Surface_state initial_landed_state, rotation)
+	# implicitly uhh landed, if we need to start off crashed, can call
+	# a set call to the Object_status
+	operator = ( ObjectState o)
+	
+	Flight_state FlightState
+	Surface_state LandedState
+	
+	Object_status Current_state
+	void Set_status(Object_status new_status)
+	# the indication of what our current state is, we crashed, or
+	# in flight. This in turn is used to decide which of the states is used
+	# from above, the flightstate or the landedstate, each state
+	# stores different information
+	Rotation_state Rotation
+	~ObjectState()
+
+
+
+
+
+class CNewtonian_Object
+{	public:
+	# Nature and nature's laws lay hid in night
+	#	God said "Let Newton be" and all was light.
+	
+	# rather True
+	# and I certainly wouldnt be doing any of self if it werent for him, so...
+	# yeah...
+	CNewtonian_Object()
+	CNewtonian_Object(ObjectState initial_newtonian_state)
+	
+	ObjectState PreviousState
+	# I know, know, inconsistency, shoot me...
+	
+	# so self state stores whatever our vessel looks like at the top of the
+	# frame, way we can compare and contrast at the end of the frame
+	# & use it to do physics stuffz
+	
+	# but we arent using it just yet...
+	
+	ObjectState NewtonianState
+	VectorVictor.Vector2 Acceleration;	
+	# where we are going is going
+	# another shitter to get rid of. Need to look up all references
+	# on the other hand self is somewhat useful...
+	
+	# but self is going to become a bit muddy once the RK4 propagator is
+	# online
+	
+	# self isnt strictly necessary as an object variable, it makes
+	# the code a wee bit simpler just leaving it in each frame
+	Propagator_type Propagator
+	# so self is just a nice little enum type that we can use here to indicate
+	# what kind of propagator the newtonian object is using in its quest to
+	# obey Newtons laws
+	
+	# The sim can switch self back and forth depending on whatever the hell
+	# it feels like doing with the newtonian object at that particular point
+	# in time (orbit stabilization and the like?)
+	long double Length, PMI
+	# I think the length is outdated now, hull handles that.
+	# PMI is another good physical property, total moment of inertia of the
+	# vessel around whatever our reference axis (center of mass) is
+	bool Crash_state(long double sim_time, &ignition_celestials)
+	# if we aint crashed, if our position implies that we are
+	# auch, is why the setup above was so ugly, need to have
+	# simtime to check self
+	double Get_omega()
+	double Get_theta_in_degrees();		
+	double Get_theta_in_radians()
+	# returns for the data above
+	long double Get_length()
+	# important property for graphics stuff. Handled by hull object nowadays
+	double Get_hull_mass()
+	# no trick questions here, what it sounds like
+	virtual double Get_total_mass()
+	# and again...
+	virtual long double Get_PMI()
+	# and again.......		
+	std.vector<Resource_Tank*> Fuel_tanks
+	# any components that have a resource with mass
+	# should also have a list of thrusters here, tanks get mapped to
+	# thrusters at runtime
+	std.vector<Vessel_component*> Object_components
+	# literally any component on the vessel that is of the vessel component 
+	# type
+	void Add_force(double attack_point_x, attack_point_y, force_x, force_y)
+	# self... um, be worthless
+	
+	# should watch to see if self should just be removed to avoid bloat
+	void Add_force(VectorVictor.Vector2 attack_point, force_vector)
+	# again, used self yet
+	std.vector<Force> Force_list
+	# All forces acting on the vessel in the current frame. This list gets wiped
+	# each frame after being used to determine net force and torque for that
+	# frame	
+	void Frame(long double dt, double simtime, &ignition_celestials)
+	# The wonderful grand update that handles updating everything in the object
+	# parts, status, etc.
+	void Update_motion(long double simtime, double dt, &ignition_celestials)
+	# State propagator of the cartesian coordinates of the vessel
+	# currently single pass linear, (ie bad) but will be updated
+	void Propagate_Euler1(long double sim_time, double dt, &net_force, &ignition_celestials)
+	# brute force it. Dont even know where self would be useful anymore
+	# once the RK4 is implemented, I guess it cant hurt
+	void Propagate_RK4(long double sim_time, double dt, &net_force, &ignition_celestials)
+	# run a step of length dt with an RK4 propagator for much better accuracy
+	# than an implicit Euler one will give
+	Flight_state evaluate( Flight_state &initial_state, double simtime, double dt, &derivative, &ignition_celestials, &net_force)
+	# It doesnt absolutely need to be a member method, self makes it much easier
+	void Update_rotation(long double simtime, double dt)
+	# Same as for motion, using the torques implied by the Force list
+	# in each frame
+	bool Update_flag
+	# self was an older idea
+	bool Update_flag_state()
+	# I think self was originally intended to allow for only updating the
+	# inertia when a vessel component signaled it. It could still be
+	# implemented
+	void Update_PMI();	
+	# queries all vessel components for their respective moments of inertia
+	# and adds them up. Updates are required over time to account for changes
+	# in mass inside the vessels parts
+	virtual void Print_data();	
+	# A handy function for debugging, just a console printout of
+	# whatever is relevant when working on the thing
+	virtual void Receive_inputs(key_commands * current_inputs, dt);	
+	# we pass the vessel the object with data on all keypresses in the last
+	# frame, each implementation class of the Newtonian object handles
+	# it in its own way
+	virtual void Receive_cursor_inputs(Cursor_commands * cursor_action, double dt)
+	# very similarly to Receive_inputs, we send it info about the mouse
+	# cursor and self applies to all vessels in the window
+	
+	# super-duper important thing to remember about self:
+	# its called for any vessels in view after they get drawn in the main
+	# ignition loop, it essentially is happening at the end of the frame,
+	# and its effects will only be felt next frame
+	# self saves some speed by piggybacking on all of the in view calls made
+	# by the main loop, results in a bit of an odd structure, in a
+	# perfect world self would be done after frame(dt) but before everything
+	# gets drawn onscreen
+	
+	# self maybe... hmm. This could be a bad idea...
+	# I think it should be moved back to the top of the loop so the inputs
+	# are received in self frame
+	
+	# self should be partially moved around so that some actions are standard
+	# like rot/trans inputs should be handled from specific keys and should
+	# cause similar effects
+	virtual bool In_view(SFML_Window * window, zoom_factor);			
+	# virtual for reasons I dont recall, asteroids will handle self in
+	# some unorthodox way
+	virtual bool In_view(SFML_Window * window, double cam_scale)
+	# aww yeah	
+	sf.Sprite * Object_sprite;	
+	# self is fine for now, I really would prefer shifting it to the
+	# vessel components (specifically the hull in self case)
+	
+	double pix_length
+	# self needs documenting
+	
+	sf.Sprite Flag_sprite;	
+	# the little icon that gets drawn in the map view.
+	# A couple of things should change for self I think, the flag
+	# will behave as a dynamic popup when the user mouses over it
+	# (only for non-selected vessels) and the current vessel always has it on
+	# right now its kinda off, the sprite is drawing from the top left
+	# corner of the image, caused confusion before
+	
+	void Draw_flag(SFML_Window * iwindow, zoom_factor)
+	# the draw call used for map view	
+	std.string Object_name;	
+
+	CNewtonian_Object* Get_Newtonian_pointer()
+	# Abstract way of referencing the object at the Newtonian level
+
+
+#endif
+
