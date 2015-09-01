@@ -3,8 +3,6 @@
 ################################################################################
 from newtonian import *
 
-class vesselPart:
-	def __init__(self, vessel_position, 
 
 
 
