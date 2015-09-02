@@ -1,0 +1,5 @@
+#!/bin/bash
+
+python vector_X.py
+
+exit 0

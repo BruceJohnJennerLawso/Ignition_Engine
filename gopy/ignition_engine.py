@@ -5,6 +5,22 @@ from vessel import *
 import sys
 
 
+class Ignition_Camera:
+	def __init__(self, position, rotation):
+		self.Position = position
+		self.Rotation = rotation
+		
+	def getCameraPosition(self):
+		return self.Position
+	
+	def getCameraRotation(self):
+		return self.Rotation
+		
+	def Update(self, deltat, target, window_height, window_width):
+		self.Rotation = target.getRotation()
+		offset = vector_II((-window_width),(window_height)).rotateThis(self.Rotation)
+		self.Position = (target.getPosition() + offset )
+		return
 
 class Ignition_Engine:
 	def __init__(self, redraw_interval, window_title, window_height, window_width):
@@ -17,26 +33,23 @@ class Ignition_Engine:
 		self.windowHeight = window_height
 		self.windowWidth = window_width
 		
+		self.mainCamera = Ignition_Camera(vector_II(0,0), 0.0)
 		
 		self.Vessels = []
 		self.Vessels.insert(0, Vessel( vector_II(100, 20), vector_II(2, 0), 22, 0, "Almighty Probe", "almighty.jpg"))
 	
+		self.cameraTarget = self.Vessels[0];
+		
 	def Ignition(self):
 		pygame.init()
 		size = width, height = (self.windowWidth, self.windowHeight)
-		speed = [1, 1]
 		black = 0, 0, 0
-		
 		screen = pygame.display.set_mode(size)
-		
-		ball = pygame.image.load("almighty.jpg")
-		
 		clock = pygame.time.Clock()
-		
-		ballrect = ball.get_rect()
-		print ballrect
 		while 1:
+			clock.tick()
 			deltat = clock.get_time()
+			print "Deltat is %f" % deltat
 			clock.tick(60)
 			for event in pygame.event.get():
 				if event.type == pygame.QUIT: 
@@ -47,19 +60,11 @@ class Ignition_Engine:
 			
 			screen.fill(black)
 			
-			for v in self.Vessels:
-				print
+			self.mainCamera.Update(deltat, self.cameraTarget, self.windowHeight, self.windowWidth)
+			
+			for v in self.Vessels:				
 				drawPos = (int(v.getPosition().x), int(v.getPosition().y), 154, 88)
-				print drawPos
-				#screen.blit(ball, drawPos )
 				screen.blit(v.getImage(), drawPos )				
-				
-			#ballrect = ballrect.move(speed)
-			#if ballrect.left < 0 or ballrect.right > width:
-			#	speed[0] = -speed[0]
-			#if ballrect.top < 0 or ballrect.bottom > height:
-			#	speed[1] = -speed[1]
-			#screen.blit(ball, ballrect)
 			pygame.display.flip()
 
 if (__name__=="__main__"):

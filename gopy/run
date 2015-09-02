@@ -1,0 +1,5 @@
+#!/bin/bash
+
+python ignition_engine.py
+
+exit 0
