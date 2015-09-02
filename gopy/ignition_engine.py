@@ -3,19 +3,8 @@
 ################################################################################
 from vessel import *
 import sys
-import pygame
 
 
-class Vessel:
-	def __init__(self, mass, init_pos, init_rot):
-		self.Mass = mass;
-		self.Position = init_pos
-		self.Rotation = init_rot
-
-	def printAttributes(self):
-		print "Mass %f, at %s, rotation %f" % (self.Mass, self.Position.getVec(), self.Rotation);
-
-#class almightyProbe
 
 class Ignition_Engine:
 	def __init__(self, redraw_interval, window_title, window_height, window_width):
@@ -30,6 +19,7 @@ class Ignition_Engine:
 		
 		
 		self.Vessels = []
+		self.Vessels.insert(0, Vessel( vector_II(100, 20), vector_II(2, 0), 22, 0, "Almighty Probe", "almighty.jpg"))
 	
 	def Ignition(self):
 		pygame.init()
@@ -41,22 +31,38 @@ class Ignition_Engine:
 		
 		ball = pygame.image.load("almighty.jpg")
 		
+		clock = pygame.time.Clock()
+		
 		ballrect = ball.get_rect()
+		print ballrect
 		while 1:
+			deltat = clock.get_time()
+			clock.tick(60)
 			for event in pygame.event.get():
 				if event.type == pygame.QUIT: 
 					#sys.exit()
 					return
-			ballrect = ballrect.move(speed)
-			if ballrect.left < 0 or ballrect.right > width:
-				speed[0] = -speed[0]
-			if ballrect.top < 0 or ballrect.bottom > height:
-				speed[1] = -speed[1]
+			for v in self.Vessels:
+				v.Update(deltat)
+			
 			screen.fill(black)
-			screen.blit(ball, ballrect)
+			
+			for v in self.Vessels:
+				print
+				drawPos = (int(v.getPosition().x), int(v.getPosition().y), 154, 88)
+				print drawPos
+				#screen.blit(ball, drawPos )
+				screen.blit(v.getImage(), drawPos )				
+				
+			#ballrect = ballrect.move(speed)
+			#if ballrect.left < 0 or ballrect.right > width:
+			#	speed[0] = -speed[0]
+			#if ballrect.top < 0 or ballrect.bottom > height:
+			#	speed[1] = -speed[1]
+			#screen.blit(ball, ballrect)
 			pygame.display.flip()
 
 if (__name__=="__main__"):
-	pyignition = Ignition_Engine(0.1, "Ignition Engine", 200, 200)
+	pyignition = Ignition_Engine(0.1, "Ignition Engine", 600, 1000)
 	pyignition.Ignition();
 

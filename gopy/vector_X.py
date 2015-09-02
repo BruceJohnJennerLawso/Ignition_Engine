@@ -55,3 +55,4 @@ if (__name__=="__main__"):
 	
 	z = v*3
 	print "v: %sw: %sz: %s" % (v.getVec(), w.getVec(), z.getVec())
+	print v.x

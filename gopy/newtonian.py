@@ -28,6 +28,6 @@ class newtonianObject(ignitionObject):
 	def updatePosition(self, deltat):
 		self.Position += (self.Velocity*deltat)
 		
-	def Update(deltat):
+	def Update(self, deltat):
 		self.updateRotation(deltat)
 		self.updatePosition(deltat)

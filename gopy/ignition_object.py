@@ -3,6 +3,7 @@
 ## possibly an image ###########################################################
 ################################################################################
 from vector_X import *
+import pygame
 
 class ignitionObject(object):
 	
