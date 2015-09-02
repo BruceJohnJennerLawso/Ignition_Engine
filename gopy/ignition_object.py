@@ -16,3 +16,15 @@ class ignitionObject(object):
 		
 	def getIgnitionName(self):
 		return self.ignitionName
+
+class ignitionMarker(ignitionObject):
+	def __init__(self, position, name, colour):
+		super(ignitionMarker, self).__init__(position, name)
+		self.Colour = colour
+		
+	def setPosition(self, position):
+		self.Position = position
+		return
+		
+	def getMarkerColour(self):
+		return self.Colour

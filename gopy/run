@@ -1,5 +1,5 @@
 #!/bin/bash
 
-python ignition_engine.py
+python app.py
 
 exit 0
