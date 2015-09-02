@@ -93,3 +93,12 @@ if (__name__=="__main__"):
 	print v.x
 	
 	additionTest(z)
+	
+	a = vector_II(1,1)
+	
+	b = a.Rotate(degreesToRadians(45))
+	print "vector a: %svector b: %s rotated 45 degrees" % (a.getVec(), b.getVec())
+	b.rotateThis(degreesToRadians(45))
+	print "vector b %s rotated another 45 degrees" % b.getVec()
+	
+	

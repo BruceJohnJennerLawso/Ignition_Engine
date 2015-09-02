@@ -49,8 +49,8 @@ class Ignition_Engine:
 		self.mainCamera = Ignition_Camera(vector_II(0,0), 0.0, 1.0)
 		
 		self.Vessels = []
-		self.Vessels.insert(0, Vessel( vector_II(100, -20), vector_II(0.1, 0), 22, 0, "Almighty Probe", "almighty.jpg"))
-		self.Vessels.insert(0, Vessel( vector_II(100, -100), vector_II(0, 0), 22, 0, "Almighty Probe2", "almighty.jpg"))		
+		self.Vessels.insert(0, Vessel( vector_II(100, -20), vector_II(0.1, 0), 0, 0, "Almighty Probe", "almighty.jpg"))
+		self.Vessels.insert(0, Vessel( vector_II(100, -100), vector_II(0, 0), 0, 0, "Almighty Probe2", "almighty.jpg"))		
 	
 		self.cameraTarget = self.Vessels[0];
 		
@@ -88,12 +88,13 @@ class Ignition_Engine:
 			
 			for v in self.Vessels:				
 				self.mainCamera.drawTo(screen, v.getImage(), v.getIgnitionName(), v.getPosition(), v.getRotation(), self.windowHeight, self.windowWidth)  
-				
+				v.printNewtonianInfo()
 			pygame.display.flip()
-			frame_cutoff -= 1;
+			if(frame_cutoff != 0):
+				frame_cutoff -= 1;
 			#sys.stdout.write("\x1b[2J\x1b[H");
 
 if (__name__=="__main__"):
 	pyignition = Ignition_Engine(0.1, "Ignition Engine", 600, 1000)
-	pyignition.Ignition(4);
+	pyignition.Ignition();
 
