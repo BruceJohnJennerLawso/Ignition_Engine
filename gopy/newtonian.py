@@ -26,8 +26,11 @@ class newtonianObject(ignitionObject):
 		return
 		
 	def updatePosition(self, deltat):
-		self.Position += (self.Velocity*deltat)
+		self.Position = self.Position + (self.Velocity*deltat)
 		
 	def Update(self, deltat):
 		self.updateRotation(deltat)
 		self.updatePosition(deltat)
+		
+	def printNewtonianInfo(self):
+		print "Vessel %s, Position %s, Velocity %s" % (self.getIgnitionName(), self.getPosition(), self.getVelocity())

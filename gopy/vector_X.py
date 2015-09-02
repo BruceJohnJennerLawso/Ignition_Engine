@@ -76,6 +76,11 @@ class vector_II:
 		return self;
 		# always unto thyself return?
 
+def additionTest(inputVector):
+	bar = vector_II(9,9)
+	foo = bar + inputVector
+	print "foo: %sbar: %sinput: %s" % (foo.getVec(), bar.getVec(), inputVector.getVec())
+
 if (__name__=="__main__"):
 	v = vector_II(2, 2)
 	w = vector_II(1, -1)
@@ -86,3 +91,5 @@ if (__name__=="__main__"):
 	z = v*3
 	print "v: %sw: %sz: %s" % (v.getVec(), w.getVec(), z.getVec())
 	print v.x
+	
+	additionTest(z)
