@@ -39,7 +39,7 @@ class Ignition_Camera:
 		offset = offset + vector_II(float(window_width/2), float(window_height/2))
 		
 		drawPos = (int(offset.x), int(offset.y))
-		pygame.draw.circle(screen, colour, drawPos , 1, 1)
+		pygame.draw.circle(screen, colour, drawPos , 5, 5)
 		
 		
 		
