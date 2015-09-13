@@ -32,6 +32,9 @@ class Ignition_Camera:
 		##drawOffset = pygame.Vector2(offset.x, offset.y)
 		
 		drawRect = image.get_rect(center=(offset.x, offset.y))
+		## the problem with this is that the image doesnt necessarily need to
+		## be centered on its geometric centre
+		## one problem at a time though
 		
 		image.set_colorkey((0,0,0))
 		screen.blit(image, drawRect)	

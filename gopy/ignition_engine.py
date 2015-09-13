@@ -18,8 +18,8 @@ class Ignition_Engine:
 		self.mainCamera = Ignition_Camera(vector_II(0,0), 0.0, 1.0)
 		
 		self.Vessels = []
-		self.Vessels.insert(0, Vessel( vector_II(100, -20), vector_II(0.1, 0), 0, 0.05, "Almighty Probe", "almighty.jpg"))
-		self.Vessels.insert(0, Vessel( vector_II(100, -100), vector_II(0, 0), 0, 0.01, "Almighty Probe2", "almighty.jpg"))		
+		self.Vessels.insert(0, Vessel( vector_II(100, -20), vector_II(0.001, 0), 0, 0.0005, "Almighty Probe", "almighty.jpg"))
+		self.Vessels.insert(0, Vessel( vector_II(100, -100), vector_II(0, 0), 0, 0.00, "Almighty Probe2", "almighty.jpg"))		
 	
 		self.Markers = []
 		blue = 0,0,100
