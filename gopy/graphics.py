@@ -33,7 +33,7 @@ class Ignition_Camera:
 		
 		drawRect = image.get_rect(center=(offset.x, offset.y))
 		
-		
+		image.set_colorkey((0,0,0))
 		screen.blit(image, drawRect)	
 		#print "Vessel %s drawn to screen coordinates %s" % (name, drawPos)
 		
