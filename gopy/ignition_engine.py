@@ -19,7 +19,7 @@ class Ignition_Engine:
 		
 		self.Vessels = []
 		self.Vessels.insert(0, Vessel( vector_II(100, -20), vector_II(0.1, 0), 0, 0.05, "Almighty Probe", "almighty.jpg"))
-		self.Vessels.insert(0, Vessel( vector_II(100, -100), vector_II(0, 0), 0, 0, "Almighty Probe2", "almighty.jpg"))		
+		self.Vessels.insert(0, Vessel( vector_II(100, -100), vector_II(0, 0), 0, 0.01, "Almighty Probe2", "almighty.jpg"))		
 	
 		self.Markers = []
 		blue = 0,0,100
@@ -60,8 +60,13 @@ class Ignition_Engine:
 			self.mainCamera.Update(deltat, self.cameraTarget, self.windowHeight, self.windowWidth)
 			
 			for v in self.Vessels:				
-				self.mainCamera.drawTo(screen, pygame.transform.rotate(v.getImage(), v.getRotation()), v.getIgnitionName(), v.getPosition(), v.getRotation(), self.windowHeight, self.windowWidth)  
-				#v.printNewtonianInfo()
+				self.mainCamera.drawTo(screen, pygame.transform.rotate(v.getImage(), -v.getRotation()), v.getIgnitionName(), v.getPosition(), v.getRotation(), self.windowHeight, self.windowWidth)  
+			for v in self.Vessels:				
+				green = 0,255,0
+				vesMarker = ignitionMarker(v.getPosition(), v.getIgnitionName() +(" Marker"), green )
+				
+				self.mainCamera.drawMarker(screen, vesMarker.getPosition(), vesMarker.getMarkerColour(), self.windowHeight, self.windowWidth)  
+				#v.printNewtonianInfo()	
 			for m in self.Markers:
 				self.mainCamera.drawMarker(screen, m.getPosition(), m.getMarkerColour(), self.windowHeight, self.windowWidth)  
 			pygame.display.flip()
