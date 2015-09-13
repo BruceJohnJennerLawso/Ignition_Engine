@@ -50,7 +50,10 @@ class Ignition_Camera:
 		drawPos = (int(offset.x), int(offset.y))
 		pygame.draw.circle(screen, colour, drawPos , 5, 5)
 		
+	def drawBackground(self, screen, background_image, window_height, window_width):
+		drawRect = background_image.get_rect(center=(window_width/2, window_height/2))
 		
+		screen.blit(background_image, drawRect)
 		
 		
 		

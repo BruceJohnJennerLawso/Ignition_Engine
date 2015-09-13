@@ -19,13 +19,15 @@ class Ignition_Engine:
 		
 		self.Vessels = []
 		self.Vessels.insert(0, Vessel( vector_II(100, -20), vector_II(0.001, 0), 0, 0.0005, "Almighty Probe", "almighty.jpg"))
-		self.Vessels.insert(0, Vessel( vector_II(100, -100), vector_II(0, 0), 0, 0.00, "Almighty Probe2", "almighty.jpg"))		
+		self.Vessels.insert(0, Vessel( vector_II(100, -100), vector_II(0, 0), 0, 0.0001, "Almighty Probe2", "almighty.jpg"))		
 	
 		self.Markers = []
 		blue = 0,0,100
 		self.Markers.insert(0, ignitionMarker(vector_II(100,-150), "foo marker", blue ) )
 	
 		self.cameraTarget = self.Vessels[0];
+		
+		self.Starfield = pygame.image.load("./Images/starfield.png")
 		
 	def endSimulation(self, frame_cutoff):
 		if(frame_cutoff != 0):
@@ -77,7 +79,7 @@ class Ignition_Engine:
 			screen.fill(black)
 			
 			self.mainCamera.Update(deltat, self.cameraTarget, self.windowHeight, self.windowWidth)
-			
+			self.mainCamera.drawBackground(screen, pygame.transform.rotate(self.Starfield, self.mainCamera.Rotation), self.windowHeight, self.windowWidth)
 			for v in self.Vessels:				
 				self.mainCamera.drawTo(screen, pygame.transform.rotate(v.getImage(), -(v.getRotation()- self.mainCamera.Rotation)), v.getIgnitionName(), v.getPosition(), v.getRotation(), self.windowHeight, self.windowWidth)  
 			for v in self.Vessels:				
