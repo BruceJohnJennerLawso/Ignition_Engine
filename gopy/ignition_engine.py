@@ -18,7 +18,7 @@ class Ignition_Engine:
 		self.mainCamera = Ignition_Camera(vector_II(0,0), 0.0, 1.0)
 		
 		self.Vessels = []
-		self.Vessels.insert(0, Vessel( vector_II(100, -20), vector_II(0.0, 0), 0, 0.05, "Almighty Probe", "almighty.jpg"))
+		self.Vessels.insert(0, Vessel( vector_II(100, -20), vector_II(0.1, 0), 0, 0.05, "Almighty Probe", "almighty.jpg"))
 		self.Vessels.insert(0, Vessel( vector_II(100, -100), vector_II(0, 0), 0, 0.01, "Almighty Probe2", "almighty.jpg"))		
 	
 		self.Markers = []
@@ -79,7 +79,7 @@ class Ignition_Engine:
 			self.mainCamera.Update(deltat, self.cameraTarget, self.windowHeight, self.windowWidth)
 			
 			for v in self.Vessels:				
-				self.mainCamera.drawTo(screen, pygame.transform.rotate(v.getImage(), -v.getRotation()), v.getIgnitionName(), v.getPosition(), v.getRotation(), self.windowHeight, self.windowWidth)  
+				self.mainCamera.drawTo(screen, pygame.transform.rotate(v.getImage(), -(v.getRotation()- self.mainCamera.Rotation)), v.getIgnitionName(), v.getPosition(), v.getRotation(), self.windowHeight, self.windowWidth)  
 			for v in self.Vessels:				
 				green = 0,255,0
 				vesMarker = ignitionMarker(v.getPosition(), v.getIgnitionName()+ (" Marker"), green )
