@@ -18,7 +18,7 @@ class Ignition_Engine:
 		self.mainCamera = Ignition_Camera(vector_II(0,0), 0.0, 1.0)
 		
 		self.Vessels = []
-		self.Vessels.insert(0, Vessel( vector_II(100, -20), vector_II(0.1, 0), 0, 0.05, "Almighty Probe", "almighty.jpg"))
+		self.Vessels.insert(0, Vessel( vector_II(100, -20), vector_II(0.0, 0), 0, 0.05, "Almighty Probe", "almighty.jpg"))
 		self.Vessels.insert(0, Vessel( vector_II(100, -100), vector_II(0, 0), 0, 0.01, "Almighty Probe2", "almighty.jpg"))		
 	
 		self.Markers = []
@@ -33,6 +33,13 @@ class Ignition_Engine:
 				return True;
 		return False;
 		
+	def decreaseTimeAcceleration(self):
+		if(self.timeAcceleration > 1):
+			self.timeAcceleration -= 1	
+		
+	def increaseTimeAcceleration(self):
+		self.timeAcceleration += 1
+		
 	def Ignition(self, frame_cutoff = 0):
 		pygame.init()
 		size = width, height = (self.windowWidth, self.windowHeight)
@@ -40,18 +47,30 @@ class Ignition_Engine:
 		screen = pygame.display.set_mode(size)
 		clock = pygame.time.Clock()
 		while (self.endSimulation(frame_cutoff) != True):
+			
+			for event in pygame.event.get():
+				if(event.type == pygame.QUIT):
+					frame_cutoff = 0.5
+				if(event.type == pygame.KEYDOWN):
+					if(event.key == pygame.K_t):
+						self.increaseTimeAcceleration()
+					elif(event.key == pygame.K_r):
+						self.decreaseTimeAcceleration()	
+			
+			
+			
 			clock.tick()
 			deltat = clock.get_time()
 			if(deltat != 0):
 				frameRate = 1000/deltat
 			else:
 				frameRate = 0
-			print "Deltat is %d ms, framerate is %dfps, frame cutoff is %d frames" % (deltat, int(frameRate), frame_cutoff)
+			print "Deltat is %d ms, framerate is %dfps, timeAcceleration is %d frame cutoff is %d frames" % (deltat, int(frameRate), int(self.timeAcceleration), frame_cutoff)
 			clock.tick(60)
-			for event in pygame.event.get():
-				if event.type == pygame.QUIT: 
-					#sys.exit()
-					return
+			
+			if(self.timeAcceleration != 0):
+				deltat = deltat * math.pow(10, self.timeAcceleration)
+			
 			for v in self.Vessels:
 				v.Update(deltat)
 			
@@ -63,7 +82,7 @@ class Ignition_Engine:
 				self.mainCamera.drawTo(screen, pygame.transform.rotate(v.getImage(), -v.getRotation()), v.getIgnitionName(), v.getPosition(), v.getRotation(), self.windowHeight, self.windowWidth)  
 			for v in self.Vessels:				
 				green = 0,255,0
-				vesMarker = ignitionMarker(v.getPosition(), v.getIgnitionName() +(" Marker"), green )
+				vesMarker = ignitionMarker(v.getPosition(), v.getIgnitionName()+ (" Marker"), green )
 				
 				self.mainCamera.drawMarker(screen, vesMarker.getPosition(), vesMarker.getMarkerColour(), self.windowHeight, self.windowWidth)  
 				#v.printNewtonianInfo()	
