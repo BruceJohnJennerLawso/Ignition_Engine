@@ -11,6 +11,7 @@ class newtonianObject(ignitionObject):
 		
 		self.Rotation = rotation
 		self.Omega = omega
+		self.Deltar = 0
 	
 	def getVelocity(self):
 		return self.Velocity
@@ -20,6 +21,11 @@ class newtonianObject(ignitionObject):
 
 	def getOmega(self):
 		return self.Omega
+
+	def getDeltar(self):
+		return self.Deltar
+		## get the change in rotation since the last frame in degrees
+		## rendering needs it
 
 	def updateRotation(self, deltat):
 		self.Rotation += (self.Omega*deltat)

@@ -28,7 +28,13 @@ class Ignition_Camera:
 		
 		drawPos = (offset.x, offset.y)
 		# needs ability to rotate images being drawn to screen
-		screen.blit(image, drawPos)	
+		
+		##drawOffset = pygame.Vector2(offset.x, offset.y)
+		
+		drawRect = image.get_rect(center=(offset.x, offset.y))
+		
+		
+		screen.blit(image, drawRect)	
 		#print "Vessel %s drawn to screen coordinates %s" % (name, drawPos)
 		
 		return
