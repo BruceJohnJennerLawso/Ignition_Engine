@@ -18,6 +18,9 @@ typedef id part_id;
 
 class Vessel_component
 {	public:
+	
+	Vessel_component(VectorVictor::Vector2 component_position);
+	
 	static part_id Component_index;
 	// the id # that will be assigned to the next object of this type created
 	part_id Get_new_index();
@@ -26,7 +29,6 @@ class Vessel_component
 	part_id Component_id;
 	// the current objects id #
 	part_id Get_component_id();
-	static std::vector<Vessel_component*> Vessel_components;
 	// the global list of all objects of type Vessel component
 	void New_vessel_component(Vessel_component * new_this);		
 	// inserts the reference to the new vessel component into the global
@@ -54,6 +56,12 @@ class Vessel_component
 	virtual double Get_component_inertia(VectorVictor::Vector2 axis);
 	// returns the moment of inertia of the part, including the application of
 	// the parallel axis theorem
+	
+	
+	long double Radius;
+	long double Get_radius();
+	// ie we treat the part as a simple circle lying in the plane of the
+	// game world and it has some radius
 	
 	
 	Vessel_component* Get_vessel_component_pointer();

@@ -1,8 +1,10 @@
 ## ignition_engine.py ##########################################################
 ## core ignition engine code ###################################################
 ################################################################################
-from graphics import *
+from vessel import *
 import sys
+
+from time import time
 
 class Ignition_Engine:
 	def __init__(self, redraw_interval, window_title, window_height, window_width):
@@ -27,7 +29,7 @@ class Ignition_Engine:
 	
 		self.cameraTarget = self.Vessels[0];
 		
-		self.Starfield = pygame.image.load("./Images/starfield.png")
+		self.Starfield = loadImage("./Images/starfield.png")		
 		
 	def endSimulation(self, frame_cutoff):
 		if(frame_cutoff != 0):
@@ -43,32 +45,50 @@ class Ignition_Engine:
 		self.timeAcceleration += 1
 		
 	def Ignition(self, frame_cutoff = 0):
-		pygame.init()
 		size = width, height = (self.windowWidth, self.windowHeight)
+		if(getCurrentSystem() == "linux"):
+			pygame.init()
+			screen = pygame.display.set_mode(size)
+			clock = pygame.time.Clock()
+		elif(getCurrentSystem() == "psp"):
+			screen = psp2d.Screen()
+		
 		black = 0, 0, 0
-		screen = pygame.display.set_mode(size)
-		clock = pygame.time.Clock()
+		sysTime = time()
 		while (self.endSimulation(frame_cutoff) != True):
 			
-			for event in pygame.event.get():
-				if(event.type == pygame.QUIT):
-					frame_cutoff = 0.5
-				if(event.type == pygame.KEYDOWN):
-					if(event.key == pygame.K_t):
-						self.increaseTimeAcceleration()
-					elif(event.key == pygame.K_r):
-						self.decreaseTimeAcceleration()	
 			
+			if(getCurrentSystem() == "linux"):
+				for event in pygame.event.get():
+					if(event.type == pygame.QUIT):
+						frame_cutoff = 0.5
+					if(event.type == pygame.KEYDOWN):
+						if(event.key == pygame.K_t):
+							self.increaseTimeAcceleration()
+						elif(event.key == pygame.K_r):
+							self.decreaseTimeAcceleration()	
+						elif(event.key == pygame.K_q):
+							frame_cutoff = 0.5
+			elif(getCurrentSystem() == "psp"):
+				 pad = psp2d.Controller()
 			
+			if(getCurrentSystem() == "linux"):
+				clock.tick()
+				deltat = clock.get_time()
+				clock.tick(60)
+			else:
+				## we get stuck using the time() function
+				deltat = (time() - sysTime)*1000.0
+				## that more or less works
+				## although I am suspicious of why the 1000 factor was needed
+			sysTime = time()
 			
-			clock.tick()
-			deltat = clock.get_time()
 			if(deltat != 0):
 				frameRate = 1000/deltat
 			else:
 				frameRate = 0
-			print "Deltat is %d ms, framerate is %dfps, timeAcceleration is %d frame cutoff is %d frames" % (deltat, int(frameRate), int(self.timeAcceleration), frame_cutoff)
-			clock.tick(60)
+			print "Deltat is %d ms, framerate is %dfps, timeAcceleration is %d frame cutoff is %d frames, time() = %d" % (deltat, int(frameRate), int(self.timeAcceleration), frame_cutoff, time())
+			
 			
 			if(self.timeAcceleration != 0):
 				deltat = deltat * math.pow(10, self.timeAcceleration)
@@ -76,7 +96,10 @@ class Ignition_Engine:
 			for v in self.Vessels:
 				v.Update(deltat)
 			
-			screen.fill(black)
+			if(getCurrentSystem() == "linux"):
+				screen.fill(black)
+			elif(getCurrentSystem() == "psp"):
+				screen.clear(psp2d.Color(black))
 			
 			self.mainCamera.Update(deltat, self.cameraTarget, self.windowHeight, self.windowWidth)
 			self.mainCamera.drawBackground(screen, pygame.transform.rotate(self.Starfield, self.mainCamera.Rotation), self.windowHeight, self.windowWidth)
@@ -90,7 +113,13 @@ class Ignition_Engine:
 				#v.printNewtonianInfo()	
 			for m in self.Markers:
 				self.mainCamera.drawMarker(screen, m.getPosition(), m.getMarkerColour(), self.windowHeight, self.windowWidth)  
-			pygame.display.flip()
+			
+			if(getCurrentSystem() == "linux"):
+				pygame.display.flip()
+			elif(getCurrentSystem() == "psp"):
+				screen.swap()
+				## I think this is right
+			
 			if(frame_cutoff != 0):
 				frame_cutoff -= 1;
 			sys.stdout.write("\x1b[2J\x1b[H");

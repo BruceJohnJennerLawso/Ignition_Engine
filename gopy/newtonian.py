@@ -1,11 +1,11 @@
 ## newtonian.py.py #############################################################
 ## generic newtonian object type in ignition ###################################
 ################################################################################
-from ignition_object import *
+from graphics import *
 
-class newtonianObject(ignitionObject):
-	def __init__(self, position, velocity, rotation, omega, name):
-		super(newtonianObject, self).__init__(position, name)
+class newtonianObject(drawableObject):
+	def __init__(self, position, velocity, rotation, omega, name, image):
+		super(newtonianObject, self).__init__(position, name, image)
 		
 		self.Velocity = velocity
 		

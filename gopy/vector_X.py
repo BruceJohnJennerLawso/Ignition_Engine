@@ -2,6 +2,7 @@
 ## vector3 class, first module of the project ##################################
 ################################################################################
 import math
+from systemDetect import *
 
 
 def degreesToRadians(degrees):
