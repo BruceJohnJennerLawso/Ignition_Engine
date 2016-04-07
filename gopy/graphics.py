@@ -43,7 +43,7 @@ class Ignition_Camera:
 			image.set_colorkey((0,0,0))
 			screen.blit(image, drawRect)	
 		elif(getCurrentSystem() == "psp"):
-			screen.blit(image, 0, 0, image.width, image.height, position.x, position.y, True)
+			screen.blit(image, 0, 0, image.width, image.height, offset.x, offset.y, True)
 		
 		#print "Vessel %s drawn to screen coordinates %s" % (name, drawPos)
 		
@@ -64,6 +64,6 @@ class Ignition_Camera:
 		elif(getCurrentSystem() == "psp"):
 			center_x = window_width/2
 			center_y = window_height/2
-			screen.blit(background_image, 0, 0, background_image.width, background_image.height, center_y, center_x, True)		
+			screen.blit(background_image, 0, 0, background_image.width, background_image.height, 0, 0, True)		
 		
 		
