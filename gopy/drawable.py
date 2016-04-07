@@ -24,10 +24,6 @@ class drawableObject(ignitionObject):
 def drawCircle(screen, colour, drawPos):
 	if(getCurrentSystem() == "linux"):
 		pygame.draw.circle(screen, colour, drawPos , 5, 5)
-		
-	elif(getCurrentSystem() == "psp"):
-		print "well fuck"
-		## well fuck
 
 
 

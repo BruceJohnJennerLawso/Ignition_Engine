@@ -43,6 +43,8 @@ class Ignition_Camera:
 			image.set_colorkey((0,0,0))
 			screen.blit(image, drawRect)	
 		elif(getCurrentSystem() == "psp"):
+			##CLEAR_COLOR = psp2d.Color(0,0,0)
+			##image.clear(CLEAR_COLOR)
 			screen.blit(image, 0, 0, image.width, image.height, offset.x, offset.y, True)
 		
 		#print "Vessel %s drawn to screen coordinates %s" % (name, drawPos)

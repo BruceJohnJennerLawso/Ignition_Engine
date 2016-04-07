@@ -70,8 +70,16 @@ class Ignition_Engine:
 						elif(event.key == pygame.K_q):
 							frame_cutoff = 0.5
 			elif(getCurrentSystem() == "psp"):
-				 pad = psp2d.Controller()
-			
+				pad = psp2d.Controller()
+				if(pad.cross):
+					print "X button"
+					## do something
+				if(pad.r):
+					self.increaseTimeAcceleration()
+				elif(pad.l):
+					self.decreaseTimeAcceleration()	
+					
+					
 			if(getCurrentSystem() == "linux"):
 				clock.tick()
 				deltat = clock.get_time()
@@ -87,7 +95,8 @@ class Ignition_Engine:
 				frameRate = 1000/deltat
 			else:
 				frameRate = 0
-			print "Deltat is %d ms, framerate is %dfps, timeAcceleration is %d frame cutoff is %d frames, time() = %d" % (deltat, int(frameRate), int(self.timeAcceleration), frame_cutoff, time())
+			status = "Deltat is %d ms, framerate is %dfps, timeAcceleration is %d frame cutoff is %d frames, time() = %d" % (deltat, int(frameRate), int(self.timeAcceleration), frame_cutoff, time())
+			print status
 			
 			
 			if(self.timeAcceleration != 0):
@@ -107,6 +116,8 @@ class Ignition_Engine:
 				bgImage = pygame.transform.rotate(self.Starfield, self.mainCamera.Rotation)
 			elif(getCurrentSystem() == "psp"):
 				bgImage = self.Starfield
+				font = psp2d.Font("font.png")
+				font.drawText(bgImage, 0, 0, status)
 			
 			self.mainCamera.drawBackground(screen, bgImage, self.windowHeight, self.windowWidth)
 			for v in self.Vessels:				
@@ -123,6 +134,8 @@ class Ignition_Engine:
 				#v.printNewtonianInfo()	
 			for m in self.Markers:
 				self.mainCamera.drawMarker(screen, m.getPosition(), m.getMarkerColour(), self.windowHeight, self.windowWidth)  
+			
+
 			
 			if(getCurrentSystem() == "linux"):
 				pygame.display.flip()
