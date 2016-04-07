@@ -99,12 +99,22 @@ class Ignition_Engine:
 			if(getCurrentSystem() == "linux"):
 				screen.fill(black)
 			elif(getCurrentSystem() == "psp"):
-				screen.clear(psp2d.Color(black))
+				screen.clear(psp2d.Color(0,0,0,255))
 			
 			self.mainCamera.Update(deltat, self.cameraTarget, self.windowHeight, self.windowWidth)
-			self.mainCamera.drawBackground(screen, pygame.transform.rotate(self.Starfield, self.mainCamera.Rotation), self.windowHeight, self.windowWidth)
+			
+			if(getCurrentSystem() == "linux"):
+				bgImage = pygame.transform.rotate(self.Starfield, self.mainCamera.Rotation)
+			elif(getCurrentSystem() == "psp"):
+				bgImage = self.Starfield
+			
+			self.mainCamera.drawBackground(screen, bgImage, self.windowHeight, self.windowWidth)
 			for v in self.Vessels:				
-				self.mainCamera.drawTo(screen, pygame.transform.rotate(v.getImage(), -(v.getRotation()- self.mainCamera.Rotation)), v.getIgnitionName(), v.getPosition(), v.getRotation(), self.windowHeight, self.windowWidth)  
+				if(getCurrentSystem() == "linux"):
+					vesImage = pygame.transform.rotate(v.getImage(), -(v.getRotation()- self.mainCamera.Rotation))
+				elif(getCurrentSystem() == "psp"):
+					vesImage = v.getImage()
+				self.mainCamera.drawTo(screen, vesImage, v.getIgnitionName(), v.getPosition(), v.getRotation(), self.windowHeight, self.windowWidth)  
 			for v in self.Vessels:				
 				green = 0,255,0
 				vesMarker = ignitionMarker(v.getPosition(), v.getIgnitionName()+ (" Marker"), green )

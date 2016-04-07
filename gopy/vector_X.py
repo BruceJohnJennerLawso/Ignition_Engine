@@ -2,7 +2,26 @@
 ## vector3 class, first module of the project ##################################
 ################################################################################
 import math
-from systemDetect import *
+##from systemDetect import *
+
+import psp2d
+##import pygame
+
+def getCurrentSystem(i=2):
+	if(i == 0):
+		import pygame
+		## assume linux desktop, nothing weird here
+		return "linux"
+	elif(i == 1):
+		return "headless"
+	elif(i == 2):
+		import psp2d
+		## psp weirdness
+		return "psp"
+	else:
+		return "unknown"
+## bizarre issue with Python 2.5.2, where it refuses to work with the
+## systemDetect file due to time of modification issues or something
 
 
 def degreesToRadians(degrees):
