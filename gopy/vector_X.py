@@ -4,10 +4,10 @@
 import math
 ##from systemDetect import *
 
-import psp2d
-##import pygame
+##import psp2d
+import pygame
 
-def getCurrentSystem(i=2):
+def getCurrentSystem(i=0):
 	if(i == 0):
 		import pygame
 		## assume linux desktop, nothing weird here
