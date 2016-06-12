@@ -167,7 +167,7 @@ void Init_assets(CKeplerian_Object * planet);
 
 void Exit_program();
 // ugly cleanup function that never seems to have everything it needs.
-// again, should be superceeded by the Ignition destructor
+// again, should be superseded by the Ignition destructor
 // just ugly remnants of a young project
 
 double Larger_of(double value1, double value2);

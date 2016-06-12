@@ -43,7 +43,7 @@ void Vessel_component::New_vessel_component(Vessel_component * new_this)
 
 void Vessel_component::Draw_component(SFML_Window * iwindow, bool Map_status)
 {	Talkback("Bad call to Vessel_component::Draw_component(SFML_Window * iwindow, bool Map_status)");
-	// shouldnt be called at all, but failsafes are good
+	// shouldn't be called at all, but failsafes are good
 }
 
 void Vessel_component::Update_component(double dt, std::vector<Force> &parent_force_list)

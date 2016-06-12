@@ -31,7 +31,7 @@ DeltaGlider::DeltaGlider(double initial_x_position, double initial_y_position, d
 	// not reference, since the same flag may need to be drawn several times per
 	// frame
 	Flag_sprite.setScale(0.1,0.1);
-	// scales it back by 1/10 along each axis, since the orginal was too big
+	// scales it back by 1/10 along each axis, since the original was too big
 	// this is baddish
 	Object_name = ivessel_name;
 	Vessel_class = "Delta Glider";
@@ -210,7 +210,7 @@ DeltaGlider::DeltaGlider(ObjectState initial_object_state, double initial_main_p
 	// not reference, since the same flag may need to be drawn several times per
 	// frame
 	Flag_sprite.setScale(0.1,0.1);
-	// scales it back by 1/10 along each axis, since the orginal was too big
+	// scales it back by 1/10 along each axis, since the original was too big
 	// this is baddish
 	Object_name = ivessel_name;
 	Vessel_class = "Delta Glider";

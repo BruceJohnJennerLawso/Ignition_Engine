@@ -100,7 +100,7 @@ class Hollow_cylinder: public Inertia_moment
 	Hollow_cylinder(double inner_radius, double outer_radius, double cylinder_height);	
 	
 	
-	// hollow cyclinder, but not technically closed at the end, open like a
+	// hollow cylinder, but not technically closed at the end, open like a
 	// toilet paper roll. Kinda works well enough for most applications, since
 	// the ends are usually thin, but a solution using another pair of solid
 	// cylinders at the ends would help

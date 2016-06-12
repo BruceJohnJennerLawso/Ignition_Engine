@@ -126,7 +126,7 @@ class CNewtonian_Object
 	// vessel around whatever our reference axis (center of mass) is
 	bool Crash_state(long double sim_time, std::vector<CKeplerian_Object*> &ignition_celestials);
 	// if we aint crashed, check if our position implies that we are
-	// auch, this is why the setup above was so ugly, shouldnt need to have
+	// auch, this is why the setup above was so ugly, shouldn't need to have
 	// simtime to check this
 	double Get_omega();
 	double Get_theta_in_degrees();		
