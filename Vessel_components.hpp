@@ -40,7 +40,7 @@ class Vessel_component
 	virtual void Draw_component(SFML_Window * iwindow, bool Map_status);
 	// currently does nothing..., but I think this is meant to be used later
 	// on for drawing individual parts, some of which will opt to do nothing
-	// instead if the part really shouldnt be drawn all the time
+	// instead if the part really shouldn't be drawn all the time
 	Inertia_moment * Component_moment;
 	// the moment of inertia of the part, which can be of various types
 	// depending on the shape of the part (cylinder, box, sphere)
@@ -86,7 +86,7 @@ class Resource_Tank: public Vessel_component
 	// everything is cylinders now for some reason. We should be able to have
 	// other shapes eventually though
 	virtual void Update_component(double dt, std::vector<Force> &parent_force_list);
-	// still virtual cause, um actually this shouldnt be virtual, 
+	// still virtual cause, um actually this shouldn't be virtual, 
 	// (or neednt be anyways...)
 	
 	// this needs to be assesed, probably easily changed

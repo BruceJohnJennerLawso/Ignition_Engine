@@ -31,7 +31,7 @@ namespace VectorVictor
 		Vector2 (long double ix, long double iy);
 		// Init the vector with the supplied values
 		
-		//private:	// it really shouldnt be like this, but my patience is unbelievably low right now. The calls that are directly accessing the position need to be rewritten to use the functions at a later date
+		//private:	// it really shouldn't be like this, but my patience is unbelievably low right now. The calls that are directly accessing the position need to be rewritten to use the functions at a later date
 		long double x, y;
 		// the actual data itself, stored as a long double
 		public:

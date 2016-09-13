@@ -48,7 +48,7 @@ class TVessel: virtual public CNewtonian_Object
 	
 	void Kill_rotation(double dt);					
 	// this seems at first to conflict with rot left/right, but since input
-	// commands come in one by one, they shouldnt. I hope
+	// commands come in one by one, they shouldn't. I hope
 	void Translate_forward(double dt);
 	void Translate_backward(double dt);
 	void Translate_left(double dt);
