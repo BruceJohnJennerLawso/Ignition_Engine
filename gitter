@@ -1,0 +1,11 @@
+#!/bin/bash
+
+if [ $# -eq 0 ]; then
+	baseFolder="."
+else
+	baseFolder="$1"
+fi
+
+geany "$baseFolder/Ignition.hpp" "$baseFolder/VectorVictor2.hpp" "$baseFolder/VectorVictor2.cpp" "$baseFolder/SFML_Tools.hpp" "$baseFolder/SFML_Tools.cpp" "$baseFolder/Game_physics.hpp" "$baseFolder/Game_physics.cpp" "$baseFolder/Keplerian_objects.hpp" "$baseFolder/Keplerian_objects.cpp" "$baseFolder/Vessel_components.hpp" "$baseFolder/Vessel_components.cpp" "$baseFolder/Newtonian_objects.hpp" "$baseFolder/Newtonian_objects.cpp" "$baseFolder/Vessel.hpp" "$baseFolder/Vessel.cpp" "$baseFolder/mfd.hpp" "$baseFolder/mfd.cpp" "$baseFolder/Deltaglider.hpp" "$baseFolder/Deltaglider.cpp" "$baseFolder/Ignition_Engine.hpp" "$baseFolder/Ignition_Engine.cpp" "$baseFolder/compile" "$baseFolder/link" "$baseFolder/run" "$baseFolder/gitter" &
+
+exit 0
