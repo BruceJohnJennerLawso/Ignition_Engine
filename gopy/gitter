@@ -1,0 +1,11 @@
+#!/bin/bash
+
+if [ $# -eq 0 ]; then
+	baseFolder="."
+else
+	baseFolder="$1"
+fi
+
+geany "$baseFolder/vector_X.py" "$baseFolder/ignition_object.py" "$baseFolder/drawable.py" "$baseFolder/graphics.py" "$baseFolder/newtonian.py" "$baseFolder/vessel.py" "$baseFolder/ignition_engine.py" "$baseFolder/app.py" "$baseFolder/run" "$baseFolder/gitter"  &
+
+exit 0
